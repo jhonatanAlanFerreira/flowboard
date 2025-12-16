@@ -9,6 +9,6 @@ class WorkspaceController extends Controller
 {
     public function index(Request $request)
     {
-        return $request->user()->Workspaces;
+        return $request->user()->workspaces;
     }
 }

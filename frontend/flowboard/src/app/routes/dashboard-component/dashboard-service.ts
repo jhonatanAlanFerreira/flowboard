@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Workspace } from './dashboard-interfaces';
 import { ConfigService } from '../../config.service';
+import { Tasklist, Workspace } from '../../models';
 
 @Injectable({
   providedIn: 'root',
@@ -11,5 +11,9 @@ export class DashboardService {
 
   listWorkspaces() {
     return this.http.get<Workspace[]>(`${this.config.apiBaseUrl}/api/me/workspaces`);
+  }
+
+  listTasklistsFromWorkspace(workspaceId: number) {
+    return this.http.get<Tasklist[]>(`${this.config.apiBaseUrl}/api/me/${workspaceId}/tasklists`);
   }
 }

@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -13,10 +14,9 @@ return new class extends Migration {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('description');
-            $table->integer('order');
-            $table->boolean('done');
-            $table->foreignId('workspace_id')->constrained();
+            $table->string(column: 'description');
+            $table->boolean('done')->default(false);
+            $table->foreignId('tasklist_id')->constrained();
         });
     }
 
