@@ -33,6 +33,14 @@ class TasklistController extends Controller
         ]);
     }
 
+    public function storeWorkspace(Request $request)
+    {
+        Workspace::create([
+            "name" => $request->name,
+            "user_id" => $request->user()->id
+        ]);
+    }
+
     public function deleteTask($taskId)
     {
         Task::where("id", $taskId)->delete();

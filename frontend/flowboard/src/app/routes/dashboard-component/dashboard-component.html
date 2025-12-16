@@ -1,13 +1,22 @@
 <div class="h-20 bg-gray-500 w-full p-3">
-  <select [formControl]="workspaceControl" (change)="listTasklistsFromWorkspace()">
-    <option disabled [value]="null">Select the Workspace</option>
-    @for (workspace of workspaces(); track workspace.id) {
-    <option [value]="workspace.id">{{ workspace.name }}</option>
+  <div>
+    <select [formControl]="workspaceControl" (change)="listTasklistsFromWorkspace()">
+      <option disabled [value]="null">Select the Workspace</option>
+      @for (workspace of workspaces(); track workspace.id) {
+      <option [value]="workspace.id">{{ workspace.name }}</option>
+      }
+    </select>
+    @if(workspaceControl.value){
+    <span class="ml-3 mt-3 text-red-600 cursor-pointer" (click)="deleteWorkspace()">X</span>
     }
-  </select>
-  @if(workspaceControl.value){
-  <span class="ml-3 mt-3 text-red-600 cursor-pointer" (click)="delete()">X</span>
-  }
+  </div>
+  <input
+    [formControl]="newWorkspaceControl"
+    class="text-white bg-gray-600 mt-2"
+    placeholder="Create new Workspace"
+    type="text"
+  />
+  <button class="cursor-pointer ml-3" (click)="createWorkspace()">Send</button>
 </div>
 
 <div class="flex flex-row gap-5 overflow-auto h-screen">

@@ -27,6 +27,10 @@ export class DashboardService {
     return this.http.post(`${this.config.apiBaseUrl}/api/me/task`, data);
   }
 
+  createWorkspace(data: { name: string }) {
+    return this.http.post(`${this.config.apiBaseUrl}/api/me/workspace`, data);
+  }
+
   deleteTask(taskId: number) {
     return this.http.delete(`${this.config.apiBaseUrl}/api/me/task/${taskId}`);
   }

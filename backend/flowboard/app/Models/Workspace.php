@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Workspace extends Model
 {
+    protected $fillable = [
+        "name",
+        "user_id",
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

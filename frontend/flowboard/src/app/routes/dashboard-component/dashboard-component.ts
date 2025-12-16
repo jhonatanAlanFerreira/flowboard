@@ -14,6 +14,7 @@ import { TasklistComponent } from './components/tasklist-component/tasklist-comp
 export class DashboardComponent implements OnInit {
   newListFormGroup: FormGroup;
   workspaceControl = new FormControl(null);
+  newWorkspaceControl = new FormControl(null);
   workspaces = signal<Workspace[]>([]);
   tasklists = signal<Tasklist[]>([]);
   loading = signal(true);
@@ -59,12 +60,21 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  delete() {
+  deleteWorkspace() {
     if (this.workspaceControl.value) {
       this.service.deleteWorkspace(this.workspaceControl.value).subscribe(() => {
         this.workspaceControl.reset();
         this.listWorkspaces();
         this.tasklists.set([]);
+      });
+    }
+  }
+
+  createWorkspace() {
+    if (this.newWorkspaceControl.value) {
+      this.service.createWorkspace({ name: this.newWorkspaceControl.value }).subscribe(() => {
+        this.listWorkspaces();
+        this.newWorkspaceControl.reset();
       });
     }
   }

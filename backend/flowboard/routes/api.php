@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')
 
             Route::post('tasklist', [TasklistController::class, "storeTasklist"]);
             Route::post('task', [TasklistController::class, "storeTask"]);
+            Route::post('workspace', [TasklistController::class, "storeWorkspace"]);
 
             Route::delete('task/{taskId}', [TasklistController::class, "deleteTask"]);
             Route::delete('tasklist/{tasklistId}', [TasklistController::class, "deleteTasklist"]);
