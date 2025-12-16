@@ -2,13 +2,15 @@
   @if(!loading()){
   <select [formControl]="workspaceControl" (change)="listTasklistsFromWorkspace()">
     <option disabled [value]="null">Select the Workspace</option>
-    @for (item of workspaces(); track item.id) {
-    <option [value]="item.id">{{ item.name }}</option>
+    @for (workspace of workspaces(); track workspace.id) {
+    <option [value]="workspace.id">{{ workspace.name }}</option>
     }
   </select>
   }
 </div>
 
-<div>
-  <app-tasklist-component></app-tasklist-component>
+<div class="flex flex-row gap-5">
+  @for (tasklist of tasklists(); track tasklist.id) {
+  <app-tasklist-component [tasklist]="tasklist"></app-tasklist-component>
+  }
 </div>

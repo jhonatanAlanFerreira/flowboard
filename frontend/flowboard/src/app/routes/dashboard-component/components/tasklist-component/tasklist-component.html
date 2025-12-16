@@ -1,1 +1,5 @@
-<app-task-component></app-task-component>
+<div>
+  @for (task of tasklist()?.tasks; track task.id) {
+  <app-task-component [task]="task"></app-task-component>
+  }
+</div>
