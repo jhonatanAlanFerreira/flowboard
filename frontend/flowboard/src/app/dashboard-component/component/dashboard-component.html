@@ -1,0 +1,10 @@
+<div class="h-20 bg-gray-500 w-full p-3">
+  @if(!loading()){
+  <select [formControl]="workspaceControl">
+    <option disabled [value]="null">Select the Workspace</option>
+    @for (item of workspaces(); track item.id) {
+    <option [value]="item.id">{{ item.name }}</option>
+    }
+  </select>
+  }
+</div>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\WorkspaceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RegisterController;
@@ -17,6 +18,9 @@ use App\Http\Controllers\Api\RegisterController;
 
 Route::post('/register', [RegisterController::class, 'register']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::middleware('auth:sanctum')
+    ->group(function () {
+        Route::prefix('me')->group(function () {
+            Route::apiResource('workspaces', WorkspaceController::class);
+        });
+    });
