@@ -13,6 +13,7 @@ import { DashboardService } from '../../dashboard-service';
 export class TasklistComponent implements OnChanges {
   @Output() onTaskCreated = new EventEmitter();
   @Output() onTaskDelete = new EventEmitter();
+  @Output() onTasklistDelete = new EventEmitter();
 
   newTaskFormGroup: FormGroup;
   tasklist = input<Tasklist>();
@@ -35,5 +36,9 @@ export class TasklistComponent implements OnChanges {
       this.onTaskCreated.emit();
       this.newTaskFormGroup.reset();
     });
+  }
+
+  delete() {
+    this.service.deleteTasklist(this.tasklist()!.id).subscribe(() => this.onTasklistDelete.emit());
   }
 }

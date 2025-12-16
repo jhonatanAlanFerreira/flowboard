@@ -5,6 +5,9 @@
     <option [value]="workspace.id">{{ workspace.name }}</option>
     }
   </select>
+  @if(workspaceControl.value){
+  <span class="ml-3 mt-3 text-red-600 cursor-pointer" (click)="delete()">X</span>
+  }
 </div>
 
 <div class="flex flex-row gap-5 overflow-auto h-screen">
@@ -12,6 +15,7 @@
   <app-tasklist-component
     (onTaskCreated)="listTasklistsFromWorkspace()"
     (onTaskDelete)="listTasklistsFromWorkspace()"
+    (onTasklistDelete)="listTasklistsFromWorkspace()"
     [tasklist]="tasklist"
   ></app-tasklist-component>
   } @if(workspaceControl.value){

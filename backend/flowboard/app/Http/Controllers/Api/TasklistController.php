@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\Tasklist;
+use App\Models\Workspace;
 use Illuminate\Http\Request;
 
 class TasklistController extends Controller
@@ -35,5 +36,15 @@ class TasklistController extends Controller
     public function deleteTask($taskId)
     {
         Task::where("id", $taskId)->delete();
+    }
+
+    public function deleteTasklist($tasklistId)
+    {
+        Tasklist::where("id", $tasklistId)->delete();
+    }
+
+    public function deleteWorkspace($workspaceId)
+    {
+        Workspace::where("id", $workspaceId)->delete();
     }
 }

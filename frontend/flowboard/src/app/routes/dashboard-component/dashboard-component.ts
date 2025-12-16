@@ -58,4 +58,14 @@ export class DashboardComponent implements OnInit {
       this.listTasklistsFromWorkspace();
     });
   }
+
+  delete() {
+    if (this.workspaceControl.value) {
+      this.service.deleteWorkspace(this.workspaceControl.value).subscribe(() => {
+        this.workspaceControl.reset();
+        this.listWorkspaces();
+        this.tasklists.set([]);
+      });
+    }
+  }
 }

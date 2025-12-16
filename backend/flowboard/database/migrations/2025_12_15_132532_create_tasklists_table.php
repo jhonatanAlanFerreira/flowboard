@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->timestamps();
             $table->string('name');
             $table->integer('order');
-            $table->foreignId('workspace_id')->constrained();
+            $table->foreignId('workspace_id')->constrained()->cascadeOnDelete();
         });
     }
 

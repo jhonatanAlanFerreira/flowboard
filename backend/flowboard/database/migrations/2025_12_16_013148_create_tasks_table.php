@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string(column: 'description');
             $table->integer('order');
             $table->boolean('done')->default(false);
-            $table->foreignId('tasklist_id')->constrained();
+            $table->foreignId('tasklist_id')->constrained()->cascadeOnDelete();
         });
     }
 

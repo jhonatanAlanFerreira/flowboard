@@ -30,4 +30,12 @@ export class DashboardService {
   deleteTask(taskId: number) {
     return this.http.delete(`${this.config.apiBaseUrl}/api/me/task/${taskId}`);
   }
+
+  deleteTasklist(tasklistId: number) {
+    return this.http.delete(`${this.config.apiBaseUrl}/api/me/tasklist/${tasklistId}`);
+  }
+
+  deleteWorkspace(workspaceId: number) {
+    return this.http.delete(`${this.config.apiBaseUrl}/api/me/workspace/${workspaceId}`);
+  }
 }
