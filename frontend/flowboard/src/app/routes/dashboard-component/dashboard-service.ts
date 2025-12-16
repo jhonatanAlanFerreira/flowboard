@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Workspace } from '../dashboard-interfaces';
+import { Workspace } from './dashboard-interfaces';
 import { ConfigService } from '../../config.service';
 
 @Injectable({
