@@ -9,6 +9,6 @@ class TasklistController extends Controller
 {
     public function index(Request $request, $workspaceId)
     {
-        return $request->user()->workspaces->find($workspaceId)->tasklists;
+        return $request->user()->workspaces()->findOrFail($workspaceId)->tasklists;
     }
 }
