@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Tasklist extends Model
 {
+    protected $fillable = [
+        "name",
+        "workspace_id",
+        "order"
+    ];
+
     public function workspace(): BelongsTo
     {
         return $this->belongsTo(Workspace::class);

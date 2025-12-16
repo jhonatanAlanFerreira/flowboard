@@ -16,4 +16,12 @@ export class DashboardService {
   listTasklistsFromWorkspace(workspaceId: number) {
     return this.http.get<Tasklist[]>(`${this.config.apiBaseUrl}/api/me/${workspaceId}/tasklists`);
   }
+
+  createNewList(data: { name: string; workspaceId: number }) {
+    return this.http.post(`${this.config.apiBaseUrl}/api/me/tasklist`, data);
+  }
+
+  createNewTask(data: { description: string; tasklistId: number }) {
+    return this.http.post(`${this.config.apiBaseUrl}/api/me/task`, data);
+  }
 }

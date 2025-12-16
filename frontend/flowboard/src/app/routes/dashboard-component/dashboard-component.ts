@@ -1,5 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DashboardService } from './dashboard-service';
 import { CommonModule } from '@angular/common';
 import { Tasklist, Workspace } from '../../models';
@@ -12,12 +12,18 @@ import { TasklistComponent } from './components/tasklist-component/tasklist-comp
   styleUrl: './dashboard-component.css',
 })
 export class DashboardComponent implements OnInit {
+  newListFormGroup: FormGroup;
   workspaceControl = new FormControl(null);
   workspaces = signal<Workspace[]>([]);
   tasklists = signal<Tasklist[]>([]);
   loading = signal(true);
 
-  constructor(private service: DashboardService) {}
+  constructor(private fb: FormBuilder, private service: DashboardService) {
+    this.newListFormGroup = this.fb.group({
+      name: '',
+      workspaceId: null,
+    });
+  }
 
   ngOnInit(): void {
     this.listWorkspaces();
@@ -34,6 +40,7 @@ export class DashboardComponent implements OnInit {
     const { value } = this.workspaceControl;
 
     if (value) {
+      this.newListFormGroup.get('workspaceId')?.setValue(value);
       this.loading.set(true);
 
       this.service.listTasklistsFromWorkspace(value).subscribe((res) => {
@@ -41,5 +48,14 @@ export class DashboardComponent implements OnInit {
         this.loading.set(false);
       });
     }
+  }
+
+  createNewList() {
+    this.loading.set(true);
+
+    this.service.createNewList(this.newListFormGroup.value).subscribe(() => {
+      this.newListFormGroup.reset();
+      this.listTasklistsFromWorkspace();
+    });
   }
 }

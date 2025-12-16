@@ -1,16 +1,22 @@
 <div class="h-20 bg-gray-500 w-full p-3">
-  @if(!loading()){
   <select [formControl]="workspaceControl" (change)="listTasklistsFromWorkspace()">
     <option disabled [value]="null">Select the Workspace</option>
     @for (workspace of workspaces(); track workspace.id) {
     <option [value]="workspace.id">{{ workspace.name }}</option>
     }
   </select>
-  }
 </div>
 
-<div class="flex flex-row gap-5">
+<div class="flex flex-row gap-5 overflow-auto h-screen">
   @for (tasklist of tasklists(); track tasklist.id) {
-  <app-tasklist-component [tasklist]="tasklist"></app-tasklist-component>
+  <app-tasklist-component
+    (onTaskCreated)="listTasklistsFromWorkspace()"
+    [tasklist]="tasklist"
+  ></app-tasklist-component>
+  } @if(workspaceControl.value){
+  <div [formGroup]="newListFormGroup" class="text-white flex gap-2 h-10">
+    <input class="bg-gray-500 mt-3" formControlName="name" placeholder="Create new List" />
+    <button class="cursor-pointer" (click)="createNewList()">Send</button>
+  </div>
   }
 </div>

@@ -22,7 +22,10 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::middleware('auth:sanctum')
     ->group(function () {
         Route::prefix('me')->group(function () {
-            Route::apiResource('workspaces', WorkspaceController::class);
-            Route::apiResource('{workspaceId}/tasklists', TasklistController::class);
+            Route::get('workspaces', [WorkspaceController::class, "index"]);
+            Route::get('{workspaceId}/tasklists', [TasklistController::class, "index"]);
+
+            Route::post('tasklist', [TasklistController::class, "storeTasklist"]);
+            Route::post('task', [TasklistController::class, "storeTask"]);
         });
     });
