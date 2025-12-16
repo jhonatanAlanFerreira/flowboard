@@ -1,0 +1,5 @@
+<div [formGroup]="loginFormGroup" class="text-white flex gap-3 p-3">
+  <input formControlName="email" class="bg-gray-500" type="text" />
+  <input formControlName="password" class="bg-gray-500" type="text" />
+  <button (click)="login()" class="cursor-pointer">Send</button>
+</div>

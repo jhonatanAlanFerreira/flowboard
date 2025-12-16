@@ -1,7 +1,15 @@
-import { HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
-import { Observable, from, switchMap } from 'rxjs';
+import {
+  HttpEvent,
+  HttpHandlerFn,
+  HttpInterceptorFn,
+  HttpRequest,
+  HttpErrorResponse,
+} from '@angular/common/http';
+import { Observable, from, switchMap, catchError, throwError } from 'rxjs';
 import { inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { ConfigService } from './config.service';
 
 let csrfInitialized = false;
 
@@ -10,25 +18,40 @@ export const xsrfInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
   const http = inject(HttpClient);
+  const router = inject(Router);
+  const config = inject(ConfigService);
 
   req = req.clone({ withCredentials: true });
 
   const xsrfToken = getXsrfToken();
 
+  const handleRequest = (request: HttpRequest<unknown>) =>
+    next(request).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          if (!router.url.startsWith('/login')) {
+            router.navigate(['/login']);
+          }
+        }
+
+        return throwError(() => error);
+      })
+    );
+
   if (xsrfToken || csrfInitialized || req.url.includes('/sanctum/csrf-cookie')) {
-    return next(addXsrfHeader(req, xsrfToken));
+    return handleRequest(addXsrfHeader(req, xsrfToken));
   }
 
   csrfInitialized = true;
 
   return from(
-    http.get('http://localhost:8001/sanctum/csrf-cookie', {
+    http.get(`${config.apiBaseUrl}/sanctum/csrf-cookie`, {
       withCredentials: true,
     })
   ).pipe(
     switchMap(() => {
       const token = getXsrfToken();
-      return next(addXsrfHeader(req, token));
+      return handleRequest(addXsrfHeader(req, token));
     })
   );
 };
