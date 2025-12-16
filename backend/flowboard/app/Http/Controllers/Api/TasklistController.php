@@ -31,4 +31,9 @@ class TasklistController extends Controller
             "order" => 1
         ]);
     }
+
+    public function deleteTask($taskId)
+    {
+        Task::where("id", $taskId)->delete();
+    }
 }

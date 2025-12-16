@@ -11,6 +11,7 @@
   @for (tasklist of tasklists(); track tasklist.id) {
   <app-tasklist-component
     (onTaskCreated)="listTasklistsFromWorkspace()"
+    (onTaskDelete)="listTasklistsFromWorkspace()"
     [tasklist]="tasklist"
   ></app-tasklist-component>
   } @if(workspaceControl.value){

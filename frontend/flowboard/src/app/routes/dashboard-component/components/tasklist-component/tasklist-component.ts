@@ -12,6 +12,8 @@ import { DashboardService } from '../../dashboard-service';
 })
 export class TasklistComponent implements OnChanges {
   @Output() onTaskCreated = new EventEmitter();
+  @Output() onTaskDelete = new EventEmitter();
+
   newTaskFormGroup: FormGroup;
   tasklist = input<Tasklist>();
 

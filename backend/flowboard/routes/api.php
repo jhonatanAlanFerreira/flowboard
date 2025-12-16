@@ -23,9 +23,11 @@ Route::middleware('auth:sanctum')
     ->group(function () {
         Route::prefix('me')->group(function () {
             Route::get('workspaces', [WorkspaceController::class, "index"]);
-            Route::get('{workspaceId}/tasklists', [TasklistController::class, "index"]);
+            Route::get('workspace/{workspaceId}/tasklists', [TasklistController::class, "index"]);
 
             Route::post('tasklist', [TasklistController::class, "storeTasklist"]);
             Route::post('task', [TasklistController::class, "storeTask"]);
+
+            Route::delete('task/{taskId}', [TasklistController::class, "deleteTask"]);
         });
     });

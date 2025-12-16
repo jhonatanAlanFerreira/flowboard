@@ -1,7 +1,7 @@
 <div class="text-white">
   <p class="p-3">{{ tasklist()?.name }}</p>
   @for (task of tasklist()?.tasks; track task.id) {
-  <app-task-component [task]="task"></app-task-component>
+  <app-task-component (onDelete)="onTaskDelete.emit()" [task]="task"></app-task-component>
   }
   <div [formGroup]="newTaskFormGroup" class="text-white flex gap-2 h-10">
     <input class="bg-gray-500 mt-3" formControlName="description" placeholder="Create new Task" />
