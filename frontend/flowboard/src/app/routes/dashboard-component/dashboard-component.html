@@ -19,7 +19,7 @@
   <button class="cursor-pointer ml-3" (click)="createWorkspace()">Send</button>
 </div>
 
-<div class="flex flex-row gap-5 overflow-auto h-screen">
+<div class="flex flex-row gap-5 overflow-auto h-auto mb-5">
   @for (tasklist of tasklists(); track tasklist.id) {
   <app-tasklist-component
     (onTaskCreated)="listTasklistsFromWorkspace()"
