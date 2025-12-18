@@ -1,11 +1,14 @@
 <div class="h-20 bg-gray-500 w-full p-3">
-  <div>
-    <select [formControl]="workspaceControl" (change)="listTasklistsFromWorkspace()">
-      <option disabled [value]="null">Select the Workspace</option>
-      @for (workspace of workspaces(); track workspace.id) {
-      <option [value]="workspace.id">{{ workspace.name }}</option>
-      }
-    </select>
+  <div class="flex">
+    <app-dropdown-component
+      [formControl]="workspaceControl"
+      (change)="listTasklistsFromWorkspace()"
+      [options]="workspaces()"
+      placeholder="Select Workspace"
+      optionLabel="name"
+      [addOption]="true"
+      (onAdd)="onAddWorkspace()"
+    ></app-dropdown-component>
     @if(workspaceControl.value){
     <span class="ml-3 mt-3 text-red-600 cursor-pointer" (click)="deleteWorkspace()">X</span>
     }
