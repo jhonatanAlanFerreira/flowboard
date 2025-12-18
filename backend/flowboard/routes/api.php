@@ -22,15 +22,14 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'authenticate']);
 
 Route::middleware('auth:api')->prefix('me')->group(function () {
+    Route::get('workspaces', [WorkspaceController::class, "index"]);
+    Route::get('workspace/{workspaceId}/tasklists', [TasklistController::class, "index"]);
 
-    Route::get('workspaces', [WorkspaceController::class, 'index']);
-    Route::get('workspace/{workspaceId}/tasklists', [TasklistController::class, 'index']);
+    Route::post('tasklist', [TasklistController::class, "storeTasklist"]);
+    Route::post('task', [TasklistController::class, "storeTask"]);
+    Route::post('workspace', [TasklistController::class, "storeWorkspace"]);
 
-    Route::post('workspace', [WorkspaceController::class, 'store']);
-    Route::post('tasklist', [TasklistController::class, 'storeTasklist']);
-    Route::post('task', [TasklistController::class, 'storeTask']);
-
-    Route::delete('workspace/{workspaceId}', [WorkspaceController::class, 'deleteWorkspace']);
-    Route::delete('tasklist/{tasklistId}', [TasklistController::class, 'deleteTasklist']);
-    Route::delete('task/{taskId}', [TasklistController::class, 'deleteTask']);
+    Route::delete('task/{taskId}', [TasklistController::class, "deleteTask"]);
+    Route::delete('tasklist/{tasklistId}', [TasklistController::class, "deleteTasklist"]);
+    Route::delete('workspace/{workspaceId}', [TasklistController::class, "deleteWorkspace"]);
 });
