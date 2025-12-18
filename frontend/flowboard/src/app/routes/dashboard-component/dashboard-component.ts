@@ -13,8 +13,8 @@ import { TasklistComponent } from './components/tasklist-component/tasklist-comp
 })
 export class DashboardComponent implements OnInit {
   newListFormGroup: FormGroup;
-  workspaceControl = new FormControl(null);
-  newWorkspaceControl = new FormControl(null);
+  workspaceControl = new FormControl<number | null>(null);
+  newWorkspaceControl = new FormControl<string | null>(null);
   workspaces = signal<Workspace[]>([]);
   tasklists = signal<Tasklist[]>([]);
   loading = signal(true);
@@ -24,6 +24,10 @@ export class DashboardComponent implements OnInit {
       name: '',
       workspaceId: null,
     });
+
+    this.workspaceControl.valueChanges.subscribe((value) =>
+      this.newListFormGroup.get('workspaceId')?.setValue(value)
+    );
   }
 
   ngOnInit(): void {
@@ -38,24 +42,19 @@ export class DashboardComponent implements OnInit {
   }
 
   listTasklistsFromWorkspace() {
-    const { value } = this.workspaceControl;
+    this.loading.set(true);
 
-    if (value) {
-      this.newListFormGroup.get('workspaceId')?.setValue(value);
-      this.loading.set(true);
-
-      this.service.listTasklistsFromWorkspace(value).subscribe((res) => {
-        this.tasklists.set(res);
-        this.loading.set(false);
-      });
-    }
+    this.service.listTasklistsFromWorkspace(this.workspaceControl.value!).subscribe((res) => {
+      this.tasklists.set(res);
+      this.loading.set(false);
+    });
   }
 
   createNewList() {
     this.loading.set(true);
 
     this.service.createNewList(this.newListFormGroup.value).subscribe(() => {
-      this.newListFormGroup.reset();
+      this.newListFormGroup.get('name')?.reset();
       this.listTasklistsFromWorkspace();
     });
   }
@@ -72,10 +71,14 @@ export class DashboardComponent implements OnInit {
 
   createWorkspace() {
     if (this.newWorkspaceControl.value) {
-      this.service.createWorkspace({ name: this.newWorkspaceControl.value }).subscribe(() => {
-        this.listWorkspaces();
-        this.newWorkspaceControl.reset();
-      });
+      this.service
+        .createWorkspace({ name: this.newWorkspaceControl.value })
+        .subscribe((res: Workspace) => {
+          this.newWorkspaceControl.reset();
+          this.tasklists.set([]);
+          this.workspaceControl.setValue(res.id);
+          this.listWorkspaces();
+        });
     }
   }
 }

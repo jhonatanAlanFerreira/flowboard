@@ -35,7 +35,7 @@ class TasklistController extends Controller
 
     public function storeWorkspace(Request $request)
     {
-        Workspace::create([
+        return Workspace::create([
             "name" => $request->name,
             "user_id" => $request->user()->id
         ]);
