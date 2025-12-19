@@ -1,4 +1,38 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import "tailwindcss";
-@import "primeicons/primeicons.css";
+@import 'tailwindcss';
+@import 'primeicons/primeicons.css';
+
+.p-inputtext:enabled:focus {
+  border-color: #cbd5e1 !important;
+  box-shadow: none !important;
+  outline: none;
+  color: aliceblue;
+}
+
+.p-select-option:not(.p-select-option-selected):not(.p-disabled):hover,
+.p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus {
+  background-color: #27272a !important;
+  color: #fafafa !important;
+}
+
+.p-select-option.p-select-option-selected {
+  background-color: #fafafa !important;
+}
+
+.p-select-option.p-select-option-selected {
+  color: #09090b !important;
+}
+
+.p-select-option:not(.p-select-option-selected),
+.p-select-empty-message {
+  color: white;
+}
+
+.p-button-text.p-button-secondary {
+  color: #9f9fa9 !important;
+}
+
+.p-button-text.p-button-secondary:hover {
+  background-color: #27272a !important;
+}

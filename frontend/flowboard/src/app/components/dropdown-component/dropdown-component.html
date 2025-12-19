@@ -7,11 +7,11 @@
     [optionLabel]="optionLabel()"
     [placeholder]="placeholder()"
     [disabled]="disabled"
-    class="w-full md:w-56"
+    class="w-full md:w-56 bg-zinc-950! [&_.p-select-label]:text-zinc-400! [&_.p-placeholder]:text-zinc-400! [&_.p-select-overlay]:bg-zinc-900! [&_.p-select-filter]:bg-zinc-950!"
   >
     <ng-template #selectedItem let-selectedOption>
       @if (selectedOption) {
-      <div class="flex items-start gap-2">
+      <div class="flex items-start gap-2 text-white!">
         <div>{{ selectedOption[optionLabel()] }}</div>
       </div>
       }

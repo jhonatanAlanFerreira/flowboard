@@ -1,0 +1,4 @@
+.p-select:not(.p-disabled).p-focus {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
