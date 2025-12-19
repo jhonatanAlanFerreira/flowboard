@@ -80,7 +80,6 @@ export class DashboardComponent implements OnInit {
         .createWorkspace({ name: this.newWorkspaceControl.value })
         .subscribe((res: Workspace) => {
           this.newWorkspaceControl.reset();
-          this.tasklists.set([]);
           this.workspaceControl.setValue(res);
           this.listWorkspaces();
         });
