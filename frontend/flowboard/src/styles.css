@@ -36,3 +36,18 @@
 .p-button-text.p-button-secondary:hover {
   background-color: #27272a !important;
 }
+
+.p-select-list-container {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #27272a transparent;
+}
+
+.p-select-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.p-select-list-container::-webkit-scrollbar-thumb {
+  background-color: #27272a;
+  border-radius: 9999px;
+}
