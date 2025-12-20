@@ -10,8 +10,7 @@
   color: aliceblue;
 }
 
-.p-select-option:not(.p-select-option-selected):not(.p-disabled):hover,
-.p-select-option:not(.p-select-option-selected):not(.p-disabled).p-focus {
+.p-select-option:not(.p-select-option-selected):not(.p-disabled):is(:hover, .p-focus) {
   background-color: #27272a !important;
   color: #fafafa !important;
 }
