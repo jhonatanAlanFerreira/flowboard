@@ -1,0 +1,8 @@
+<p-button
+  icon="pi pi-cog"
+  (onClick)="menu.toggle($event)"
+  size="small"
+  class="[&_.p-button]:bg-zinc-800! [&_.p-button]:hover:bg-zinc-700! [&_.p-button]:border-none! [&_.p-button]:text-zinc-100!"
+></p-button>
+
+<p-menu #menu [popup]="true" [model]="items" appendTo="body"></p-menu>

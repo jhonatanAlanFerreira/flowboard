@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Output, input } from '@angular/core';
 import { Task } from '../../../../models';
 import { DashboardService } from '../../dashboard-service';
+import { EditButtonComponent } from '../../../../components/edit-button-component/edit-button-component';
 
 @Component({
   selector: 'app-task-component',
-  imports: [],
+  imports: [EditButtonComponent],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
 })

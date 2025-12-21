@@ -1,3 +1,11 @@
-<div class="flex text-white bg-zinc-900 p-3 rounded-lg m-2 max-w-70">
-  <p>{{ task()?.description }}</p>
+<div
+  class="group flex flex-row justify-between gap-2 bg-zinc-900 text-white p-3 m-2 max-w-70 rounded-lg border border-zinc-800 transition-all duration-200 ease-out cursor-pointer hover:bg-zinc-800/70 hover:border-zinc-700 hover:shadow-lg hover:shadow-black/30 hover:scale-102"
+>
+  <p class="text-zinc-200 transition-colors group-hover:text-white">
+    {{ task()?.description }}
+  </p>
+
+  <app-edit-button-component
+    class="group-hover:flex opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0 transition-all duration-200"
+  ></app-edit-button-component>
 </div>
