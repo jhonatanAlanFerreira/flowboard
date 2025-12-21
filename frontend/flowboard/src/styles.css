@@ -54,11 +54,11 @@
   scrollbar-width: thin;
 }
 
-.p-select-list-container::-webkit-scrollbar {
+*::-webkit-scrollbar {
   width: 8px;
 }
 
-.p-select-list-container::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
   background-color: #27272a !important;
 }
 

@@ -1,31 +1,28 @@
-<div class="h-20 bg-gray-500 w-full p-3">
-  <div class="flex">
-    <app-dropdown-component
-      [formControl]="workspaceControl"
-      (change)="listTasklistsFromWorkspace()"
-      [options]="workspaces()"
-      placeholder="Select Workspace"
-      optionLabel="name"
-      [addOption]="true"
-      (onAdd)="isWorkspaceModalOpen = true"
-    ></app-dropdown-component>
+<div class="h-screen flex flex-col">
+  <div class="h-15 bg-gray-500 w-full p-3">
+    <div class="flex h-full items-center">
+      <app-dropdown-component
+        [formControl]="workspaceControl"
+        (change)="listTasklistsFromWorkspace()"
+        [options]="workspaces()"
+        placeholder="Select Workspace"
+        optionLabel="name"
+        [addOption]="true"
+        (onAdd)="isWorkspaceModalOpen = true"
+      ></app-dropdown-component>
+    </div>
   </div>
-</div>
 
-<div class="flex flex-row gap-5 overflow-auto h-auto mb-5">
-  @for (tasklist of tasklists(); track tasklist.id) {
-  <app-tasklist-component
-    (onTaskCreated)="listTasklistsFromWorkspace()"
-    (onTaskDelete)="listTasklistsFromWorkspace()"
-    (onTasklistDelete)="listTasklistsFromWorkspace()"
-    [tasklist]="tasklist"
-  ></app-tasklist-component>
-  } @if(workspaceControl.value){
-  <div [formGroup]="newListFormGroup" class="text-white flex gap-2 h-10">
-    <input class="bg-gray-500 mt-3" formControlName="name" placeholder="Create new List" />
-    <button class="cursor-pointer" (click)="createNewList()">Send</button>
+  <div class="flex flex-row gap-5 my-4 mx-2 overflow-hidden flex-1">
+    @for (tasklist of tasklists(); track tasklist.id) {
+    <app-tasklist-component
+      (onTaskCreated)="listTasklistsFromWorkspace()"
+      (onTaskDelete)="listTasklistsFromWorkspace()"
+      (onTasklistDelete)="listTasklistsFromWorkspace()"
+      [tasklist]="tasklist"
+    ></app-tasklist-component>
+    } @if(workspaceControl.value){ }
   </div>
-  }
 </div>
 
 <div class="card flex justify-center">

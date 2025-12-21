@@ -1,13 +1,10 @@
-<div class="text-white p-3">
-  <div class="flex mb-5">
+<div class="text-white p-3 bg-[#09090b] rounded-2xl flex flex-col overflow-hidden max-h-full">
+  <div class="flex mb-2">
     <p class="p-3">{{ tasklist()?.name }}</p>
-    <span class="mt-3 text-red-600 cursor-pointer" (click)="delete()">X</span>
   </div>
-  @for (task of tasklist()?.tasks; track task.id) {
-  <app-task-component (onDelete)="onTaskDelete.emit()" [task]="task"></app-task-component>
-  }
-  <div [formGroup]="newTaskFormGroup" class="text-white flex gap-2 h-10">
-    <input class="bg-gray-500 mt-3" formControlName="description" placeholder="Create new Task" />
-    <button class="cursor-pointer" (click)="createNewTask()">Send</button>
+  <div class="overflow-auto">
+    @for (task of tasklist()?.tasks; track task.id) {
+    <app-task-component (onDelete)="onTaskDelete.emit()" [task]="task"></app-task-component>
+    }
   </div>
 </div>
