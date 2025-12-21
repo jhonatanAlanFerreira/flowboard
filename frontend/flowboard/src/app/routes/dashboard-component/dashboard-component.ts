@@ -5,10 +5,19 @@ import { CommonModule } from '@angular/common';
 import { Tasklist, Workspace } from '../../models';
 import { TasklistComponent } from './components/tasklist-component/tasklist-component';
 import { DropdownComponent } from '../../components/dropdown-component/dropdown-component';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-dashboard-component',
-  imports: [ReactiveFormsModule, CommonModule, TasklistComponent, DropdownComponent],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    TasklistComponent,
+    DropdownComponent,
+    DialogModule,
+    ButtonModule,
+  ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
 })
@@ -16,6 +25,7 @@ export class DashboardComponent implements OnInit {
   newListFormGroup: FormGroup;
   workspaceControl = new FormControl<Workspace | null>(null);
   newWorkspaceControl = new FormControl<string | null>(null);
+  isWorkspaceModalOpen: boolean = false;
   workspaces = signal<Workspace[]>([]);
   tasklists = signal<Tasklist[]>([]);
   loading = signal(true);
@@ -76,6 +86,8 @@ export class DashboardComponent implements OnInit {
 
   createWorkspace() {
     if (this.newWorkspaceControl.value) {
+      this.isWorkspaceModalOpen = false;
+
       this.service
         .createWorkspace({ name: this.newWorkspaceControl.value })
         .subscribe((res: Workspace) => {
@@ -84,9 +96,5 @@ export class DashboardComponent implements OnInit {
           this.listWorkspaces();
         });
     }
-  }
-
-  onAddWorkspace() {
-    alert('WIP');
   }
 }

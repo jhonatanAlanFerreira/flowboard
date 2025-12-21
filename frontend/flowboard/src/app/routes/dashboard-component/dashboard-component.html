@@ -7,11 +7,8 @@
       placeholder="Select Workspace"
       optionLabel="name"
       [addOption]="true"
-      (onAdd)="onAddWorkspace()"
+      (onAdd)="isWorkspaceModalOpen = true"
     ></app-dropdown-component>
-    @if(workspaceControl.value){
-    <span class="ml-3 mt-3 text-red-600 cursor-pointer" (click)="deleteWorkspace()">X</span>
-    }
   </div>
 </div>
 
@@ -29,4 +26,38 @@
     <button class="cursor-pointer" (click)="createNewList()">Send</button>
   </div>
   }
+</div>
+
+<div class="card flex justify-center">
+  <p-dialog
+    header="Create new Workspace"
+    (onHide)="newWorkspaceControl.reset()"
+    [modal]="true"
+    [(visible)]="isWorkspaceModalOpen"
+    [style]="{ width: '25rem' }"
+  >
+    <div class="flex mb-4">
+      <input
+        [formControl]="newWorkspaceControl"
+        placeholder="Workspace name"
+        pInputText
+        class="flex-auto p-2"
+        autocomplete="off"
+      />
+    </div>
+    <div class="flex justify-end gap-2">
+      <p-button
+        [style]="{ backgroundColor: '#18181c', border: 'none' }"
+        class=""
+        label="Cancel"
+        (click)="isWorkspaceModalOpen = false"
+      />
+      <p-button
+        [disabled]="!newWorkspaceControl.value"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        label="Save"
+        (click)="createWorkspace()"
+      />
+    </div>
+  </p-dialog>
 </div>
