@@ -1,10 +1,54 @@
-<div class="text-white p-3 bg-[#09090b] rounded-2xl flex flex-col overflow-hidden max-h-full">
+<div class="text-white p-3 bg-[#09090b] rounded-2xl flex flex-col max-h-full">
   <div class="flex mb-2">
     <p class="p-3">{{ tasklist()?.name }}</p>
   </div>
-  <div class="overflow-auto">
+  <div class="overflow-auto mb-2">
     @for (task of tasklist()?.tasks; track task.id) {
     <app-task-component (onDelete)="onTaskDelete.emit()" [task]="task"></app-task-component>
     }
   </div>
+  <p-button
+    (onClick)="isTaskModalOpen = true"
+    label="Create new Task"
+    fluid
+    severity="secondary"
+    text
+    size="small"
+    icon="pi pi-plus"
+    class="whitespace-nowrap"
+  />
+</div>
+
+<div class="card flex justify-center">
+  <p-dialog
+    header="Create new Task"
+    (onHide)="newTaskFormGroup.get('description')?.reset()"
+    [modal]="true"
+    [(visible)]="isTaskModalOpen"
+    [style]="{ width: '25rem' }"
+  >
+    <div [formGroup]="newTaskFormGroup" class="flex mb-4">
+      <textarea
+        formControlName="description"
+        placeholder="Task description"
+        pInputText
+        class="flex-auto p-2"
+        autocomplete="off"
+      ></textarea>
+    </div>
+    <div class="flex justify-end gap-2">
+      <p-button
+        [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
+        class=""
+        label="Cancel"
+        (click)="isTaskModalOpen = false"
+      />
+      <p-button
+        [disabled]="!newTaskFormGroup.get('description')?.value"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        label="Save"
+        (click)="createNewTask()"
+      />
+    </div>
+  </p-dialog>
 </div>

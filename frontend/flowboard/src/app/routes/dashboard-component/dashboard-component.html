@@ -1,4 +1,4 @@
-<div class="h-screen flex flex-col">
+<div class="h-screen w-screen flex flex-col">
   <div class="h-15 bg-gray-500 w-full p-3">
     <div class="flex h-full items-center">
       <app-dropdown-component
@@ -13,7 +13,7 @@
     </div>
   </div>
 
-  <div class="flex flex-row gap-5 my-4 mx-2 overflow-hidden flex-1">
+  <div class="flex flex-row gap-5 my-4 mx-2 overflow-y-hidden flex-1">
     @for (tasklist of tasklists(); track tasklist.id) {
     <app-tasklist-component
       (onTaskCreated)="listTasklistsFromWorkspace()"
@@ -30,6 +30,7 @@
       text
       size="small"
       icon="pi pi-plus"
+      class="whitespace-nowrap"
     />
     }
   </div>
