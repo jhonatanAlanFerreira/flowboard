@@ -26,6 +26,7 @@ export class DashboardComponent implements OnInit {
   workspaceControl = new FormControl<Workspace | null>(null);
   newWorkspaceControl = new FormControl<string | null>(null);
   isWorkspaceModalOpen: boolean = false;
+  isListModalOpen: boolean = false;
   workspaces = signal<Workspace[]>([]);
   tasklists = signal<Tasklist[]>([]);
   loading = signal(true);
@@ -67,6 +68,7 @@ export class DashboardComponent implements OnInit {
 
   createNewList() {
     this.loading.set(true);
+    this.isListModalOpen = false;
 
     this.service.createNewList(this.newListFormGroup.value).subscribe(() => {
       this.newListFormGroup.get('name')?.reset();

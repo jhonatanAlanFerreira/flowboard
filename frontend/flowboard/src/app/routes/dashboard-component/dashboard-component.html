@@ -21,7 +21,17 @@
       (onTasklistDelete)="listTasklistsFromWorkspace()"
       [tasklist]="tasklist"
     ></app-tasklist-component>
-    } @if(workspaceControl.value){ }
+    } @if(workspaceControl.value){
+    <p-button
+      (onClick)="isListModalOpen = true"
+      label="Create new List"
+      fluid
+      severity="secondary"
+      text
+      size="small"
+      icon="pi pi-plus"
+    />
+    }
   </div>
 </div>
 
@@ -54,6 +64,40 @@
         [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
         label="Save"
         (click)="createWorkspace()"
+      />
+    </div>
+  </p-dialog>
+</div>
+
+<div class="card flex justify-center">
+  <p-dialog
+    header="Create new List"
+    (onHide)="newListFormGroup.get('name')?.reset()"
+    [modal]="true"
+    [(visible)]="isListModalOpen"
+    [style]="{ width: '25rem' }"
+  >
+    <div [formGroup]="newListFormGroup" class="flex mb-4">
+      <input
+        formControlName="name"
+        placeholder="List name"
+        pInputText
+        class="flex-auto p-2"
+        autocomplete="off"
+      />
+    </div>
+    <div class="flex justify-end gap-2">
+      <p-button
+        [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
+        class=""
+        label="Cancel"
+        (click)="isListModalOpen = false"
+      />
+      <p-button
+        [disabled]="!newListFormGroup.get('name')?.value"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        label="Save"
+        (click)="createNewList()"
       />
     </div>
   </p-dialog>
