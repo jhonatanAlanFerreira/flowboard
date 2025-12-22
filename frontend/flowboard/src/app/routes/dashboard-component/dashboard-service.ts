@@ -42,4 +42,8 @@ export class DashboardService {
   deleteWorkspace(workspaceId: number) {
     return this.http.delete(`${this.config.apiBaseUrl}/api/me/workspace/${workspaceId}`);
   }
+
+  changeTaskIsDone(taskId: number, done: boolean) {
+    return this.http.put(`${this.config.apiBaseUrl}/api/me/task/${taskId}/done`, { done });
+  }
 }

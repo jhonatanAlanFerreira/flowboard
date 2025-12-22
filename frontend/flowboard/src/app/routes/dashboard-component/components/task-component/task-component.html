@@ -11,7 +11,7 @@
       [class.opacity-100]="done"
       [class.translate-y-0]="done"
     >
-      <input [(ngModel)]="done" type="checkbox" class="peer hidden" />
+      <input (change)="changeTaskIsDone()" [(ngModel)]="done" type="checkbox" class="peer hidden" />
 
       <span
         class="flex h-4 w-4 items-center justify-center rounded border border-zinc-600 bg-zinc-900 transition-all peer-checked:bg-emerald-600 peer-checked:border-emerald-500"

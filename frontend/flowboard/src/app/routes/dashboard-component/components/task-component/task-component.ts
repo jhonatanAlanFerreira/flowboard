@@ -24,4 +24,8 @@ export class TaskComponent implements OnChanges {
   delete() {
     this.service.deleteTask(this.task()!.id).subscribe(() => this.onDelete.emit());
   }
+
+  changeTaskIsDone() {
+    this.service.changeTaskIsDone(this.task()!.id, this.done).subscribe(() => {});
+  }
 }

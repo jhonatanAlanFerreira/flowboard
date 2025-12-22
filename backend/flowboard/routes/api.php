@@ -32,4 +32,6 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
     Route::delete('task/{taskId}', [TasklistController::class, "deleteTask"]);
     Route::delete('tasklist/{tasklistId}', [TasklistController::class, "deleteTasklist"]);
     Route::delete('workspace/{workspaceId}', [TasklistController::class, "deleteWorkspace"]);
+
+    Route::put('task/{taskId}/done', [TasklistController::class, "changeTaskIsDone"]);
 });
