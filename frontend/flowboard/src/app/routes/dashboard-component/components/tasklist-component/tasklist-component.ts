@@ -6,10 +6,22 @@ import { DashboardService } from '../../dashboard-service';
 import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { EditButtonComponent } from '../../../../components/edit-button-component/edit-button-component';
+import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-tasklist-component',
-  imports: [TaskComponent, ReactiveFormsModule, FormsModule, Button, Dialog, EditButtonComponent],
+  imports: [
+    TaskComponent,
+    ReactiveFormsModule,
+    FormsModule,
+    Button,
+    Dialog,
+    EditButtonComponent,
+    CdkDrag,
+    CdkScrollable,
+    CdkDropList,
+  ],
   templateUrl: './tasklist-component.html',
   styleUrl: './tasklist-component.css',
 })
@@ -49,5 +61,17 @@ export class TasklistComponent implements OnChanges {
 
   delete() {
     this.service.deleteTasklist(this.tasklist()!.id).subscribe(() => this.onTasklistDelete.emit());
+  }
+
+  onDropTask(event: CdkDragDrop<number>) {
+    if (event.isPointerOverContainer) {
+      const data = {
+        tasklistId: this.tasklist()?.id,
+        taskId: event.item.data,
+        order: ++event.currentIndex,
+      };
+
+      console.log(data);
+    }
   }
 }

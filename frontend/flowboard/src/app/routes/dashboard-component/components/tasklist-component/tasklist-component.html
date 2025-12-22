@@ -1,5 +1,5 @@
 <div
-  class="text-white p-3 bg-[#09090b] border border-zinc-800 rounded-2xl flex flex-col max-h-full"
+  class="text-white cursor-move p-3 bg-[#09090b] border border-zinc-800 rounded-2xl flex flex-col max-h-full"
   [class.bg-red-900!]="isDeletingModalOpen || workspaceDeleting()"
 >
   <div class="flex justify-between mb-2">
@@ -8,13 +8,20 @@
     <app-edit-button-component (onDelete)="isDeletingModalOpen = true"></app-edit-button-component>
     }
   </div>
-  <div class="overflow-auto mb-2">
+  <div
+    cdkScrollable
+    cdkDropList
+    (cdkDropListDropped)="onDropTask($event)"
+    class="overflow-auto mb-2"
+  >
     @for (task of tasklist()?.tasks; track task.id) {
-    <app-task-component
-      [deletingList]="isDeletingModalOpen || workspaceDeleting()"
-      (onDelete)="onTaskDelete.emit()"
-      [task]="task"
-    ></app-task-component>
+    <div cdkDrag [cdkDragData]="task.id" class="my-4">
+      <app-task-component
+        [deletingList]="isDeletingModalOpen || workspaceDeleting()"
+        (onDelete)="onTaskDelete.emit()"
+        [task]="task"
+      ></app-task-component>
+    </div>
     }
   </div>
   <p-button
