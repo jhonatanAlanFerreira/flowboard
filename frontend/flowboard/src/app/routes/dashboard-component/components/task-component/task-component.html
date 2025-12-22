@@ -1,11 +1,35 @@
 <div
-  class="group flex flex-row justify-between gap-2 bg-zinc-900 text-white p-3 m-2 max-w-70 rounded-lg border border-zinc-800 transition-all duration-200 ease-out cursor-pointer hover:bg-zinc-800/70 hover:border-zinc-700 hover:shadow-lg hover:shadow-black/30 hover:scale-102"
+  class="group flex justify-between gap-2 bg-zinc-900 text-white p-3 m-2 max-w-70 rounded-lg border border-zinc-800 transition-all duration-200 ease-out hover:bg-zinc-800/70 hover:border-zinc-700 hover:shadow-lg hover:shadow-black/30 hover:scale-[1.02]"
 >
-  <p class="text-zinc-200 transition-colors group-hover:text-white">
-    {{ task()?.description }}
-  </p>
+  <div
+    class="flex flex-col gap-0 group-hover:gap-2 transition-all duration-200 ease-out"
+    [class.gap-2]="done"
+  >
+    <label
+      class="overflow-hidden flex w-fit items-center gap-2 cursor-pointer select-none text-sm text-zinc-300 hover:text-white max-h-0 opacity-0 translate-y-1 group-hover:max-h-10 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ease-out"
+      [class.max-h-10]="done"
+      [class.opacity-100]="done"
+      [class.translate-y-0]="done"
+    >
+      <input [(ngModel)]="done" type="checkbox" class="peer hidden" />
+
+      <span
+        class="flex h-4 w-4 items-center justify-center rounded border border-zinc-600 bg-zinc-900 transition-all peer-checked:bg-emerald-600 peer-checked:border-emerald-500"
+      >
+        <i
+          class="pi pi-check text-xs text-white scale-0 peer-checked:scale-100 transition-transform"
+        ></i>
+      </span>
+
+      Done
+    </label>
+
+    <p class="text-zinc-200 transition-all peer-checked:text-zinc-400 peer-checked:line-through">
+      {{ task()?.description }}
+    </p>
+  </div>
 
   <app-edit-button-component
-    class="group-hover:flex opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0 transition-all duration-200"
+    class="opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0 transition-all duration-200"
   ></app-edit-button-component>
 </div>
