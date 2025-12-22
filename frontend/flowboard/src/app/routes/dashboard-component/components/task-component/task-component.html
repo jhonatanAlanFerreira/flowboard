@@ -2,17 +2,13 @@
   class="group flex justify-between gap-2 bg-zinc-900 text-white p-3 m-2 max-w-70 rounded-lg border border-zinc-800 transition-all duration-200 ease-out hover:bg-zinc-800/70 hover:border-zinc-700 hover:shadow-lg hover:shadow-black/30 hover:scale-[1.02]"
   [class.bg-red-900!]="isDeletingModalOpen"
 >
-  <div
-    class="flex flex-col gap-0 group-hover:gap-2 transition-all duration-200 ease-out"
-    [class.gap-2]="done"
-  >
+  <div class="flex flex-col gap-2">
     <label
-      class="overflow-hidden flex w-fit items-center gap-2 cursor-pointer select-none text-sm text-zinc-300 hover:text-white max-h-0 opacity-0 translate-y-1 group-hover:max-h-10 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ease-out"
-      [class.max-h-10]="done"
+      class="flex w-fit items-center gap-2 cursor-pointer select-none text-sm text-zinc-300 hover:text-white min-h-5 opacity-30 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ease-out"
       [class.opacity-100]="done"
       [class.translate-y-0]="done"
     >
-      <input (change)="changeTaskIsDone()" [(ngModel)]="done" type="checkbox" class="peer hidden" />
+      <input [(ngModel)]="done" (change)="changeTaskIsDone()" type="checkbox" class="peer hidden" />
 
       <span
         class="flex h-4 w-4 items-center justify-center rounded border border-zinc-600 bg-zinc-900 transition-all peer-checked:bg-emerald-600 peer-checked:border-emerald-500"
