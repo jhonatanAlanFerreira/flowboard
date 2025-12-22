@@ -13,7 +13,7 @@
     </div>
   </div>
 
-  <div class="flex flex-row gap-5 my-4 mx-2 overflow-y-hidden flex-1">
+  <div class="flex flex-row gap-5 mt-4 mx-2 overflow-y-hidden flex-1 pb-2">
     @for (tasklist of tasklists(); track tasklist.id) {
     <app-tasklist-component
       (onTaskCreated)="listTasklistsFromWorkspace()"
@@ -22,16 +22,18 @@
       [tasklist]="tasklist"
     ></app-tasklist-component>
     } @if(workspaceControl.value){
-    <p-button
-      (onClick)="isListModalOpen = true"
-      label="Create new List"
-      fluid
-      severity="secondary"
-      text
-      size="small"
-      icon="pi pi-plus"
-      class="whitespace-nowrap"
-    />
+    <div class="h-fit bg-gray-800/70 rounded-lg">
+      <p-button
+        (onClick)="isListModalOpen = true"
+        label="Create new List"
+        fluid
+        severity="secondary"
+        text
+        size="small"
+        icon="pi pi-plus"
+        class="whitespace-nowrap"
+      />
+    </div>
     }
   </div>
 </div>
