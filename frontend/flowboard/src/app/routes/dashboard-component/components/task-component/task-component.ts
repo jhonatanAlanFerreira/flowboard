@@ -15,13 +15,16 @@ import { Button } from 'primeng/button';
 export class TaskComponent implements OnChanges {
   @Output() onDelete = new EventEmitter();
   task = input<Task>();
+  deletingList = input(false);
   done = false;
   isDeletingModalOpen = false;
 
   constructor(private service: DashboardService) {}
 
   ngOnChanges(changes: { [propName: string]: SimpleChange<Task> }): void {
-    this.done = changes['task'].currentValue.done;
+    if (changes['task']) {
+      this.done = changes['task'].currentValue.done;
+    }
   }
 
   delete() {

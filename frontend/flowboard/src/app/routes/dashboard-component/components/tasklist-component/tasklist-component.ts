@@ -5,10 +5,11 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { DashboardService } from '../../dashboard-service';
 import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
+import { EditButtonComponent } from '../../../../components/edit-button-component/edit-button-component';
 
 @Component({
   selector: 'app-tasklist-component',
-  imports: [TaskComponent, ReactiveFormsModule, FormsModule, Button, Dialog],
+  imports: [TaskComponent, ReactiveFormsModule, FormsModule, Button, Dialog, EditButtonComponent],
   templateUrl: './tasklist-component.html',
   styleUrl: './tasklist-component.css',
 })
@@ -20,6 +21,7 @@ export class TasklistComponent implements OnChanges {
   newTaskFormGroup: FormGroup;
   tasklist = input<Tasklist>();
   isTaskModalOpen = false;
+  isDeletingModalOpen = false;
 
   constructor(private fb: FormBuilder, private service: DashboardService) {
     this.newTaskFormGroup = this.fb.group({
