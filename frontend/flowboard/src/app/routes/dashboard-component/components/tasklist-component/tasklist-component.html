@@ -1,15 +1,17 @@
 <div
-  class="text-white p-3 bg-[#09090b] rounded-2xl flex flex-col max-h-full"
-  [class.bg-red-900!]="isDeletingModalOpen"
+  class="text-white p-3 bg-[#09090b] border border-zinc-800 rounded-2xl flex flex-col max-h-full"
+  [class.bg-red-900!]="isDeletingModalOpen || workspaceDeleting()"
 >
   <div class="flex justify-between mb-2">
     <p class="p-3">{{ tasklist()?.name }}</p>
+    @if(!workspaceDeleting()){
     <app-edit-button-component (onDelete)="isDeletingModalOpen = true"></app-edit-button-component>
+    }
   </div>
   <div class="overflow-auto mb-2">
     @for (task of tasklist()?.tasks; track task.id) {
     <app-task-component
-      [deletingList]="isDeletingModalOpen"
+      [deletingList]="isDeletingModalOpen || workspaceDeleting()"
       (onDelete)="onTaskDelete.emit()"
       [task]="task"
     ></app-task-component>

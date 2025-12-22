@@ -1,6 +1,7 @@
 <div class="h-screen w-screen flex flex-col">
   <div class="h-15 bg-gray-500 w-full p-3">
-    <div class="flex h-full items-center">
+    <div class="flex gap-2 h-full items-center">
+      @if(!isWorkspaceDeletingOpen){
       <app-dropdown-component
         [formControl]="workspaceControl"
         (change)="listTasklistsFromWorkspace()"
@@ -10,6 +11,15 @@
         [addOption]="true"
         (onAdd)="isWorkspaceModalOpen = true"
       ></app-dropdown-component>
+      } @else {
+      <span class="bg-red-900 rounded-lg p-2 min-w-50 text-white whitespace-nowrap">{{
+        workspaceControl.value?.name
+      }}</span>
+      } @if(workspaceControl.value){
+      <app-edit-button-component
+        (onDelete)="isWorkspaceDeletingOpen = true"
+      ></app-edit-button-component>
+      }
     </div>
   </div>
 
@@ -20,9 +30,10 @@
       (onTaskDelete)="listTasklistsFromWorkspace()"
       (onTasklistDelete)="listTasklistsFromWorkspace()"
       [tasklist]="tasklist"
+      [workspaceDeleting]="isWorkspaceDeletingOpen"
     ></app-tasklist-component>
-    } @if(workspaceControl.value){
-    <div class="h-fit bg-gray-800/70 rounded-lg">
+    } @if(workspaceControl.value && !isWorkspaceDeletingOpen){
+    <div class="h-fit min-w-70 bg-[#09090b] border border-zinc-800 rounded-lg">
       <p-button
         (onClick)="isListModalOpen = true"
         label="Create new List"
@@ -101,6 +112,30 @@
         [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
         label="Save"
         (click)="createNewList()"
+      />
+    </div>
+  </p-dialog>
+</div>
+
+<div class="card flex justify-center">
+  <p-dialog
+    header="Are you sure you want to delete this workspace?"
+    [modal]="true"
+    [(visible)]="isWorkspaceDeletingOpen"
+    [closable]="false"
+    [style]="{ width: '25rem' }"
+  >
+    <div class="flex justify-end gap-2">
+      <p-button
+        [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
+        class=""
+        label="Cancel"
+        (click)="isWorkspaceDeletingOpen = false"
+      />
+      <p-button
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        label="Yes"
+        (click)="deleteWorkspace()"
       />
     </div>
   </p-dialog>

@@ -7,6 +7,7 @@ import { TasklistComponent } from './components/tasklist-component/tasklist-comp
 import { DropdownComponent } from '../../components/dropdown-component/dropdown-component';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
+import { EditButtonComponent } from '../../components/edit-button-component/edit-button-component';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -17,6 +18,7 @@ import { ButtonModule } from 'primeng/button';
     DropdownComponent,
     DialogModule,
     ButtonModule,
+    EditButtonComponent,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
@@ -27,6 +29,7 @@ export class DashboardComponent implements OnInit {
   newWorkspaceControl = new FormControl<string | null>(null);
   isWorkspaceModalOpen: boolean = false;
   isListModalOpen: boolean = false;
+  isWorkspaceDeletingOpen: boolean = false;
   workspaces = signal<Workspace[]>([]);
   tasklists = signal<Tasklist[]>([]);
   loading = signal(true);
@@ -77,6 +80,8 @@ export class DashboardComponent implements OnInit {
   }
 
   deleteWorkspace() {
+    this.isWorkspaceDeletingOpen = false;
+
     if (this.workspaceControl.value) {
       this.service.deleteWorkspace(this.workspaceControl.value!.id).subscribe(() => {
         this.workspaceControl.reset();

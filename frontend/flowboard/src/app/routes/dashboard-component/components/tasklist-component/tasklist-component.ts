@@ -18,8 +18,10 @@ export class TasklistComponent implements OnChanges {
   @Output() onTaskDelete = new EventEmitter();
   @Output() onTasklistDelete = new EventEmitter();
 
-  newTaskFormGroup: FormGroup;
   tasklist = input<Tasklist>();
+  workspaceDeleting = input(false);
+
+  newTaskFormGroup: FormGroup;
   isTaskModalOpen = false;
   isDeletingModalOpen = false;
 
@@ -31,7 +33,7 @@ export class TasklistComponent implements OnChanges {
   }
 
   ngOnChanges(changes: { [propName: string]: SimpleChange<any> }): void {
-    if (changes['tasklist'].currentValue) {
+    if (changes['tasklist']) {
       this.newTaskFormGroup.get('tasklistId')?.setValue(changes['tasklist'].currentValue.id);
     }
   }
