@@ -14,6 +14,8 @@ import {
   CdkDropListGroup,
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
+import { WorkspaceService } from '../../services/workspace/workspace-service';
+import { TasklistService } from '../../services/tasklist/tasklist-service';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -48,38 +50,45 @@ export class DashboardComponent implements OnInit {
   tasklists = signal<Tasklist[]>([]);
   loading = signal(true);
 
+  constructor(
+    private workspaceService: WorkspaceService,
+    private tasklistService: TasklistService,
+  ) {}
+
   ngOnInit(): void {
     this.listWorkspaces();
   }
 
   listWorkspaces() {
-    // this.loading.set(true);
-    // this.service.listWorkspaces().subscribe((res) => {
-    //   this.workspaces.set(res);
-    //   this.loading.set(false);
-    // });
+    this.loading.set(true);
+
+    this.workspaceService.list().subscribe((res) => {
+      this.workspaces.set(res);
+      this.loading.set(false);
+    });
   }
 
   listTasklistsFromWorkspace() {
-    // this.loading.set(true);
-    // this.service
-    //   .listTasklistsFromWorkspace(this.workspaceControl.value!.id)
-    //   .subscribe((res) => {
-    //     this.tasklists.set(res);
-    //     this.loading.set(false);
-    //   });
+    this.loading.set(true);
+
+    this.tasklistService
+      .listFromWorkspace(this.workspaceControl.value!.id)
+      .subscribe((res) => {
+        this.tasklists.set(res);
+        this.loading.set(false);
+      });
   }
 
   onDropTasklist(event: CdkDragDrop<Tasklist>) {
     moveItemInArray(this.tasklists(), event.previousIndex, event.currentIndex);
 
     if (this.workspaceControl.value) {
-      // this.service
-      //   .reorderTasklist(
-      //     this.workspaceControl.value.id,
-      //     this.tasklists().map((t) => t.id),
-      //   )
-      //   .subscribe();
+      this.workspaceService
+        .reorderTasklists(
+          this.workspaceControl.value.id,
+          this.tasklists().map((t) => t.id),
+        )
+        .subscribe();
     }
   }
 }

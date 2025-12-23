@@ -92,13 +92,6 @@ class TasklistController extends Controller
         Workspace::where("id", $workspaceId)->delete();
     }
 
-    public function changeTaskIsDone($taskId, Request $request)
-    {
-        Task::where("id", $taskId)->update([
-            "done" => $request->done
-        ]);
-    }
-
     public function reorderTasklists(Request $request)
     {
         $request->validate([
