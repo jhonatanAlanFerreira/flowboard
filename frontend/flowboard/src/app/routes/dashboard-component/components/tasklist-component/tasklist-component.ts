@@ -14,6 +14,7 @@ import {
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { CdkScrollable } from '@angular/cdk/scrolling';
+import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'app-tasklist-component',
@@ -27,6 +28,7 @@ import { CdkScrollable } from '@angular/cdk/scrolling';
     CdkDrag,
     CdkScrollable,
     CdkDropList,
+    Divider,
   ],
   templateUrl: './tasklist-component.html',
   styleUrl: './tasklist-component.css',

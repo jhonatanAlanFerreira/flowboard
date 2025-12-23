@@ -1,9 +1,12 @@
 <div
-  class="text-white cursor-move p-3 bg-[#09090b] border border-zinc-800 rounded-2xl flex flex-col max-h-full"
+  class="text-white min-w-70 cursor-move p-3 bg-[#09090b] border border-zinc-800 rounded-2xl flex flex-col max-h-full"
   [class.bg-red-900!]="isDeletingModalOpen || workspaceDeleting()"
 >
   <div class="flex justify-between mb-2">
-    <p class="p-3">{{ tasklist()?.name }}</p>
+    <div class="flex flex-col w-full">
+      <p class="p-3">{{ tasklist()?.name }}</p>
+      <p-divider class="w-5/6! self-center! opacity-8!"></p-divider>
+    </div>
     @if(!workspaceDeleting()){
     <app-edit-button-component (onDelete)="isDeletingModalOpen = true"></app-edit-button-component>
     }
@@ -13,7 +16,7 @@
     cdkDropList
     [cdkDropListData]="tasklist()!.tasks"
     (cdkDropListDropped)="onDropTask($event)"
-    class="overflow-auto mb-2"
+    class="overflow-auto mb-2 min-h-20"
   >
     @for (task of tasklist()!.tasks; track task.id) {
     <div cdkDrag [cdkDragData]="task" class="my-4">
