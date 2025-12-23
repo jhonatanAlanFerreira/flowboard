@@ -7,15 +7,20 @@ import { Tasklist, Workspace } from '../../models';
   providedIn: 'root',
 })
 export class DashboardService {
-  constructor(private http: HttpClient, private config: ConfigService) {}
+  constructor(
+    private http: HttpClient,
+    private config: ConfigService,
+  ) {}
 
   listWorkspaces() {
-    return this.http.get<Workspace[]>(`${this.config.apiBaseUrl}/api/me/workspaces`);
+    return this.http.get<Workspace[]>(
+      `${this.config.apiBaseUrl}/api/me/workspaces`,
+    );
   }
 
   listTasklistsFromWorkspace(workspaceId: number) {
     return this.http.get<Tasklist[]>(
-      `${this.config.apiBaseUrl}/api/me/workspace/${workspaceId}/tasklists`
+      `${this.config.apiBaseUrl}/api/me/workspace/${workspaceId}/tasklists`,
     );
   }
 
@@ -28,7 +33,10 @@ export class DashboardService {
   }
 
   createWorkspace(data: { name: string }) {
-    return this.http.post<Workspace>(`${this.config.apiBaseUrl}/api/me/workspace`, data);
+    return this.http.post<Workspace>(
+      `${this.config.apiBaseUrl}/api/me/workspace`,
+      data,
+    );
   }
 
   deleteTask(taskId: number) {
@@ -36,15 +44,22 @@ export class DashboardService {
   }
 
   deleteTasklist(tasklistId: number) {
-    return this.http.delete(`${this.config.apiBaseUrl}/api/me/tasklist/${tasklistId}`);
+    return this.http.delete(
+      `${this.config.apiBaseUrl}/api/me/tasklist/${tasklistId}`,
+    );
   }
 
   deleteWorkspace(workspaceId: number) {
-    return this.http.delete(`${this.config.apiBaseUrl}/api/me/workspace/${workspaceId}`);
+    return this.http.delete(
+      `${this.config.apiBaseUrl}/api/me/workspace/${workspaceId}`,
+    );
   }
 
   changeTaskIsDone(taskId: number, done: boolean) {
-    return this.http.put(`${this.config.apiBaseUrl}/api/me/task/${taskId}/done`, { done });
+    return this.http.put(
+      `${this.config.apiBaseUrl}/api/me/task/${taskId}/done`,
+      { done },
+    );
   }
 
   reorderTasklist(workspaceId: number, order: number[]) {
@@ -54,7 +69,11 @@ export class DashboardService {
     });
   }
 
-  reorderTasks(newTasklistId: number, sourceTasklistId: number, order: number[]) {
+  reorderTasks(
+    newTasklistId: number,
+    sourceTasklistId: number,
+    order: number[],
+  ) {
     return this.http.put(`${this.config.apiBaseUrl}/api/me/tasks/reorder`, {
       newTasklistId,
       sourceTasklistId,

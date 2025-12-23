@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'primeicons/primeicons.css';
+@import "tailwindcss";
+@import "primeicons/primeicons.css";
 
 .p-inputtext:enabled:focus {
   border-color: #cbd5e1 !important;
@@ -26,7 +26,10 @@
   }
 }
 
-.p-select-option:not(.p-select-option-selected):not(.p-disabled):is(:hover, .p-focus) {
+.p-select-option:not(.p-select-option-selected):not(.p-disabled):is(
+    :hover,
+    .p-focus
+  ) {
   background-color: #27272a !important;
   color: #fafafa !important;
 }

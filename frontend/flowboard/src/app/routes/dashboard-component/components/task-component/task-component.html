@@ -1,10 +1,10 @@
 <div
-  class="group min-w-70 flex justify-between gap-2 bg-zinc-900 text-white p-3 m-2 max-w-70 rounded-lg border border-zinc-800 transition-all duration-200 ease-out hover:bg-zinc-800/70 hover:border-zinc-700 hover:shadow-lg hover:shadow-black/30 hover:scale-[1.02]"
+  class="group m-2 flex max-w-70 min-w-70 justify-between gap-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-white transition-all duration-200 ease-out hover:scale-[1.02] hover:border-zinc-700 hover:bg-zinc-800/70 hover:shadow-lg hover:shadow-black/30"
   [class.bg-red-900!]="isDeletingModalOpen || deletingList()"
 >
   <div class="flex flex-col gap-2">
     <label
-      class="flex w-fit items-center gap-2 cursor-pointer select-none text-sm text-zinc-300 hover:text-white min-h-5 opacity-30 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ease-out"
+      class="flex min-h-5 w-fit translate-y-1 cursor-pointer items-center gap-2 text-sm text-zinc-300 opacity-30 transition-all duration-200 ease-out select-none group-hover:translate-y-0 group-hover:opacity-100 hover:text-white"
       [class.opacity-100]="task.done"
       [class.translate-y-0]="task.done"
     >
@@ -16,24 +16,26 @@
       />
 
       <span
-        class="flex h-4 w-4 items-center justify-center rounded border border-zinc-600 bg-zinc-900 transition-all peer-checked:bg-emerald-600 peer-checked:border-emerald-500"
+        class="flex h-4 w-4 items-center justify-center rounded border border-zinc-600 bg-zinc-900 transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-600"
       >
         <i
-          class="pi pi-check text-xs text-white scale-0 peer-checked:scale-100 transition-transform"
+          class="pi pi-check scale-0 text-xs text-white transition-transform peer-checked:scale-100"
         ></i>
       </span>
 
       Done
     </label>
 
-    <p class="text-zinc-200 transition-all peer-checked:text-zinc-400 peer-checked:line-through">
+    <p
+      class="text-zinc-200 transition-all peer-checked:text-zinc-400 peer-checked:line-through"
+    >
       {{ task.description }}
     </p>
   </div>
 
   <app-edit-button-component
     (onDelete)="onDeleting()"
-    class="opacity-0 group-hover:opacity-100 translate-x-1 group-hover:translate-x-0 transition-all duration-200"
+    class="translate-x-1 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100"
   ></app-edit-button-component>
 </div>
 

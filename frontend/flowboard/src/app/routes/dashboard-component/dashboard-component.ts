@@ -1,5 +1,10 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { DashboardService } from './dashboard-service';
 import { CommonModule } from '@angular/common';
 import { Tasklist, Workspace } from '../../models';
@@ -44,14 +49,17 @@ export class DashboardComponent implements OnInit {
   tasklists = signal<Tasklist[]>([]);
   loading = signal(true);
 
-  constructor(private fb: FormBuilder, private service: DashboardService) {
+  constructor(
+    private fb: FormBuilder,
+    private service: DashboardService,
+  ) {
     this.newListFormGroup = this.fb.group({
       name: '',
       workspaceId: null,
     });
 
     this.workspaceControl.valueChanges.subscribe((value) =>
-      this.newListFormGroup.get('workspaceId')?.setValue(value?.id)
+      this.newListFormGroup.get('workspaceId')?.setValue(value?.id),
     );
 
     this.workspaceControl.valueChanges.subscribe(() => {
@@ -73,10 +81,12 @@ export class DashboardComponent implements OnInit {
   listTasklistsFromWorkspace() {
     this.loading.set(true);
 
-    this.service.listTasklistsFromWorkspace(this.workspaceControl.value!.id).subscribe((res) => {
-      this.tasklists.set(res);
-      this.loading.set(false);
-    });
+    this.service
+      .listTasklistsFromWorkspace(this.workspaceControl.value!.id)
+      .subscribe((res) => {
+        this.tasklists.set(res);
+        this.loading.set(false);
+      });
   }
 
   createNewList() {
@@ -93,11 +103,13 @@ export class DashboardComponent implements OnInit {
     this.isWorkspaceDeletingOpen = false;
 
     if (this.workspaceControl.value) {
-      this.service.deleteWorkspace(this.workspaceControl.value!.id).subscribe(() => {
-        this.workspaceControl.reset();
-        this.listWorkspaces();
-        this.tasklists.set([]);
-      });
+      this.service
+        .deleteWorkspace(this.workspaceControl.value!.id)
+        .subscribe(() => {
+          this.workspaceControl.reset();
+          this.listWorkspaces();
+          this.tasklists.set([]);
+        });
     }
   }
 
@@ -122,7 +134,7 @@ export class DashboardComponent implements OnInit {
       this.service
         .reorderTasklist(
           this.workspaceControl.value.id,
-          this.tasklists().map((t) => t.id)
+          this.tasklists().map((t) => t.id),
         )
         .subscribe();
     }

@@ -9,11 +9,11 @@ export class ConfigService {
   constructor(private http: HttpClient) {}
 
   load(): Promise<void> {
-    return firstValueFrom(this.http.get<{ apiBaseUrl: string }>('/config/config.json')).then(
-      (config) => {
-        this.config = config;
-      }
-    );
+    return firstValueFrom(
+      this.http.get<{ apiBaseUrl: string }>('/config/config.json'),
+    ).then((config) => {
+      this.config = config;
+    });
   }
 
   get apiBaseUrl(): string {

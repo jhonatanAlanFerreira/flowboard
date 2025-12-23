@@ -1,7 +1,7 @@
-<div class="h-screen w-screen flex flex-col">
-  <div class="h-15 bg-gray-500 w-full p-3">
-    <div class="flex gap-2 h-full items-center">
-      @if(!isWorkspaceDeletingOpen){
+<div class="flex h-screen w-screen flex-col">
+  <div class="h-15 w-full bg-gray-500 p-3">
+    <div class="flex h-full items-center gap-2">
+      @if (!isWorkspaceDeletingOpen) {
       <app-dropdown-component
         [formControl]="workspaceControl"
         (change)="listTasklistsFromWorkspace()"
@@ -12,10 +12,11 @@
         (onAdd)="isWorkspaceModalOpen = true"
       ></app-dropdown-component>
       } @else {
-      <span class="bg-red-900 rounded-lg p-2 min-w-50 text-white whitespace-nowrap">{{
-        workspaceControl.value?.name
-      }}</span>
-      } @if(workspaceControl.value){
+      <span
+        class="min-w-50 rounded-lg bg-red-900 p-2 whitespace-nowrap text-white"
+        >{{ workspaceControl.value?.name }}</span
+      >
+      } @if (workspaceControl.value) {
       <app-edit-button-component
         (onDelete)="isWorkspaceDeletingOpen = true"
       ></app-edit-button-component>
@@ -26,7 +27,7 @@
     cdkDropList
     cdkDropListOrientation="horizontal"
     (cdkDropListDropped)="onDropTasklist($event)"
-    class="flex flex-row gap-5 mt-4 mx-2 overflow-y-hidden flex-1 pb-2"
+    class="mx-2 mt-4 flex flex-1 flex-row gap-5 overflow-y-hidden pb-2"
   >
     <ng-container cdkDropListGroup>
       @for (tasklist of tasklists(); track tasklist.id) {
@@ -40,10 +41,10 @@
         [tasklist]="tasklist"
         [workspaceDeleting]="isWorkspaceDeletingOpen"
       ></app-tasklist-component>
-      }</ng-container
-    >
-    @if(workspaceControl.value && !isWorkspaceDeletingOpen){
-    <div class="h-fit min-w-70 bg-[#09090b] border border-zinc-800 rounded-lg">
+      }
+    </ng-container>
+    @if (workspaceControl.value && !isWorkspaceDeletingOpen) {
+    <div class="h-fit min-w-70 rounded-lg border border-zinc-800 bg-[#09090b]">
       <p-button
         (onClick)="isListModalOpen = true"
         label="Create new List"
@@ -67,7 +68,7 @@
     [(visible)]="isWorkspaceModalOpen"
     [style]="{ width: '25rem' }"
   >
-    <div class="flex mb-4">
+    <div class="mb-4 flex">
       <input
         [formControl]="newWorkspaceControl"
         placeholder="Workspace name"
@@ -101,7 +102,7 @@
     [(visible)]="isListModalOpen"
     [style]="{ width: '25rem' }"
   >
-    <div [formGroup]="newListFormGroup" class="flex mb-4">
+    <div [formGroup]="newListFormGroup" class="mb-4 flex">
       <input
         formControlName="name"
         placeholder="List name"

@@ -1,5 +1,10 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { LoginService } from './login-service';
 import { Router } from '@angular/router';
 
@@ -12,7 +17,11 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   loginFormGroup: FormGroup;
 
-  constructor(private fb: FormBuilder, private service: LoginService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private service: LoginService,
+    private router: Router,
+  ) {
     this.loginFormGroup = this.fb.group({
       email: '',
       password: '',
@@ -20,6 +29,8 @@ export class LoginComponent {
   }
 
   login() {
-    this.service.login(this.loginFormGroup.value).subscribe(() => this.router.navigate(['']));
+    this.service
+      .login(this.loginFormGroup.value)
+      .subscribe(() => this.router.navigate(['']));
   }
 }

@@ -1,8 +1,7 @@
 .cdk-drag-placeholder {
-    opacity: 0;
-  }
-  
-  .cdk-drag-preview {
-    overflow: hidden;
-  }
-  
+  opacity: 0;
+}
+
+.cdk-drag-preview {
+  overflow: hidden;
+}

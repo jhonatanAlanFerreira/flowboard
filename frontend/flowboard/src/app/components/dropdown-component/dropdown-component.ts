@@ -1,5 +1,15 @@
-import { Component, EventEmitter, Output, forwardRef, input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  forwardRef,
+  input,
+} from '@angular/core';
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  FormsModule,
+} from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 
