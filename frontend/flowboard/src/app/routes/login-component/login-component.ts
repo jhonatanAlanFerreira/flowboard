@@ -5,7 +5,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { LoginService } from './login-service';
+import { LoginService } from '../../services/login/login-service';
 import { Router } from '@angular/router';
 
 @Component({
