@@ -8,7 +8,7 @@ import { DropdownComponent } from '../../components/dropdown-component/dropdown-
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { EditButtonComponent } from '../../components/edit-button-component/edit-button-component';
-import { CdkDropListGroup } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -21,6 +21,8 @@ import { CdkDropListGroup } from '@angular/cdk/drag-drop';
     ButtonModule,
     EditButtonComponent,
     CdkDropListGroup,
+    CdkDropList,
+    CdkDrag,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
@@ -105,5 +107,14 @@ export class DashboardComponent implements OnInit {
           this.listWorkspaces();
         });
     }
+  }
+
+  onDropTasklist(event: CdkDragDrop<number>) {
+    const data = {
+      tasklistId: event.item.data,
+      order: ++event.currentIndex,
+    };
+
+    console.log(data);
   }
 }

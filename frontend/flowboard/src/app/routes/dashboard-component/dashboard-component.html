@@ -22,17 +22,27 @@
       }
     </div>
   </div>
-
-  <div cdkDropListGroup class="flex flex-row gap-5 mt-4 mx-2 overflow-y-hidden flex-1 pb-2">
-    @for (tasklist of tasklists(); track tasklist.id) {
-    <app-tasklist-component
-      (onTaskCreated)="listTasklistsFromWorkspace()"
-      (onTaskDelete)="listTasklistsFromWorkspace()"
-      (onTasklistDelete)="listTasklistsFromWorkspace()"
-      [tasklist]="tasklist"
-      [workspaceDeleting]="isWorkspaceDeletingOpen"
-    ></app-tasklist-component>
-    } @if(workspaceControl.value && !isWorkspaceDeletingOpen){
+  <div
+    cdkDropList
+    cdkDropListOrientation="horizontal"
+    (cdkDropListDropped)="onDropTasklist($event)"
+    class="flex flex-row gap-5 mt-4 mx-2 overflow-y-hidden flex-1 pb-2"
+  >
+    <ng-container cdkDropListGroup>
+      @for (tasklist of tasklists(); track tasklist.id) {
+      <app-tasklist-component
+        cdkDrag
+        cdkDragLockAxis="x"
+        [cdkDragData]="tasklist.id"
+        (onTaskCreated)="listTasklistsFromWorkspace()"
+        (onTaskDelete)="listTasklistsFromWorkspace()"
+        (onTasklistDelete)="listTasklistsFromWorkspace()"
+        [tasklist]="tasklist"
+        [workspaceDeleting]="isWorkspaceDeletingOpen"
+      ></app-tasklist-component>
+      }</ng-container
+    >
+    @if(workspaceControl.value && !isWorkspaceDeletingOpen){
     <div class="h-fit min-w-70 bg-[#09090b] border border-zinc-800 rounded-lg">
       <p-button
         (onClick)="isListModalOpen = true"
