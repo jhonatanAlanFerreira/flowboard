@@ -17,7 +17,11 @@
   >
     @for (task of tasklist()!.tasks; track task.id) {
     <div cdkDrag [cdkDragData]="task" class="my-4">
-      <app-task-component [task]="task" />
+      <app-task-component
+        [deletingList]="isDeletingModalOpen || workspaceDeleting()"
+        (onDelete)="onTaskDelete.emit()"
+        [task]="task"
+      />
     </div>
     }
   </div>
