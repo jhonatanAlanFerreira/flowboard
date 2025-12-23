@@ -35,4 +35,5 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
 
     Route::put('task/{taskId}/done', [TasklistController::class, "changeTaskIsDone"]);
     Route::put('tasklists/reorder', [TasklistController::class, "reorderTasklists"]);
+    Route::put('tasks/reorder', [TasklistController::class, "reorderTasks"]);
 });

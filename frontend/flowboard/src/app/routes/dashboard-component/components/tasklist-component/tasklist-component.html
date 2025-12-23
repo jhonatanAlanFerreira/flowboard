@@ -11,19 +11,17 @@
   <div
     cdkScrollable
     cdkDropList
+    [cdkDropListData]="tasklist()!.tasks"
     (cdkDropListDropped)="onDropTask($event)"
     class="overflow-auto mb-2"
   >
-    @for (task of tasklist()?.tasks; track task.id) {
-    <div cdkDrag [cdkDragData]="task.id" class="my-4">
-      <app-task-component
-        [deletingList]="isDeletingModalOpen || workspaceDeleting()"
-        (onDelete)="onTaskDelete.emit()"
-        [task]="task"
-      ></app-task-component>
+    @for (task of tasklist()!.tasks; track task.id) {
+    <div cdkDrag [cdkDragData]="task" class="my-4">
+      <app-task-component [task]="task" />
     </div>
     }
   </div>
+
   <p-button
     (onClick)="isTaskModalOpen = true"
     label="Create new Task"

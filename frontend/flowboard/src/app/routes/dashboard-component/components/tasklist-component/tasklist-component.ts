@@ -1,12 +1,18 @@
 import { Component, EventEmitter, OnChanges, Output, SimpleChange, input } from '@angular/core';
 import { TaskComponent } from '../task-component/task-component';
-import { Tasklist } from '../../../../models';
+import { Task, Tasklist } from '../../../../models';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DashboardService } from '../../dashboard-service';
 import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { EditButtonComponent } from '../../../../components/edit-button-component/edit-button-component';
-import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDropList,
+  moveItemInArray,
+  transferArrayItem,
+} from '@angular/cdk/drag-drop';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 
 @Component({
@@ -63,15 +69,28 @@ export class TasklistComponent implements OnChanges {
     this.service.deleteTasklist(this.tasklist()!.id).subscribe(() => this.onTasklistDelete.emit());
   }
 
-  onDropTask(event: CdkDragDrop<number>) {
-    if (event.isPointerOverContainer) {
-      const data = {
-        tasklistId: this.tasklist()?.id,
-        taskId: event.item.data,
-        order: ++event.currentIndex,
-      };
-
-      console.log(data);
+  onDropTask(event: CdkDragDrop<Task[] | undefined>) {
+    if (!event.container.data || !event.previousContainer.data) {
+      return;
     }
+
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    }
+
+    this.service
+      .reorderTasks(
+        this.tasklist()!.id,
+        event.item.data.tasklist_id,
+        event.container.data.map((t) => t.id)
+      )
+      .subscribe();
   }
 }

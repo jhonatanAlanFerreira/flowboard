@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Models\Tasklist;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TasklistController extends Controller
 {
@@ -44,12 +45,29 @@ class TasklistController extends Controller
 
     public function storeTask(Request $request)
     {
-        Task::create([
-            "description" => $request->description,
-            "tasklist_id" => $request->tasklistId,
-            "order" => 1
+        $request->validate([
+            'description' => 'required|string',
+            'tasklistId' => 'required|integer',
         ]);
+
+        $tasklist = $request->user()
+            ->workspaces()
+            ->join('tasklists', 'tasklists.workspace_id', '=', 'workspaces.id')
+            ->where('tasklists.id', $request->tasklistId)
+            ->select('tasklists.id')
+            ->firstOrFail();
+
+        $nextOrder = Task::where('tasklist_id', $tasklist->id)->max('order') ?? 0;
+
+        Task::create([
+            'description' => $request->description,
+            'tasklist_id' => $tasklist->id,
+            'order' => $nextOrder + 1,
+        ]);
+
+        return response()->json(['success' => true], 201);
     }
+
 
     public function storeWorkspace(Request $request)
     {
@@ -104,4 +122,54 @@ class TasklistController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function reorderTasks(Request $request)
+    {
+        $request->validate([
+            'newTasklistId' => 'required|integer',
+            'sourceTasklistId' => 'required|integer',
+            'order' => 'required|array|min:1',
+            'order.*' => 'integer',
+        ]);
+
+        $tasklistIds = collect([
+            $request->newTasklistId,
+            $request->sourceTasklistId,
+        ])->unique()->values();
+
+        $tasklists = $request->user()
+            ->workspaces()
+            ->join('tasklists', 'tasklists.workspace_id', '=', 'workspaces.id')
+            ->whereIn('tasklists.id', $tasklistIds)
+            ->select('tasklists.id')
+            ->get();
+
+        if ($tasklists->count() !== $tasklistIds->count()) {
+            abort(403);
+        }
+
+        DB::transaction(function () use ($request) {
+            foreach ($request->order as $index => $taskId) {
+                Task::where('id', $taskId)->update([
+                    'tasklist_id' => $request->newTasklistId,
+                    'order' => $index + 1,
+                ]);
+            }
+
+            if ($request->newTasklistId !== $request->sourceTasklistId) {
+                $sourceTasks = Task::where('tasklist_id', $request->sourceTasklistId)
+                    ->orderBy('order')
+                    ->get();
+
+                foreach ($sourceTasks as $index => $task) {
+                    $task->update([
+                        'order' => $index + 1,
+                    ]);
+                }
+            }
+        });
+
+        return response()->json(['success' => true]);
+    }
+
 }

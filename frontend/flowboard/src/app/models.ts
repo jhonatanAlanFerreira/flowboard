@@ -8,6 +8,7 @@ export interface Task {
   description: string;
   order: number;
   done: boolean;
+  tasklist_id: number;
 }
 
 export interface Tasklist {
