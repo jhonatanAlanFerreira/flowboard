@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnChanges, Output, SimpleChange, input } from '@angular/core';
+import { Component, EventEmitter, Input, Output, input } from '@angular/core';
 import { Task } from '../../../../models';
 import { DashboardService } from '../../dashboard-service';
 import { EditButtonComponent } from '../../../../components/edit-button-component/edit-button-component';
@@ -12,27 +12,20 @@ import { Button } from 'primeng/button';
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
 })
-export class TaskComponent implements OnChanges {
+export class TaskComponent {
   @Output() onDelete = new EventEmitter();
-  task = input<Task>();
+  @Input({ required: true }) task!: Task;
   deletingList = input(false);
-  done = false;
   isDeletingModalOpen = false;
 
   constructor(private service: DashboardService) {}
 
-  ngOnChanges(changes: { [propName: string]: SimpleChange<Task> }): void {
-    if (changes['task']) {
-      this.done = changes['task'].currentValue.done;
-    }
-  }
-
   delete() {
-    this.service.deleteTask(this.task()!.id).subscribe(() => this.onDelete.emit());
+    this.service.deleteTask(this.task.id).subscribe(() => this.onDelete.emit());
   }
 
   changeTaskIsDone() {
-    this.service.changeTaskIsDone(this.task()!.id, this.done).subscribe();
+    this.service.changeTaskIsDone(this.task.id, this.task.done).subscribe();
   }
 
   onDeleting() {

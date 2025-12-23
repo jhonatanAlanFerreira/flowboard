@@ -5,10 +5,15 @@
   <div class="flex flex-col gap-2">
     <label
       class="flex w-fit items-center gap-2 cursor-pointer select-none text-sm text-zinc-300 hover:text-white min-h-5 opacity-30 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ease-out"
-      [class.opacity-100]="done"
-      [class.translate-y-0]="done"
+      [class.opacity-100]="task.done"
+      [class.translate-y-0]="task.done"
     >
-      <input [(ngModel)]="done" (change)="changeTaskIsDone()" type="checkbox" class="peer hidden" />
+      <input
+        [(ngModel)]="task.done"
+        (change)="changeTaskIsDone()"
+        type="checkbox"
+        class="peer hidden"
+      />
 
       <span
         class="flex h-4 w-4 items-center justify-center rounded border border-zinc-600 bg-zinc-900 transition-all peer-checked:bg-emerald-600 peer-checked:border-emerald-500"
@@ -22,7 +27,7 @@
     </label>
 
     <p class="text-zinc-200 transition-all peer-checked:text-zinc-400 peer-checked:line-through">
-      {{ task()?.description }}
+      {{ task.description }}
     </p>
   </div>
 
