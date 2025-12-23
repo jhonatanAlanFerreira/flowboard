@@ -1,11 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import { DashboardService } from './dashboard-service';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Tasklist, Workspace } from '../../models';
 import { TasklistComponent } from './components/tasklist-component/tasklist-component';
@@ -39,104 +33,53 @@ import {
   styleUrl: './dashboard-component.css',
 })
 export class DashboardComponent implements OnInit {
-  newListFormGroup: FormGroup;
   workspaceControl = new FormControl<Workspace | null>(null);
-  newWorkspaceControl = new FormControl<string | null>(null);
-  isWorkspaceModalOpen: boolean = false;
-  isListModalOpen: boolean = false;
-  isWorkspaceDeletingOpen: boolean = false;
+
+  isWorkspaceModalOpen = false;
+  isWorkspaceDeletingModalOpen = false;
+
+  isListModalOpen = false;
+  isListDeletingModalOpen = false;
+
+  isTaskModalOpen = false;
+  isTaskDeletingModalOpen = false;
+
   workspaces = signal<Workspace[]>([]);
   tasklists = signal<Tasklist[]>([]);
   loading = signal(true);
-
-  constructor(
-    private fb: FormBuilder,
-    private service: DashboardService,
-  ) {
-    this.newListFormGroup = this.fb.group({
-      name: '',
-      workspaceId: null,
-    });
-
-    this.workspaceControl.valueChanges.subscribe((value) =>
-      this.newListFormGroup.get('workspaceId')?.setValue(value?.id),
-    );
-
-    this.workspaceControl.valueChanges.subscribe(() => {
-      this.listTasklistsFromWorkspace();
-    });
-  }
 
   ngOnInit(): void {
     this.listWorkspaces();
   }
 
   listWorkspaces() {
-    this.service.listWorkspaces().subscribe((res) => {
-      this.workspaces.set(res);
-      this.loading.set(false);
-    });
+    // this.loading.set(true);
+    // this.service.listWorkspaces().subscribe((res) => {
+    //   this.workspaces.set(res);
+    //   this.loading.set(false);
+    // });
   }
 
   listTasklistsFromWorkspace() {
-    this.loading.set(true);
-
-    this.service
-      .listTasklistsFromWorkspace(this.workspaceControl.value!.id)
-      .subscribe((res) => {
-        this.tasklists.set(res);
-        this.loading.set(false);
-      });
-  }
-
-  createNewList() {
-    this.loading.set(true);
-    this.isListModalOpen = false;
-
-    this.service.createNewList(this.newListFormGroup.value).subscribe(() => {
-      this.newListFormGroup.get('name')?.reset();
-      this.listTasklistsFromWorkspace();
-    });
-  }
-
-  deleteWorkspace() {
-    this.isWorkspaceDeletingOpen = false;
-
-    if (this.workspaceControl.value) {
-      this.service
-        .deleteWorkspace(this.workspaceControl.value!.id)
-        .subscribe(() => {
-          this.workspaceControl.reset();
-          this.listWorkspaces();
-          this.tasklists.set([]);
-        });
-    }
-  }
-
-  createWorkspace() {
-    if (this.newWorkspaceControl.value) {
-      this.isWorkspaceModalOpen = false;
-
-      this.service
-        .createWorkspace({ name: this.newWorkspaceControl.value })
-        .subscribe((res: Workspace) => {
-          this.newWorkspaceControl.reset();
-          this.workspaceControl.setValue(res);
-          this.listWorkspaces();
-        });
-    }
+    // this.loading.set(true);
+    // this.service
+    //   .listTasklistsFromWorkspace(this.workspaceControl.value!.id)
+    //   .subscribe((res) => {
+    //     this.tasklists.set(res);
+    //     this.loading.set(false);
+    //   });
   }
 
   onDropTasklist(event: CdkDragDrop<Tasklist>) {
     moveItemInArray(this.tasklists(), event.previousIndex, event.currentIndex);
 
     if (this.workspaceControl.value) {
-      this.service
-        .reorderTasklist(
-          this.workspaceControl.value.id,
-          this.tasklists().map((t) => t.id),
-        )
-        .subscribe();
+      // this.service
+      //   .reorderTasklist(
+      //     this.workspaceControl.value.id,
+      //     this.tasklists().map((t) => t.id),
+      //   )
+      //   .subscribe();
     }
   }
 }
