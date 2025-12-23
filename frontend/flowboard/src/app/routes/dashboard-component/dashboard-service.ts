@@ -46,4 +46,11 @@ export class DashboardService {
   changeTaskIsDone(taskId: number, done: boolean) {
     return this.http.put(`${this.config.apiBaseUrl}/api/me/task/${taskId}/done`, { done });
   }
+
+  reorderTasklist(workspaceId: number, order: number[]) {
+    return this.http.put(`${this.config.apiBaseUrl}/api/me/tasklists/reorder`, {
+      workspaceId,
+      order,
+    });
+  }
 }

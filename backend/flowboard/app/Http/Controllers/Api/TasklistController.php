@@ -12,16 +12,34 @@ class TasklistController extends Controller
 {
     public function index(Request $request, $workspaceId)
     {
-        return $request->user()->workspaces()->findOrFail($workspaceId)->tasklists->load('tasks');
+        return $request->user()
+            ->workspaces()
+            ->findOrFail($workspaceId)
+            ->tasklists()
+            ->with('tasks')
+            ->get();
     }
 
     public function storeTasklist(Request $request)
     {
-        Tasklist::create([
-            "name" => $request->name,
-            "workspace_id" => $request->workspaceId,
-            "order" => 1
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'workspaceId' => 'required|integer',
         ]);
+
+        $workspace = $request->user()
+            ->workspaces()
+            ->findOrFail($request->workspaceId);
+
+        $nextOrder = $workspace->tasklists()->max('order') + 1;
+
+        $tasklist = Tasklist::create([
+            'name' => $request->name,
+            'workspace_id' => $workspace->id,
+            'order' => $nextOrder,
+        ]);
+
+        return response()->json($tasklist, 201);
     }
 
     public function storeTask(Request $request)
@@ -61,5 +79,29 @@ class TasklistController extends Controller
         Task::where("id", $taskId)->update([
             "done" => $request->done
         ]);
+    }
+
+    public function reorderTasklists(Request $request)
+    {
+        $request->validate([
+            'workspaceId' => 'required|integer',
+            'order' => 'required|array|min:1',
+            'order.*' => 'integer',
+        ]);
+
+        $workspace = $request->user()
+            ->workspaces()
+            ->where('id', $request->workspaceId)
+            ->firstOrFail();
+
+        foreach ($request->order as $index => $tasklistId) {
+            Tasklist::where('id', $tasklistId)
+                ->where('workspace_id', $workspace->id)
+                ->update([
+                    'order' => $index + 1
+                ]);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

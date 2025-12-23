@@ -32,7 +32,7 @@ export class TaskComponent implements OnChanges {
   }
 
   changeTaskIsDone() {
-    this.service.changeTaskIsDone(this.task()!.id, this.done).subscribe(() => {});
+    this.service.changeTaskIsDone(this.task()!.id, this.done).subscribe();
   }
 
   onDeleting() {

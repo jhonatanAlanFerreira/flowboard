@@ -33,7 +33,7 @@
       <app-tasklist-component
         cdkDrag
         cdkDragLockAxis="x"
-        [cdkDragData]="tasklist.id"
+        [cdkDragData]="tasklist"
         (onTaskCreated)="listTasklistsFromWorkspace()"
         (onTaskDelete)="listTasklistsFromWorkspace()"
         (onTasklistDelete)="listTasklistsFromWorkspace()"

@@ -20,6 +20,6 @@ class Workspace extends Model
 
     public function tasklists(): HasMany
     {
-        return $this->hasMany(Tasklist::class);
+        return $this->hasMany(Tasklist::class)->orderBy('order');
     }
 }

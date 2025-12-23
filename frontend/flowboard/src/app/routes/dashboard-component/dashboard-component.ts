@@ -8,7 +8,13 @@ import { DropdownComponent } from '../../components/dropdown-component/dropdown-
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { EditButtonComponent } from '../../components/edit-button-component/edit-button-component';
-import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDropList,
+  CdkDropListGroup,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -109,12 +115,16 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  onDropTasklist(event: CdkDragDrop<number>) {
-    const data = {
-      tasklistId: event.item.data,
-      order: ++event.currentIndex,
-    };
+  onDropTasklist(event: CdkDragDrop<Tasklist>) {
+    moveItemInArray(this.tasklists(), event.previousIndex, event.currentIndex);
 
-    console.log(data);
+    if (this.workspaceControl.value) {
+      this.service
+        .reorderTasklist(
+          this.workspaceControl.value.id,
+          this.tasklists().map((t) => t.id)
+        )
+        .subscribe();
+    }
   }
 }
