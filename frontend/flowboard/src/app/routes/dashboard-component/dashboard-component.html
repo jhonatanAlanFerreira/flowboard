@@ -9,7 +9,7 @@
         placeholder="Select Workspace"
         optionLabel="name"
         [addOption]="true"
-        (onAdd)="isWorkspaceModalOpen = true"
+        (onAdd)="onAddWorkspace()"
       ></app-dropdown-component>
       } @else {
       <span
@@ -19,6 +19,7 @@
       } @if (workspaceControl.value) {
       <app-edit-button-component
         (onDelete)="onWorkspaceDelete()"
+        (onEdit)="onWorkspaceEdit()"
       ></app-edit-button-component>
       }
     </div>
@@ -81,3 +82,10 @@
   (onCancel)="onCancelTaskDeleting() "
   (onConfirm)="deleteTask()"
 ></app-dialog-component>
+
+<app-workspace-modal-component
+  [visible]="isWorkspaceModalOpen.opened"
+  (onCancel)="onWorkspaceModalCancel()"
+  (onSave)="onWorkspaceModalSave($event)"
+  [workspace]="isWorkspaceModalOpen.data"
+></app-workspace-modal-component>

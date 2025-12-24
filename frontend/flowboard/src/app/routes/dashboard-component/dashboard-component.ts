@@ -18,6 +18,7 @@ import { WorkspaceService } from '../../services/workspace/workspace-service';
 import { TasklistService } from '../../services/tasklist/tasklist-service';
 import { DialogComponent } from '../../components/dialog-component/dialog-component';
 import { TaskService } from '../../services/task/task-service';
+import { WorkspaceModalComponent } from './modals/workspace-modal-component/workspace-modal-component';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -33,6 +34,7 @@ import { TaskService } from '../../services/task/task-service';
     CdkDropList,
     CdkDrag,
     DialogComponent,
+    WorkspaceModalComponent,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
@@ -40,7 +42,13 @@ import { TaskService } from '../../services/task/task-service';
 export class DashboardComponent implements OnInit {
   workspaceControl = new FormControl<Workspace | null>(null);
 
-  isWorkspaceModalOpen = false;
+  isWorkspaceModalOpen: {
+    opened: boolean;
+    data: Workspace | null;
+  } = {
+    opened: false,
+    data: null,
+  };
   isWorkspaceDeletingModalOpen = false;
 
   isListModalOpen = false;
@@ -195,5 +203,39 @@ export class DashboardComponent implements OnInit {
       opened: false,
       data: null,
     };
+  }
+
+  onAddWorkspace() {
+    this.isWorkspaceModalOpen = {
+      opened: true,
+      data: null,
+    };
+  }
+
+  onWorkspaceEdit() {
+    setTimeout(() => {
+      this.isWorkspaceModalOpen = {
+        opened: true,
+        data: this.workspaceControl.value,
+      };
+    });
+  }
+
+  onWorkspaceModalCancel() {
+    this.isWorkspaceModalOpen = {
+      opened: false,
+      data: null,
+    };
+  }
+
+  onWorkspaceModalSave(workspace: Workspace) {
+    this.isWorkspaceModalOpen = {
+      opened: false,
+      data: null,
+    };
+
+    this.workspaceControl.setValue(workspace);
+
+    this.listWorkspaces();
   }
 }
