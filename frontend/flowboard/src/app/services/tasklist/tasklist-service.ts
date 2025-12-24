@@ -17,7 +17,17 @@ export class TasklistService {
   }
 
   create(data: { name: string; workspaceId: number }) {
-    return this.http.post(`${this.config.apiBaseUrl}/api/me/tasklist`, data);
+    return this.http.post<Tasklist>(
+      `${this.config.apiBaseUrl}/api/me/tasklist`,
+      data,
+    );
+  }
+
+  update(data: { name: string; id: number; workspaceId: number }) {
+    return this.http.put<Tasklist>(
+      `${this.config.apiBaseUrl}/api/me/workspace/${data.workspaceId}/tasklist/${data.id}`,
+      data,
+    );
   }
 
   delete(tasklistId: number) {

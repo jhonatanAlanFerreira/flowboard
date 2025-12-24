@@ -30,6 +30,7 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
     Route::post('task', [TaskController::class, "store"]);
 
     Route::put('workspace/{workspaceId}', [WorkspaceController::class, "update"]);
+    Route::put('workspace/{workspaceId}/tasklist/{tasklistId}', [TasklistController::class, "update"]);
     Route::put('task/{taskId}', [TaskController::class, "update"]);
     Route::put('tasklists/reorder', [WorkspaceController::class, "reorderTasklists"]);
     Route::put('tasks/reorder', [TasklistController::class, "reorderTasks"]);

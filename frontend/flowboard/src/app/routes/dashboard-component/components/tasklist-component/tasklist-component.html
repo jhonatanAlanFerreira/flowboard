@@ -10,6 +10,7 @@
     @if (!isDeleting()) {
     <app-edit-button-component
       (onDelete)="deleteTasklist()"
+      (onEdit)="editTasklist()"
     ></app-edit-button-component>
     }
   </div>

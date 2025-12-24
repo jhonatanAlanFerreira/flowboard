@@ -38,6 +38,7 @@
         [cdkDragData]="tasklist"
         (onTaskCreated)="listTasklistsFromWorkspace()"
         (onTaskDelete)="onTaskDelete($event)"
+        (onTasklistEdit)="onTasklistEdit($event)"
         (onTasklistDelete)="onTasklistDelete($event)"
         [tasklist]="tasklist"
         [isDeleting]="isListDeleting(tasklist)"
@@ -48,7 +49,7 @@
     @if (workspaceControl.value && !isWorkspaceDeletingModalOpen) {
     <div class="h-fit min-w-70 rounded-lg border border-zinc-800 bg-[#09090b]">
       <p-button
-        (onClick)="isListModalOpen = true"
+        (onClick)="onCreateNewList()"
         label="Create new List"
         fluid
         severity="secondary"
@@ -89,3 +90,11 @@
   (onSave)="onWorkspaceModalSave($event)"
   [workspace]="isWorkspaceModalOpen.data"
 ></app-workspace-modal-component>
+
+<app-tasklist-modal-component
+  [visible]="isListModalOpen.opened"
+  (onCancel)="onListModalCancel()"
+  (onSave)="onListModalSave()"
+  [workspaceId]="workspaceControl.value?.id!"
+  [tasklist]="isListModalOpen.data"
+></app-tasklist-modal-component>

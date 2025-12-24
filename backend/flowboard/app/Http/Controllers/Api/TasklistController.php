@@ -33,6 +33,13 @@ class TasklistController extends Controller
         return response()->json($tasklist, 201);
     }
 
+    public function update(Request $request, $workspaceId, $tasklistId)
+    {
+        $tasklist = $request->user()->workspaces()->findOrFail($workspaceId)->tasklists()->findOrFail($tasklistId);
+        $tasklist->fill($request->all())->save();
+        return $tasklist;
+    }
+
     public function delete($tasklistId)
     {
         Tasklist::where("id", $tasklistId)->delete();

@@ -35,6 +35,7 @@ export class TasklistComponent {
   @Output() onTaskCreate = new EventEmitter();
   @Output() onTaskDelete = new EventEmitter<{ taskId: number }>();
   @Output() onTasklistDelete = new EventEmitter<{ tasklistId: number }>();
+  @Output() onTasklistEdit = new EventEmitter<Tasklist>();
 
   tasklist = input<Tasklist>();
   isDeleting = input(false);
@@ -81,5 +82,9 @@ export class TasklistComponent {
 
   deleteTask({ taskId }: { taskId: number }) {
     this.onTaskDelete.emit({ taskId });
+  }
+
+  editTasklist() {
+    this.onTasklistEdit.emit(this.tasklist());
   }
 }
