@@ -70,6 +70,7 @@
   [visible]="isWorkspaceDeletingModalOpen"
   (onCancel)="isWorkspaceDeletingModalOpen = false"
   (onConfirm)="deleteWorkspace()"
+  [inputValueConfirmation]="workspaceControl.value?.name"
 ></app-dialog-component>
 
 <app-dialog-component

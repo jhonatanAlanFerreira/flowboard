@@ -4,20 +4,37 @@
     [modal]="true"
     [visible]="visible()"
     [closable]="false"
+    (onHide)="onHide()"
     [style]="{ width: '25rem' }"
   >
-    <div class="flex justify-end gap-2">
-      <p-button
-        [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
-        class=""
-        label="Cancel"
-        (click)="onCancel.emit()"
-      />
-      <p-button
-        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
-        label="Yes"
-        (click)="onConfirm.emit()"
-      />
+    <div class="flex flex-col justify-end gap-2">
+      @if(inputValueConfirmation()){
+      <div class="flex flex-col gap-2">
+        <p>
+          To delete this workspace, type "{{ inputValueConfirmation() }}" in the
+          field below to confirm.
+        </p>
+        <input
+          [formControl]="confirmationControl"
+          class="rounded-lg p-2"
+          type="text"
+        />
+      </div>
+      }
+      <div class="mt-2 flex justify-end gap-2">
+        <p-button
+          [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
+          class=""
+          label="Cancel"
+          (click)="onCancel.emit()"
+        />
+        <p-button
+          [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+          label="Yes"
+          [disabled]="isDisabled"
+          (click)="onConfirm.emit()"
+        />
+      </div>
     </div>
   </p-dialog>
 </div>
