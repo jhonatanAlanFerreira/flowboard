@@ -36,10 +36,11 @@
         cdkDrag
         cdkDragLockAxis="x"
         [cdkDragData]="tasklist"
-        (onTaskCreated)="listTasklistsFromWorkspace()"
+        (onTaskCreate)="onTaskCreate($event)"
         (onTaskDelete)="onTaskDelete($event)"
         (onTasklistEdit)="onTasklistEdit($event)"
         (onTasklistDelete)="onTasklistDelete($event)"
+        (onTaskEdit)="onTaskEdit($event)"
         [tasklist]="tasklist"
         [isDeleting]="isListDeleting(tasklist)"
         [taskIdDeleting]="isTaskDeletingModalOpen.data?.taskId"
@@ -98,3 +99,11 @@
   [workspaceId]="workspaceControl.value?.id!"
   [tasklist]="isListModalOpen.data"
 ></app-tasklist-modal-component>
+
+<app-task-modal-component
+  [visible]="isTaskModalOpen.opened"
+  [tasklistId]="isTaskModalOpen.data?.tasklistId!"
+  [task]="isTaskModalOpen.data?.task!"
+  (onCancel)="onTaskModalCancel()"
+  (onSave)="onTaskModalSave()"
+></app-task-modal-component>

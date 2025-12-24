@@ -12,6 +12,7 @@ import { TaskService } from '../../../../services/task/task-service';
 })
 export class TaskComponent {
   @Output() onDelete = new EventEmitter<{ taskId: number }>();
+  @Output() onEdit = new EventEmitter<Task>();
   @Input({ required: true }) task!: Task;
 
   isDeleting = input(false);
@@ -24,5 +25,9 @@ export class TaskComponent {
 
   deleteTask() {
     this.onDelete.emit({ taskId: this.task.id });
+  }
+
+  editTask() {
+    this.onEdit.emit(this.task);
   }
 }

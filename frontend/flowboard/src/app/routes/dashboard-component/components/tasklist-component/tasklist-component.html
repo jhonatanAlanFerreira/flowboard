@@ -26,6 +26,7 @@
       <app-task-component
         [isDeleting]="isTaskDeleting(task)"
         (onDelete)="deleteTask($event)"
+        (onEdit)="editTask($event)"
         [task]="task"
       />
     </div>
@@ -33,7 +34,7 @@
   </div>
 
   <p-button
-    (onClick)="onTaskCreate.emit()"
+    (onClick)="createTask()"
     label="Create new Task"
     fluid
     severity="secondary"

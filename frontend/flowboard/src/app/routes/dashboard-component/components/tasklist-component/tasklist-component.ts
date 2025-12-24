@@ -32,10 +32,11 @@ import { TasklistService } from '../../../../services/tasklist/tasklist-service'
   styleUrl: './tasklist-component.css',
 })
 export class TasklistComponent {
-  @Output() onTaskCreate = new EventEmitter();
-  @Output() onTaskDelete = new EventEmitter<{ taskId: number }>();
   @Output() onTasklistDelete = new EventEmitter<{ tasklistId: number }>();
   @Output() onTasklistEdit = new EventEmitter<Tasklist>();
+  @Output() onTaskCreate = new EventEmitter<{ tasklistId: number }>();
+  @Output() onTaskDelete = new EventEmitter<{ taskId: number }>();
+  @Output() onTaskEdit = new EventEmitter<Task>();
 
   tasklist = input<Tasklist>();
   isDeleting = input(false);
@@ -86,5 +87,13 @@ export class TasklistComponent {
 
   editTasklist() {
     this.onTasklistEdit.emit(this.tasklist());
+  }
+
+  createTask() {
+    this.onTaskCreate.emit({ tasklistId: this.tasklist()?.id! });
+  }
+
+  editTask(task: Task) {
+    this.onTaskEdit.emit(task);
   }
 }

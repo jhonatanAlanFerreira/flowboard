@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Tasklist, Workspace } from '../../models';
+import { Task, Tasklist, Workspace } from '../../models';
 import { TasklistComponent } from './components/tasklist-component/tasklist-component';
 import { DropdownComponent } from '../../components/dropdown-component/dropdown-component';
 import { DialogModule } from 'primeng/dialog';
@@ -20,6 +20,7 @@ import { DialogComponent } from '../../components/dialog-component/dialog-compon
 import { TaskService } from '../../services/task/task-service';
 import { WorkspaceModalComponent } from './modals/workspace-modal-component/workspace-modal-component';
 import { TasklistModalComponent } from './modals/tasklist-modal-component/tasklist-modal-component';
+import { TaskModalComponent } from './modals/task-modal-component/task-modal-component';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -37,6 +38,7 @@ import { TasklistModalComponent } from './modals/tasklist-modal-component/taskli
     DialogComponent,
     WorkspaceModalComponent,
     TasklistModalComponent,
+    TaskModalComponent,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
@@ -70,7 +72,13 @@ export class DashboardComponent implements OnInit {
     data: null,
   };
 
-  isTaskModalOpen = false;
+  isTaskModalOpen: {
+    opened: boolean;
+    data: { task: Task | null; tasklistId: number } | null;
+  } = {
+    opened: false,
+    data: null,
+  };
 
   isTaskDeletingModalOpen: {
     opened: boolean;
@@ -280,5 +288,40 @@ export class DashboardComponent implements OnInit {
     };
 
     this.listTasklistsFromWorkspace();
+  }
+
+  onTaskCreate({ tasklistId }: { tasklistId: number }) {
+    this.isTaskModalOpen = {
+      opened: true,
+      data: {
+        task: null,
+        tasklistId,
+      },
+    };
+  }
+
+  onTaskModalCancel() {
+    this.isTaskModalOpen = {
+      opened: false,
+      data: null,
+    };
+  }
+
+  onTaskModalSave() {
+    this.isTaskModalOpen = {
+      opened: false,
+      data: null,
+    };
+
+    this.listTasklistsFromWorkspace();
+  }
+
+  onTaskEdit(task: Task) {
+    setTimeout(() => {
+      this.isTaskModalOpen = {
+        opened: true,
+        data: { task, tasklistId: task.tasklist_id },
+      };
+    });
   }
 }

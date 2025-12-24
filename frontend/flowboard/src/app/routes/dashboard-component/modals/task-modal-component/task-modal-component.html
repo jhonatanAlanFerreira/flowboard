@@ -1,0 +1,33 @@
+<div class="card flex justify-center">
+  <p-dialog
+    [header]="header"
+    (onHide)="onHide()"
+    [modal]="true"
+    [visible]="visible()"
+    [style]="{ width: '25rem' }"
+  >
+    <div class="mb-4 flex">
+      <textarea
+        [formControl]="descriptionControl"
+        placeholder="Task Description"
+        pInputText
+        class="flex-auto p-2"
+        autocomplete="off"
+      ></textarea>
+    </div>
+    <div class="flex justify-end gap-2">
+      <p-button
+        [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
+        class=""
+        label="Cancel"
+        (click)="onCancel.emit()"
+      />
+      <p-button
+        [disabled]="!descriptionControl.value"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        label="Save"
+        (click)="save()"
+      />
+    </div>
+  </p-dialog>
+</div>
