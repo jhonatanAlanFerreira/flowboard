@@ -18,6 +18,7 @@ export class DialogComponent {
   header = input.required<string>();
   visible = input(false);
   inputValueConfirmation = input<string>();
+  inputValueConfirmationPlaceholder = input<string>('');
 
   confirm() {}
 
