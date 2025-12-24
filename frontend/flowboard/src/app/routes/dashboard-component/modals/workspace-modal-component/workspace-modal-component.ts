@@ -51,6 +51,8 @@ export class WorkspaceModalComponent implements OnChanges {
   }
 
   get header() {
-    return this.workspace()?.id ? 'Update Workspace' : 'Create new Workspace';
+    return this.workspace()?.id
+      ? 'Update Workspace name'
+      : 'Create new Workspace';
   }
 }
