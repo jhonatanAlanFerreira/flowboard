@@ -21,6 +21,7 @@ import { TaskService } from '../../services/task/task-service';
 import { WorkspaceModalComponent } from './modals/workspace-modal-component/workspace-modal-component';
 import { TasklistModalComponent } from './modals/tasklist-modal-component/tasklist-modal-component';
 import { TaskModalComponent } from './modals/task-modal-component/task-modal-component';
+import { tap } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -99,11 +100,14 @@ export class DashboardComponent implements OnInit {
   ) {
     this.workspaceControl.valueChanges.subscribe(() => {
       this.listTasklistsFromWorkspace();
+      this.setLastUsedWorkspace();
     });
   }
 
   ngOnInit(): void {
-    this.listWorkspaces();
+    this.listWorkspaces().subscribe(() => {
+      this.getLastUsedWorkspace();
+    });
   }
 
   onDropTasklist(event: CdkDragDrop<Tasklist>) {
@@ -119,13 +123,29 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  setLastUsedWorkspace() {
+    localStorage.setItem(
+      'lastUsedWorkspace',
+      JSON.stringify(this.workspaceControl.value),
+    );
+  }
+
+  getLastUsedWorkspace() {
+    const lastUsedWorkspaceString = localStorage.getItem('lastUsedWorkspace');
+    if (lastUsedWorkspaceString) {
+      this.workspaceControl.setValue(JSON.parse(lastUsedWorkspaceString));
+    }
+  }
+
   listWorkspaces() {
     this.loading.set(true);
 
-    this.workspaceService.list().subscribe((res) => {
-      this.workspaces.set(res);
-      this.loading.set(false);
-    });
+    return this.workspaceService.list().pipe(
+      tap((res) => {
+        this.workspaces.set(res);
+        this.loading.set(false);
+      }),
+    );
   }
 
   listTasklistsFromWorkspace() {
@@ -149,7 +169,7 @@ export class DashboardComponent implements OnInit {
       .delete(this.workspaceControl.value!.id)
       .subscribe(() => {
         this.workspaceControl.reset();
-        this.listWorkspaces();
+        this.listWorkspaces().subscribe();
         this.tasklists.set([]);
       });
   }
@@ -255,7 +275,7 @@ export class DashboardComponent implements OnInit {
 
     this.workspaceControl.setValue(workspace);
 
-    this.listWorkspaces();
+    this.listWorkspaces().subscribe();
   }
 
   onCreateNewList() {
