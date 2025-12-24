@@ -25,4 +25,16 @@ export class TasklistService {
       `${this.config.apiBaseUrl}/api/me/tasklist/${tasklistId}`,
     );
   }
+
+  reorderTasks(
+    newTasklistId: number,
+    sourceTasklistId: number,
+    order: number[],
+  ) {
+    return this.http.put(`${this.config.apiBaseUrl}/api/me/tasks/reorder`, {
+      newTasklistId,
+      sourceTasklistId,
+      order,
+    });
+  }
 }

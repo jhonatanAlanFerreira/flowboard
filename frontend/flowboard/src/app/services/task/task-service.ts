@@ -23,12 +23,4 @@ export class TaskService {
       ...task,
     });
   }
-
-  reorder(newTasklistId: number, sourceTasklistId: number, order: number[]) {
-    return this.http.put(`${this.config.apiBaseUrl}/api/me/tasks/reorder`, {
-      newTasklistId,
-      sourceTasklistId,
-      order,
-    });
-  }
 }

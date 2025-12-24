@@ -13,6 +13,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Divider } from 'primeng/divider';
+import { TasklistService } from '../../../../services/tasklist/tasklist-service';
 
 @Component({
   selector: 'app-tasklist-component',
@@ -39,6 +40,8 @@ export class TasklistComponent {
   isDeleting = input(false);
   taskIdDeleting = input<number>();
 
+  constructor(private tasklistService: TasklistService) {}
+
   onDropTask(event: CdkDragDrop<Task[] | undefined>) {
     if (!event.container.data || !event.previousContainer.data) {
       return;
@@ -59,13 +62,13 @@ export class TasklistComponent {
       );
     }
 
-    // this.service
-    //   .reorderTasks(
-    //     this.tasklist()!.id,
-    //     event.item.data.tasklist_id,
-    //     event.container.data.map((t) => t.id),
-    //   )
-    //   .subscribe();
+    this.tasklistService
+      .reorderTasks(
+        this.tasklist()!.id,
+        event.item.data.tasklist_id,
+        event.container.data.map((t) => t.id),
+      )
+      .subscribe();
   }
 
   deleteTasklist() {
