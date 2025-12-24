@@ -31,12 +31,12 @@ import { Divider } from 'primeng/divider';
   styleUrl: './tasklist-component.css',
 })
 export class TasklistComponent {
-  @Output() onTaskCreated = new EventEmitter();
+  @Output() onTaskCreate = new EventEmitter();
   @Output() onTaskDelete = new EventEmitter();
-  @Output() onTasklistDelete = new EventEmitter();
+  @Output() onTasklistDelete = new EventEmitter<{ tasklistId: number }>();
 
   tasklist = input<Tasklist>();
-  workspaceDeleting = input(false);
+  isDeleting = input(false);
 
   onDropTask(event: CdkDragDrop<Task[] | undefined>) {
     if (!event.container.data || !event.previousContainer.data) {
@@ -65,5 +65,9 @@ export class TasklistComponent {
     //     event.container.data.map((t) => t.id),
     //   )
     //   .subscribe();
+  }
+
+  deleteTasklist() {
+    this.onTasklistDelete.emit({ tasklistId: this.tasklist()!.id });
   }
 }

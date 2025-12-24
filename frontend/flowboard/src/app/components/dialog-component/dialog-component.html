@@ -1,0 +1,23 @@
+<div class="flex justify-center">
+  <p-dialog
+    [header]="header()"
+    [modal]="true"
+    [visible]="visible()"
+    [closable]="false"
+    [style]="{ width: '25rem' }"
+  >
+    <div class="flex justify-end gap-2">
+      <p-button
+        [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
+        class=""
+        label="Cancel"
+        (click)="onCancel.emit()"
+      />
+      <p-button
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        label="Yes"
+        (click)="onConfirm.emit()"
+      />
+    </div>
+  </p-dialog>
+</div>

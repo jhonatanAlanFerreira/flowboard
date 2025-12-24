@@ -18,7 +18,7 @@
       >
       } @if (workspaceControl.value) {
       <app-edit-button-component
-        (onDelete)="isWorkspaceDeletingModalOpen = true"
+        (onDelete)="onWorkspaceDelete()"
       ></app-edit-button-component>
       }
     </div>
@@ -37,9 +37,9 @@
         [cdkDragData]="tasklist"
         (onTaskCreated)="listTasklistsFromWorkspace()"
         (onTaskDelete)="listTasklistsFromWorkspace()"
-        (onTasklistDelete)="listTasklistsFromWorkspace()"
+        (onTasklistDelete)="onTasklistDelete($event)"
         [tasklist]="tasklist"
-        [workspaceDeleting]="isWorkspaceDeletingModalOpen"
+        [isDeleting]="isListDeleting(tasklist)"
       ></app-tasklist-component>
       }
     </ng-container>
@@ -59,3 +59,17 @@
     }
   </div>
 </div>
+
+<app-dialog-component
+  header="Are you sure you want to delete this workspace?"
+  [visible]="isWorkspaceDeletingModalOpen"
+  (onCancel)="isWorkspaceDeletingModalOpen = false"
+  (onConfirm)="deleteWorkspace()"
+></app-dialog-component>
+
+<app-dialog-component
+  header="Are you sure you want to delete this list?"
+  [visible]="isListDeletingModalOpen.opened"
+  (onCancel)="isListDeletingModalOpen.opened = false"
+  (onConfirm)="deleteTasklist()"
+></app-dialog-component>

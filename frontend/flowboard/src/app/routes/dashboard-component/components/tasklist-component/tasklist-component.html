@@ -1,15 +1,15 @@
 <div
   class="flex max-h-full min-w-70 cursor-move flex-col rounded-2xl border border-zinc-800 bg-[#09090b] p-3 text-white"
-  [class.bg-red-900!]="workspaceDeleting()"
+  [class.bg-red-900!]="isDeleting()"
 >
   <div class="mb-2 flex justify-between">
     <div class="flex w-full flex-col">
       <p class="p-3">{{ tasklist()?.name }}</p>
       <p-divider class="w-5/6! self-center! opacity-8!"></p-divider>
     </div>
-    @if (!workspaceDeleting()) {
+    @if (!isDeleting()) {
     <app-edit-button-component
-      (onDelete)="onTasklistDelete.emit()"
+      (onDelete)="deleteTasklist()"
     ></app-edit-button-component>
     }
   </div>
@@ -23,7 +23,7 @@
     @for (task of tasklist()!.tasks; track task.id) {
     <div cdkDrag [cdkDragData]="task" class="my-4">
       <app-task-component
-        [deletingList]="workspaceDeleting()"
+        [deletingList]="isDeleting()"
         (onDelete)="onTaskDelete.emit()"
         [task]="task"
       />
@@ -32,7 +32,7 @@
   </div>
 
   <p-button
-    (onClick)="onTaskCreated.emit()"
+    (onClick)="onTaskCreate.emit()"
     label="Create new Task"
     fluid
     severity="secondary"

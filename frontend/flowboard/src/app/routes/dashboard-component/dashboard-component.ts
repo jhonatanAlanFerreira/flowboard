@@ -16,6 +16,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { WorkspaceService } from '../../services/workspace/workspace-service';
 import { TasklistService } from '../../services/tasklist/tasklist-service';
+import { DialogComponent } from '../../components/dialog-component/dialog-component';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -30,6 +31,7 @@ import { TasklistService } from '../../services/tasklist/tasklist-service';
     CdkDropListGroup,
     CdkDropList,
     CdkDrag,
+    DialogComponent,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
@@ -41,7 +43,13 @@ export class DashboardComponent implements OnInit {
   isWorkspaceDeletingModalOpen = false;
 
   isListModalOpen = false;
-  isListDeletingModalOpen = false;
+  isListDeletingModalOpen: {
+    opened: boolean;
+    data: { tasklistId: number } | null;
+  } = {
+    opened: false,
+    data: null,
+  };
 
   isTaskModalOpen = false;
   isTaskDeletingModalOpen = false;
@@ -53,30 +61,14 @@ export class DashboardComponent implements OnInit {
   constructor(
     private workspaceService: WorkspaceService,
     private tasklistService: TasklistService,
-  ) {}
-
-  ngOnInit(): void {
-    this.listWorkspaces();
-  }
-
-  listWorkspaces() {
-    this.loading.set(true);
-
-    this.workspaceService.list().subscribe((res) => {
-      this.workspaces.set(res);
-      this.loading.set(false);
+  ) {
+    this.workspaceControl.valueChanges.subscribe(() => {
+      this.listTasklistsFromWorkspace();
     });
   }
 
-  listTasklistsFromWorkspace() {
-    this.loading.set(true);
-
-    this.tasklistService
-      .listFromWorkspace(this.workspaceControl.value!.id)
-      .subscribe((res) => {
-        this.tasklists.set(res);
-        this.loading.set(false);
-      });
+  ngOnInit(): void {
+    this.listWorkspaces();
   }
 
   onDropTasklist(event: CdkDragDrop<Tasklist>) {
@@ -90,5 +82,79 @@ export class DashboardComponent implements OnInit {
         )
         .subscribe();
     }
+  }
+
+  listWorkspaces() {
+    this.loading.set(true);
+
+    this.workspaceService.list().subscribe((res) => {
+      this.workspaces.set(res);
+      this.loading.set(false);
+    });
+  }
+
+  listTasklistsFromWorkspace() {
+    const { value } = this.workspaceControl;
+
+    if (value) {
+      this.loading.set(true);
+
+      this.tasklistService.listFromWorkspace(value.id).subscribe((res) => {
+        this.tasklists.set(res);
+        this.loading.set(false);
+      });
+    }
+  }
+
+  deleteWorkspace() {
+    this.isWorkspaceDeletingModalOpen = false;
+    this.loading.set(true);
+
+    this.workspaceService
+      .delete(this.workspaceControl.value!.id)
+      .subscribe(() => {
+        this.workspaceControl.reset();
+        this.listWorkspaces();
+        this.tasklists.set([]);
+      });
+  }
+
+  onTasklistDelete({ tasklistId }: { tasklistId: number }) {
+    setTimeout(() => {
+      this.isListDeletingModalOpen = {
+        opened: true,
+        data: { tasklistId },
+      };
+    });
+  }
+
+  onWorkspaceDelete() {
+    setTimeout(() => {
+      this.isWorkspaceDeletingModalOpen = true;
+    });
+  }
+
+  deleteTasklist() {
+    this.loading.set(true);
+
+    this.tasklistService
+      .delete(this.isListDeletingModalOpen.data!.tasklistId)
+      .subscribe(() => {
+        this.listTasklistsFromWorkspace();
+      });
+
+    this.isListDeletingModalOpen = {
+      opened: false,
+      data: null,
+    };
+  }
+
+  isListDeleting(tasklist: Tasklist) {
+    const { data, opened } = this.isListDeletingModalOpen;
+
+    const isWorkspaceDeleting = this.isWorkspaceDeletingModalOpen;
+    const isTasklistDeleting = opened && data?.tasklistId == tasklist.id;
+
+    return isWorkspaceDeleting || isTasklistDeleting;
   }
 }
