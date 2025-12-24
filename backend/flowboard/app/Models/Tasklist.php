@@ -23,4 +23,11 @@ class Tasklist extends Model
     {
         return $this->hasMany(Task::class)->orderBy('order');
     }
+
+    public function scopeOwnedBy($query, User $user)
+    {
+        return $query->whereHas('workspace', function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+        });
+    }
 }

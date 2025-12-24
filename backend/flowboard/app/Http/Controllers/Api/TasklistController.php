@@ -40,9 +40,11 @@ class TasklistController extends Controller
         return $tasklist;
     }
 
-    public function delete($tasklistId)
+    public function delete(Request $request, $tasklistId)
     {
-        Tasklist::where("id", $tasklistId)->delete();
+        Tasklist::ownedBy($request->user())
+            ->findOrFail($tasklistId)
+            ->delete();
     }
 
     public function reorderTasks(Request $request)

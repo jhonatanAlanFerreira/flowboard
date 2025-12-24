@@ -39,8 +39,9 @@ class TaskController extends Controller
         return $task->update($request->all());
     }
 
-    public function delete($taskId)
+    public function delete(Request $request, $taskId)
     {
-        Task::where("id", $taskId)->delete();
+        $task = Task::ownedBy($request->user())->findOrFail($taskId);
+        return $task->delete();
     }
 }
