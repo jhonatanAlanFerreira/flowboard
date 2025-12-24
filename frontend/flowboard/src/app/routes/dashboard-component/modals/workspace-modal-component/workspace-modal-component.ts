@@ -36,7 +36,13 @@ export class WorkspaceModalComponent implements OnChanges {
   }
 
   save() {
-    if (!this.workspace()?.id) {
+    if (this.workspace()?.id) {
+      this.workspaceService
+        .update({ name: this.nameControl.value!, id: this.workspace()!.id })
+        .subscribe((res) => {
+          this.onSave.emit(res);
+        });
+    } else {
       this.workspaceService
         .create({ name: this.nameControl.value! })
         .subscribe((res) => {

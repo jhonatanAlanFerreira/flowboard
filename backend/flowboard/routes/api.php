@@ -1,10 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TasklistController;
 use App\Http\Controllers\Api\WorkspaceController;
-use App\Http\Controllers\LoginController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RegisterController;
 
@@ -23,18 +22,19 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'authenticate']);
 
 Route::middleware('auth:api')->prefix('me')->group(function () {
-    Route::get('workspaces', [WorkspaceController::class, "index"]);
-    Route::get('workspace/{workspaceId}/tasklists', [TasklistController::class, "index"]);
+    Route::get('workspace/{workspaceId}/tasklists', [WorkspaceController::class, "index"]);
+    Route::get('workspaces', [WorkspaceController::class, "userWorkspaces"]);
 
-    Route::post('tasklist', [TasklistController::class, "storeTasklist"]);
-    Route::post('task', [TasklistController::class, "storeTask"]);
-    Route::post('workspace', [TasklistController::class, "storeWorkspace"]);
+    Route::post('workspace', [WorkspaceController::class, "store"]);
+    Route::post('tasklist', [TasklistController::class, "store"]);
+    Route::post('task', [TaskController::class, "store"]);
 
-    Route::delete('task/{taskId}', [TasklistController::class, "deleteTask"]);
-    Route::delete('tasklist/{tasklistId}', [TasklistController::class, "deleteTasklist"]);
-    Route::delete('workspace/{workspaceId}', [TasklistController::class, "deleteWorkspace"]);
-
+    Route::put('workspace/{workspaceId}', [WorkspaceController::class, "update"]);
     Route::put('task/{taskId}', [TaskController::class, "update"]);
-    Route::put('tasklists/reorder', [TasklistController::class, "reorderTasklists"]);
+    Route::put('tasklists/reorder', [WorkspaceController::class, "reorderTasklists"]);
     Route::put('tasks/reorder', [TasklistController::class, "reorderTasks"]);
+
+    Route::delete('workspace/{workspaceId}', [WorkspaceController::class, "delete"]);
+    Route::delete('tasklist/{tasklistId}', [TasklistController::class, "delete"]);
+    Route::delete('task/{taskId}', [TaskController::class, "delete"]);
 });

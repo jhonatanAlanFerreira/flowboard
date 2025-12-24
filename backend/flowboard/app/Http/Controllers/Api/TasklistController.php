@@ -11,17 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class TasklistController extends Controller
 {
-    public function index(Request $request, $workspaceId)
-    {
-        return $request->user()
-            ->workspaces()
-            ->findOrFail($workspaceId)
-            ->tasklists()
-            ->with('tasks')
-            ->get();
-    }
-
-    public function storeTasklist(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -43,77 +33,9 @@ class TasklistController extends Controller
         return response()->json($tasklist, 201);
     }
 
-    public function storeTask(Request $request)
-    {
-        $request->validate([
-            'description' => 'required|string',
-            'tasklistId' => 'required|integer',
-        ]);
-
-        $tasklist = $request->user()
-            ->workspaces()
-            ->join('tasklists', 'tasklists.workspace_id', '=', 'workspaces.id')
-            ->where('tasklists.id', $request->tasklistId)
-            ->select('tasklists.id')
-            ->firstOrFail();
-
-        $nextOrder = Task::where('tasklist_id', $tasklist->id)->max('order') ?? 0;
-
-        Task::create([
-            'description' => $request->description,
-            'tasklist_id' => $tasklist->id,
-            'order' => $nextOrder + 1,
-        ]);
-
-        return response()->json(['success' => true], 201);
-    }
-
-
-    public function storeWorkspace(Request $request)
-    {
-        return Workspace::create([
-            "name" => $request->name,
-            "user_id" => $request->user()->id
-        ]);
-    }
-
-    public function deleteTask($taskId)
-    {
-        Task::where("id", $taskId)->delete();
-    }
-
-    public function deleteTasklist($tasklistId)
+    public function delete($tasklistId)
     {
         Tasklist::where("id", $tasklistId)->delete();
-    }
-
-    public function deleteWorkspace($workspaceId)
-    {
-        Workspace::where("id", $workspaceId)->delete();
-    }
-
-    public function reorderTasklists(Request $request)
-    {
-        $request->validate([
-            'workspaceId' => 'required|integer',
-            'order' => 'required|array|min:1',
-            'order.*' => 'integer',
-        ]);
-
-        $workspace = $request->user()
-            ->workspaces()
-            ->where('id', $request->workspaceId)
-            ->firstOrFail();
-
-        foreach ($request->order as $index => $tasklistId) {
-            Tasklist::where('id', $tasklistId)
-                ->where('workspace_id', $workspace->id)
-                ->update([
-                    'order' => $index + 1
-                ]);
-        }
-
-        return response()->json(['success' => true]);
     }
 
     public function reorderTasks(Request $request)

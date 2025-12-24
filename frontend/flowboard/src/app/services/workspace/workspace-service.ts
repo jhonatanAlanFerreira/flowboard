@@ -23,6 +23,13 @@ export class WorkspaceService {
     );
   }
 
+  update(data: { name: string; id: number }) {
+    return this.http.put<Workspace>(
+      `${this.config.apiBaseUrl}/api/me/workspace/${data.id}`,
+      data,
+    );
+  }
+
   delete(workspaceId: number) {
     return this.http.delete(
       `${this.config.apiBaseUrl}/api/me/workspace/${workspaceId}`,
