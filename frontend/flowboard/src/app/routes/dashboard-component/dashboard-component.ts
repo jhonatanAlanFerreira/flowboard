@@ -17,6 +17,7 @@ import {
 import { WorkspaceService } from '../../services/workspace/workspace-service';
 import { TasklistService } from '../../services/tasklist/tasklist-service';
 import { DialogComponent } from '../../components/dialog-component/dialog-component';
+import { TaskService } from '../../services/task/task-service';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -52,7 +53,13 @@ export class DashboardComponent implements OnInit {
   };
 
   isTaskModalOpen = false;
-  isTaskDeletingModalOpen = false;
+  isTaskDeletingModalOpen: {
+    opened: boolean;
+    data: { taskId: number } | null;
+  } = {
+    opened: false,
+    data: null,
+  };
 
   workspaces = signal<Workspace[]>([]);
   tasklists = signal<Tasklist[]>([]);
@@ -61,6 +68,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private workspaceService: WorkspaceService,
     private tasklistService: TasklistService,
+    private taskService: TaskService,
   ) {
     this.workspaceControl.valueChanges.subscribe(() => {
       this.listTasklistsFromWorkspace();
@@ -156,5 +164,36 @@ export class DashboardComponent implements OnInit {
     const isTasklistDeleting = opened && data?.tasklistId == tasklist.id;
 
     return isWorkspaceDeleting || isTasklistDeleting;
+  }
+
+  onTaskDelete({ taskId }: { taskId: number }) {
+    setTimeout(() => {
+      this.isTaskDeletingModalOpen = {
+        opened: true,
+        data: { taskId },
+      };
+    });
+  }
+
+  onCancelTaskDeleting() {
+    this.isTaskDeletingModalOpen = {
+      data: null,
+      opened: false,
+    };
+  }
+
+  deleteTask() {
+    this.loading.set(true);
+
+    this.taskService
+      .delete(this.isTaskDeletingModalOpen.data!.taskId)
+      .subscribe(() => {
+        this.listTasklistsFromWorkspace();
+      });
+
+    this.isTaskDeletingModalOpen = {
+      opened: false,
+      data: null,
+    };
   }
 }

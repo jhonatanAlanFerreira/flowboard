@@ -1,6 +1,6 @@
 <div
   class="group m-2 flex max-w-70 min-w-70 justify-between gap-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-white transition-all duration-200 ease-out hover:scale-[1.02] hover:border-zinc-700 hover:bg-zinc-800/70 hover:shadow-lg hover:shadow-black/30"
-  [class.bg-red-900!]="deletingList()"
+  [class.bg-red-900!]="isDeleting()"
 >
   <div class="flex flex-col gap-2">
     <label
@@ -10,7 +10,7 @@
     >
       <input
         [(ngModel)]="task.done"
-        (change)="changeTaskIsDone()"
+        (change)="update()"
         type="checkbox"
         class="peer hidden"
       />
@@ -34,7 +34,7 @@
   </div>
 
   <app-edit-button-component
-    (onDelete)="onDelete.emit()"
+    (onDelete)="deleteTask()"
     class="translate-x-1 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100"
   ></app-edit-button-component>
 </div>

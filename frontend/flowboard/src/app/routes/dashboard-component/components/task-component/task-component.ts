@@ -10,12 +10,16 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './task-component.css',
 })
 export class TaskComponent {
-  @Output() onDelete = new EventEmitter();
+  @Output() onDelete = new EventEmitter<{ taskId: number }>();
   @Input({ required: true }) task!: Task;
 
-  deletingList = input(false);
+  isDeleting = input(false);
 
-  changeTaskIsDone() {
+  update() {
     // this.service.changeTaskIsDone(this.task.id, this.task.done).subscribe();
+  }
+
+  deleteTask() {
+    this.onDelete.emit({ taskId: this.task.id });
   }
 }

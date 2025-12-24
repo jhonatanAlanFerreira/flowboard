@@ -23,8 +23,8 @@
     @for (task of tasklist()!.tasks; track task.id) {
     <div cdkDrag [cdkDragData]="task" class="my-4">
       <app-task-component
-        [deletingList]="isDeleting()"
-        (onDelete)="onTaskDelete.emit()"
+        [isDeleting]="isTaskDeleting(task)"
+        (onDelete)="deleteTask($event)"
         [task]="task"
       />
     </div>

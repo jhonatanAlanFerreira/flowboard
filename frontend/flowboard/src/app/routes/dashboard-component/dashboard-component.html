@@ -36,10 +36,11 @@
         cdkDragLockAxis="x"
         [cdkDragData]="tasklist"
         (onTaskCreated)="listTasklistsFromWorkspace()"
-        (onTaskDelete)="listTasklistsFromWorkspace()"
+        (onTaskDelete)="onTaskDelete($event)"
         (onTasklistDelete)="onTasklistDelete($event)"
         [tasklist]="tasklist"
         [isDeleting]="isListDeleting(tasklist)"
+        [taskIdDeleting]="isTaskDeletingModalOpen.data?.taskId"
       ></app-tasklist-component>
       }
     </ng-container>
@@ -61,15 +62,22 @@
 </div>
 
 <app-dialog-component
-  header="Are you sure you want to delete this workspace?"
+  header="Are you sure you want to delete this Workspace?"
   [visible]="isWorkspaceDeletingModalOpen"
   (onCancel)="isWorkspaceDeletingModalOpen = false"
   (onConfirm)="deleteWorkspace()"
 ></app-dialog-component>
 
 <app-dialog-component
-  header="Are you sure you want to delete this list?"
+  header="Are you sure you want to delete this List?"
   [visible]="isListDeletingModalOpen.opened"
   (onCancel)="isListDeletingModalOpen.opened = false"
   (onConfirm)="deleteTasklist()"
+></app-dialog-component>
+
+<app-dialog-component
+  header="Are you sure you want to delete this Task?"
+  [visible]="isTaskDeletingModalOpen.opened"
+  (onCancel)="onCancelTaskDeleting() "
+  (onConfirm)="deleteTask()"
 ></app-dialog-component>
