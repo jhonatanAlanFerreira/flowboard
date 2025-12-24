@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, input } from '@angular/core';
 import { Task } from '../../../../models';
 import { EditButtonComponent } from '../../../../components/edit-button-component/edit-button-component';
 import { FormsModule } from '@angular/forms';
+import { TaskService } from '../../../../services/task/task-service';
 
 @Component({
   selector: 'app-task-component',
@@ -15,8 +16,10 @@ export class TaskComponent {
 
   isDeleting = input(false);
 
+  constructor(private taskService: TaskService) {}
+
   update() {
-    // this.service.changeTaskIsDone(this.task.id, this.task.done).subscribe();
+    this.taskService.update(this.task).subscribe();
   }
 
   deleteTask() {

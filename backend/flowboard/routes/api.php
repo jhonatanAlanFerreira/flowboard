@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TasklistController;
 use App\Http\Controllers\Api\WorkspaceController;
 use App\Http\Controllers\LoginController;
@@ -33,7 +34,7 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
     Route::delete('tasklist/{tasklistId}', [TasklistController::class, "deleteTasklist"]);
     Route::delete('workspace/{workspaceId}', [TasklistController::class, "deleteWorkspace"]);
 
-    Route::put('task', [TasklistController::class, "update"]);
+    Route::put('task/{taskId}', [TaskController::class, "update"]);
     Route::put('tasklists/reorder', [TasklistController::class, "reorderTasklists"]);
     Route::put('tasks/reorder', [TasklistController::class, "reorderTasks"]);
 });

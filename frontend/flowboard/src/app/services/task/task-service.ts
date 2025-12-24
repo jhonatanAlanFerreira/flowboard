@@ -19,7 +19,9 @@ export class TaskService {
   }
 
   update(task: Task) {
-    return this.http.put(`${this.config.apiBaseUrl}/api/me/task`, { ...task });
+    return this.http.put(`${this.config.apiBaseUrl}/api/me/task/${task.id}`, {
+      ...task,
+    });
   }
 
   reorder(newTasklistId: number, sourceTasklistId: number, order: number[]) {
