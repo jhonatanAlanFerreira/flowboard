@@ -44,6 +44,7 @@
         [tasklist]="tasklist"
         [isDeleting]="isListDeleting(tasklist)"
         [taskIdDeleting]="isTaskDeletingModalOpen.data?.taskId"
+        [taskIdEditing]="isTaskModalOpen.data?.task?.id"
       ></app-tasklist-component>
       }
     </ng-container>

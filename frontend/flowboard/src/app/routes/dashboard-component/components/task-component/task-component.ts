@@ -16,6 +16,7 @@ export class TaskComponent {
   @Input({ required: true }) task!: Task;
 
   isDeleting = input(false);
+  isEditing = input(false);
 
   constructor(private taskService: TaskService) {}
 

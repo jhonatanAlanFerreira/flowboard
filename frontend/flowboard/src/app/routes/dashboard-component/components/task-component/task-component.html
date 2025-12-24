@@ -1,12 +1,14 @@
 <div
   class="group m-2 flex max-w-70 min-w-70 justify-between gap-2 rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-white transition-all duration-200 ease-out hover:scale-[1.02] hover:border-zinc-700 hover:bg-zinc-800/70 hover:shadow-lg hover:shadow-black/30"
   [class.bg-red-900!]="isDeleting()"
+  [class.bg-gray-200!]="isEditing()"
 >
   <div class="flex flex-col gap-2">
     <label
       class="flex min-h-5 w-fit translate-y-1 cursor-pointer items-center gap-2 text-sm text-zinc-300 opacity-30 transition-all duration-200 ease-out select-none group-hover:translate-y-0 group-hover:opacity-100 hover:text-white"
       [class.opacity-100]="task.done"
       [class.translate-y-0]="task.done"
+      [class.text-gray-900!]="isEditing()"
     >
       <input
         [(ngModel)]="task.done"
@@ -28,6 +30,7 @@
 
     <p
       class="text-zinc-200 transition-all peer-checked:text-zinc-400 peer-checked:line-through"
+      [class.text-gray-900!]="isEditing()"
     >
       {{ task.description }}
     </p>

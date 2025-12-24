@@ -25,6 +25,7 @@
     <div cdkDrag [cdkDragData]="task" class="my-4">
       <app-task-component
         [isDeleting]="isTaskDeleting(task)"
+        [isEditing]="isTaskEditing(task)"
         (onDelete)="deleteTask($event)"
         (onEdit)="editTask($event)"
         [task]="task"

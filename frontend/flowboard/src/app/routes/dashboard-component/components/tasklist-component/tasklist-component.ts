@@ -41,6 +41,7 @@ export class TasklistComponent {
   tasklist = input<Tasklist>();
   isDeleting = input(false);
   taskIdDeleting = input<number>();
+  taskIdEditing = input<number>();
 
   constructor(private tasklistService: TasklistService) {}
 
@@ -79,6 +80,10 @@ export class TasklistComponent {
 
   isTaskDeleting(task: Task) {
     return this.isDeleting() || task.id == this.taskIdDeleting();
+  }
+
+  isTaskEditing(task: Task) {
+    return task.id == this.taskIdEditing();
   }
 
   deleteTask({ taskId }: { taskId: number }) {
