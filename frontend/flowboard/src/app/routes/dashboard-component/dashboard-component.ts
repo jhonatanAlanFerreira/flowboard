@@ -22,6 +22,7 @@ import { WorkspaceModalComponent } from './modals/workspace-modal-component/work
 import { TasklistModalComponent } from './modals/tasklist-modal-component/tasklist-modal-component';
 import { TaskModalComponent } from './modals/task-modal-component/task-modal-component';
 import { tap } from 'rxjs';
+import { LoadingComponent } from '../../components/loading-component/loading-component';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -40,6 +41,7 @@ import { tap } from 'rxjs';
     WorkspaceModalComponent,
     TasklistModalComponent,
     TaskModalComponent,
+    LoadingComponent,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
@@ -169,12 +171,9 @@ export class DashboardComponent implements OnInit {
   }
 
   listWorkspaces() {
-    this.loading.set(true);
-
     return this.workspaceService.list().pipe(
       tap((res) => {
         this.workspaces.set(res);
-        this.loading.set(false);
       }),
     );
   }
@@ -195,7 +194,6 @@ export class DashboardComponent implements OnInit {
 
   deleteWorkspace() {
     this.isWorkspaceDeletingModalOpen = false;
-    this.loading.set(true);
 
     this.workspaceService
       .delete(this.workspaceControl.value!.id)
@@ -222,8 +220,6 @@ export class DashboardComponent implements OnInit {
   }
 
   deleteTasklist() {
-    this.loading.set(true);
-
     this.tasklistService
       .delete(this.isListDeletingModalOpen.data!.tasklistId)
       .subscribe(() => {
@@ -262,8 +258,6 @@ export class DashboardComponent implements OnInit {
   }
 
   deleteTask() {
-    this.loading.set(true);
-
     this.taskService
       .delete(this.isTaskDeletingModalOpen.data!.taskId)
       .subscribe(() => {
