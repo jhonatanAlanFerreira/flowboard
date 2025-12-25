@@ -9,6 +9,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { ConfigService } from './config.service';
 import { authInterceptor } from './auth.interceptor';
+import { requestStatusInterceptor } from './request-status.interceptor';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 
@@ -20,7 +21,9 @@ export const appConfig: ApplicationConfig = {
       const configService = inject(ConfigService);
       return configService.load();
     }),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(
+      withInterceptors([authInterceptor, requestStatusInterceptor]),
+    ),
     providePrimeNG({
       theme: {
         preset: Aura,
