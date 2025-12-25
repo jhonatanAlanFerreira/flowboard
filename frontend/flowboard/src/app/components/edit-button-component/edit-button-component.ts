@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { MenuItem } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { Menu } from 'primeng/menu';
 
@@ -12,7 +13,7 @@ export class EditButtonComponent {
   @Output() onEdit = new EventEmitter();
   @Output() onDelete = new EventEmitter();
 
-  items = [
+  items: MenuItem[] = [
     {
       label: 'Edit',
       icon: 'pi pi-pencil',
@@ -20,7 +21,8 @@ export class EditButtonComponent {
     },
     {
       label: 'Delete',
-      icon: 'pi pi-trash',
+      labelClass: 'text-red-400',
+      icon: 'pi pi-trash text-red-400!',
       command: () => this.onDelete.emit(),
     },
   ];
