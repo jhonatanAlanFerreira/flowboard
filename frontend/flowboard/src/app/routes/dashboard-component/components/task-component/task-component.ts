@@ -31,4 +31,8 @@ export class TaskComponent {
   editTask() {
     this.onEdit.emit(this.task);
   }
+
+  get hasMatchesSearchBackground() {
+    return this.task.matchesSearch && !this.isDeleting() && !this.isEditing();
+  }
 }

@@ -46,6 +46,7 @@ import { tap } from 'rxjs';
 })
 export class DashboardComponent implements OnInit {
   workspaceControl = new FormControl<Workspace | null>(null);
+  searchControl = new FormControl<string | null>(null);
 
   isWorkspaceDeletingModalOpen = false;
 
@@ -102,6 +103,10 @@ export class DashboardComponent implements OnInit {
       this.listTasklistsFromWorkspace();
       this.setLastUsedWorkspace();
     });
+
+    this.searchControl.valueChanges.subscribe(() => {
+      this.applySearch();
+    });
   }
 
   ngOnInit(): void {
@@ -137,6 +142,32 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  applySearch() {
+    const value = this.searchControl.value?.trim().toLowerCase();
+
+    if (!value) {
+      this.tasklists().forEach((tk) => {
+        tk.hasMatchingTasks = false;
+        tk.tasks?.forEach((t) => (t.matchesSearch = false));
+      });
+      return;
+    }
+
+    this.tasklists().forEach((tk) => {
+      let hasMatchingTasks = false;
+
+      tk.tasks?.forEach((t) => {
+        const matches = t.description.toLowerCase().includes(value);
+        t.matchesSearch = matches;
+        if (matches) {
+          hasMatchingTasks = true;
+        }
+      });
+
+      tk.hasMatchingTasks = hasMatchingTasks;
+    });
+  }
+
   listWorkspaces() {
     this.loading.set(true);
 
@@ -157,6 +188,7 @@ export class DashboardComponent implements OnInit {
       this.tasklistService.listFromWorkspace(value.id).subscribe((res) => {
         this.tasklists.set(res);
         this.loading.set(false);
+        this.applySearch();
       });
     }
   }

@@ -37,6 +37,7 @@ export class TasklistComponent {
   @Output() onTaskCreate = new EventEmitter<{ tasklistId: number }>();
   @Output() onTaskDelete = new EventEmitter<{ taskId: number }>();
   @Output() onTaskEdit = new EventEmitter<Task>();
+  @Output() onTaskDropped = new EventEmitter();
 
   tasklist = input<Tasklist>();
   isDeleting = input(false);
@@ -64,6 +65,8 @@ export class TasklistComponent {
         event.currentIndex,
       );
     }
+
+    this.onTaskDropped.emit();
 
     this.tasklistService
       .reorderTasks(

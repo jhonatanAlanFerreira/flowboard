@@ -9,6 +9,7 @@ export interface Task {
   order: number;
   done: boolean;
   tasklist_id: number;
+  matchesSearch: boolean;
 }
 
 export interface Tasklist {
@@ -16,4 +17,5 @@ export interface Tasklist {
   order: number;
   name: string;
   tasks?: Task[];
+  hasMatchingTasks: boolean;
 }

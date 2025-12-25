@@ -1,27 +1,39 @@
 <div class="flex h-screen w-screen flex-col">
   <div class="h-15 w-full bg-gray-500 p-3">
-    <div class="flex h-full items-center gap-2">
-      @if (!isWorkspaceDeletingModalOpen) {
-      <app-dropdown-component
-        [formControl]="workspaceControl"
-        (change)="listTasklistsFromWorkspace()"
-        [options]="workspaces()"
-        placeholder="Select Workspace"
-        optionLabel="name"
-        [addOption]="true"
-        (onAdd)="onAddWorkspace()"
-      ></app-dropdown-component>
-      } @else {
-      <span
-        class="min-w-50 rounded-lg bg-red-900 p-2 whitespace-nowrap text-white"
-        >{{ workspaceControl.value?.name }}</span
-      >
-      } @if (workspaceControl.value) {
-      <app-edit-button-component
-        (onDelete)="onWorkspaceDelete()"
-        (onEdit)="onWorkspaceEdit()"
-      ></app-edit-button-component>
-      }
+    <div class="flex h-full flex-row items-center justify-between">
+      <div class="flex items-center gap-2">
+        @if (!isWorkspaceDeletingModalOpen) {
+        <app-dropdown-component
+          [formControl]="workspaceControl"
+          (change)="listTasklistsFromWorkspace()"
+          [options]="workspaces()"
+          placeholder="Select Workspace"
+          optionLabel="name"
+          [addOption]="true"
+          (onAdd)="onAddWorkspace()"
+        ></app-dropdown-component>
+        } @else {
+        <span
+          class="min-w-50 rounded-lg bg-red-900 p-2 whitespace-nowrap text-white"
+          >{{ workspaceControl.value?.name }}</span
+        >
+        } @if (workspaceControl.value) {
+        <app-edit-button-component
+          (onDelete)="onWorkspaceDelete()"
+          (onEdit)="onWorkspaceEdit()"
+        ></app-edit-button-component>
+        }
+      </div>
+      <div>
+        <div>
+          <input
+            class="text-white flex-auto rounded-lg bg-zinc-950 p-2"
+            type="text"
+            placeholder="Search Tasks"
+            [formControl]="searchControl"
+          />
+        </div>
+      </div>
     </div>
   </div>
   <div
@@ -41,6 +53,7 @@
         (onTasklistEdit)="onTasklistEdit($event)"
         (onTasklistDelete)="onTasklistDelete($event)"
         (onTaskEdit)="onTaskEdit($event)"
+        (onTaskDropped)="applySearch()"
         [tasklist]="tasklist"
         [isDeleting]="isListDeleting(tasklist)"
         [taskIdDeleting]="isTaskDeletingModalOpen.data?.taskId"

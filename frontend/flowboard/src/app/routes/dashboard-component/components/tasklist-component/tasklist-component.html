@@ -1,6 +1,7 @@
 <div
   class="flex max-h-full min-w-70 cursor-move flex-col rounded-2xl border border-zinc-800 bg-[#09090b] p-3 text-white"
   [class.bg-red-900!]="isDeleting()"
+  [class.bg-yellow-900/30]="tasklist()?.hasMatchingTasks"
 >
   <div class="mb-2 flex justify-between">
     <div class="flex w-full flex-col">
@@ -19,7 +20,7 @@
     cdkDropList
     [cdkDropListData]="tasklist()!.tasks"
     (cdkDropListDropped)="onDropTask($event)"
-    class="mb-2 min-h-20 overflow-auto"
+    class="mb-2 min-h-20 overflow-auto rounded-md"
   >
     @for (task of tasklist()!.tasks; track task.id) {
     <div cdkDrag [cdkDragData]="task" class="my-4">
