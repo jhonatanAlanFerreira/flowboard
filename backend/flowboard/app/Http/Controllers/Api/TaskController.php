@@ -5,43 +5,61 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use App\Http\Requests\TaskController\{
+    StoreTaskRequest,
+    UpdateTaskRequest
+};
+use App\Models\Tasklist;
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        $request->validate([
-            'description' => 'required|string',
-            'tasklistId' => 'required|integer',
-        ]);
+        $user = $request->user();
 
-        $tasklist = $request->user()
-            ->workspaces()
-            ->join('tasklists', 'tasklists.workspace_id', '=', 'workspaces.id')
-            ->where('tasklists.id', $request->tasklistId)
-            ->select('tasklists.id')
-            ->firstOrFail();
+        $tasklist = Tasklist::ownedBy($user)
+            ->findOrFail($request->tasklistId);
 
-        $nextOrder = Task::where('tasklist_id', $tasklist->id)->max('order') ?? 0;
+        $nextOrder = (Task::where('tasklist_id', $tasklist->id)->max('order') ?? 0) + 1;
 
         Task::create([
             'description' => $request->description,
             'tasklist_id' => $tasklist->id,
-            'order' => $nextOrder + 1,
+            'order' => $nextOrder,
         ]);
 
         return response()->json(['success' => true], 201);
     }
 
-    public function update(Request $request, $taskId)
+    public function update(UpdateTaskRequest $request, $taskId)
     {
-        $task = Task::ownedBy($request->user())->findOrFail($taskId);
-        return $task->update($request->all());
+        $task = Task::ownedBy($request->user())
+            ->findOrFail($taskId);
+
+        $task->update($request->validated());
+
+        return $task;
     }
 
     public function delete(Request $request, $taskId)
     {
-        $task = Task::ownedBy($request->user())->findOrFail($taskId);
-        return $task->delete();
+        $user = $request->user();
+
+        DB::transaction(function () use ($user, $taskId) {
+
+            $task = Task::ownedBy($user)->findOrFail($taskId);
+
+            $tasklistId = $task->tasklist_id;
+            $deletedOrder = $task->order;
+
+            $task->delete();
+
+            Task::where('tasklist_id', $tasklistId)
+                ->where('order', '>', $deletedOrder)
+                ->decrement('order');
+        });
+
+        return response()->noContent();
     }
 }
