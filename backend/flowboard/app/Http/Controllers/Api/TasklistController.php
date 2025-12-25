@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\Tasklist;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Requests\TasklistController\{
     StoreTasklistRequest,
     UpdateTasklistRequest,
@@ -15,6 +15,11 @@ use App\Http\Requests\TasklistController\{
 
 class TasklistController extends Controller
 {
+    public function __construct(
+        private OrderService $orderService
+    ) {
+    }
+
     public function store(StoreTasklistRequest $request)
     {
         $workspace = $request->user()
@@ -43,70 +48,52 @@ class TasklistController extends Controller
 
     public function delete(Request $request, $tasklistId)
     {
-        $user = $request->user();
+        $tasklist = Tasklist::ownedBy($request->user())
+            ->findOrFail($tasklistId);
 
-        DB::transaction(function () use ($user, $tasklistId) {
-
-            $tasklist = Tasklist::ownedBy($user)
-                ->findOrFail($tasklistId);
-
-            $workspaceId = $tasklist->workspace_id;
-            $deletedOrder = $tasklist->order;
-
-            $tasklist->delete();
-
-            Tasklist::where('workspace_id', $workspaceId)
-                ->where('order', '>', $deletedOrder)
-                ->decrement('order');
-        });
+        $this->orderService->deleteAndFixOrder(
+            $tasklist,
+            'workspace_id'
+        );
 
         return response()->noContent();
     }
 
-
     public function reorderTasks(ReorderTasksRequest $request)
     {
-        $user = $request->user();
+        $this->assertTasklistsOwnedByUser(
+            $request->user(),
+            $request->sourceTasklistId,
+            $request->newTasklistId
+        );
 
-        $tasklists = Tasklist::ownedBy($user)
-            ->whereIn('id', [
-                $request->newTasklistId,
-                $request->sourceTasklistId,
-            ])
-            ->pluck('id');
-
-        if (
-            $tasklists->count() !== collect([
-                $request->newTasklistId,
-                $request->sourceTasklistId,
-            ])->unique()->count()
-        ) {
-            abort(403);
-        }
-
-        DB::transaction(function () use ($request, $user) {
-
-            foreach ($request->order as $index => $taskId) {
-                Task::ownedBy($user)
-                    ->where('id', $taskId)
-                    ->update([
-                        'tasklist_id' => $request->newTasklistId,
-                        'order' => $index + 1,
-                    ]);
-            }
-
-            if ($request->newTasklistId !== $request->sourceTasklistId) {
-                Task::ownedBy($user)
-                    ->where('tasklist_id', $request->sourceTasklistId)
-                    ->orderBy('order')
-                    ->get()
-                    ->each(
-                        fn($task, $i) =>
-                        $task->update(['order' => $i + 1])
-                    );
-            }
-        });
+        $this->orderService->moveAndReorder(
+            Task::class,
+            'tasklist_id',
+            $request->sourceTasklistId,
+            $request->newTasklistId,
+            $request->order
+        );
 
         return response()->json(['success' => true]);
     }
+
+    private function assertTasklistsOwnedByUser(
+        $user,
+        int $sourceTasklistId,
+        int $targetTasklistId
+    ): void {
+        $tasklistIds = collect([$sourceTasklistId, $targetTasklistId])
+            ->unique()
+            ->values();
+
+        $ownedCount = Tasklist::ownedBy($user)
+            ->whereIn('id', $tasklistIds)
+            ->count();
+
+        if ($ownedCount !== $tasklistIds->count()) {
+            abort(403, 'You do not own one or more of the tasklists involved.');
+        }
+    }
+
 }

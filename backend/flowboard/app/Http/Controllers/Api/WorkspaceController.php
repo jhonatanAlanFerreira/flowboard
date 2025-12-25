@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tasklist;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
+use App\Services\OrderService;
 use App\Http\Requests\WorkspaceController\{
     IndexWorkspaceRequest,
     StoreWorkspaceRequest,
@@ -15,6 +16,11 @@ use App\Http\Requests\WorkspaceController\{
 
 class WorkspaceController extends Controller
 {
+    public function __construct(
+        private OrderService $orderService
+    ) {
+    }
+
     public function index(IndexWorkspaceRequest $request, $workspaceId)
     {
         return $request->user()
@@ -42,6 +48,7 @@ class WorkspaceController extends Controller
     {
         $workspace = $request->user()->workspaces()->findOrFail($workspaceId);
         $workspace->update($request->validated());
+
         return $workspace;
     }
 
@@ -57,12 +64,32 @@ class WorkspaceController extends Controller
             ->workspaces()
             ->findOrFail($request->workspaceId);
 
-        foreach ($request->order as $index => $tasklistId) {
-            Tasklist::where('id', $tasklistId)
-                ->where('workspace_id', $workspace->id)
-                ->update(['order' => $index + 1]);
-        }
+        $this->assertTasklistsBelongToWorkspace(
+            $workspace->id,
+            $request->order
+        );
+
+        $this->orderService->reorder(
+            Tasklist::class,
+            $request->order,
+            ['workspace_id' => $workspace->id]
+        );
 
         return response()->json(['success' => true]);
+    }
+
+    private function assertTasklistsBelongToWorkspace(
+        int $workspaceId,
+        array $tasklistIds
+    ): void {
+        $uniqueIds = collect($tasklistIds)->unique()->values();
+
+        $count = Tasklist::where('workspace_id', $workspaceId)
+            ->whereIn('id', $uniqueIds)
+            ->count();
+
+        if ($count !== $uniqueIds->count()) {
+            abort(403, 'One or more tasklists do not belong to this workspace.');
+        }
     }
 }

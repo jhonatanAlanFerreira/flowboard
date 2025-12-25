@@ -4,21 +4,24 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Task;
+use App\Models\Tasklist;
+use App\Services\OrderService;
 use Illuminate\Http\Request;
 use App\Http\Requests\TaskController\{
     StoreTaskRequest,
     UpdateTaskRequest
 };
-use App\Models\Tasklist;
-use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
+    public function __construct(
+        private OrderService $orderService
+    ) {
+    }
+
     public function store(StoreTaskRequest $request)
     {
-        $user = $request->user();
-
-        $tasklist = Tasklist::ownedBy($user)
+        $tasklist = Tasklist::ownedBy($request->user())
             ->findOrFail($request->tasklistId);
 
         $nextOrder = (Task::where('tasklist_id', $tasklist->id)->max('order') ?? 0) + 1;
@@ -44,21 +47,13 @@ class TaskController extends Controller
 
     public function delete(Request $request, $taskId)
     {
-        $user = $request->user();
+        $task = Task::ownedBy($request->user())
+            ->findOrFail($taskId);
 
-        DB::transaction(function () use ($user, $taskId) {
-
-            $task = Task::ownedBy($user)->findOrFail($taskId);
-
-            $tasklistId = $task->tasklist_id;
-            $deletedOrder = $task->order;
-
-            $task->delete();
-
-            Task::where('tasklist_id', $tasklistId)
-                ->where('order', '>', $deletedOrder)
-                ->decrement('order');
-        });
+        $this->orderService->deleteAndFixOrder(
+            $task,
+            'tasklist_id'
+        );
 
         return response()->noContent();
     }
