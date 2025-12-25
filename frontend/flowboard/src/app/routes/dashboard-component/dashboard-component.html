@@ -69,6 +69,7 @@
         (onTasklistDelete)="onTasklistDelete($event)"
         (onTaskEdit)="onTaskEdit($event)"
         (onTaskDropped)="applySearch()"
+        (onTaskDoneReorder)="onTaskDoneReorder()"
         [tasklist]="tasklist"
         [isDeleting]="isListDeleting(tasklist)"
         [taskIdDeleting]="isTaskDeletingModalOpen.data?.taskId"

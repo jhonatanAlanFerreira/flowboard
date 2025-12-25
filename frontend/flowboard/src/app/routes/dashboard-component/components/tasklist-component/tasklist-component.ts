@@ -38,6 +38,7 @@ export class TasklistComponent {
   @Output() onTaskDelete = new EventEmitter<{ taskId: number }>();
   @Output() onTaskEdit = new EventEmitter<Task>();
   @Output() onTaskDropped = new EventEmitter();
+  @Output() onTaskDoneReorder = new EventEmitter();
 
   tasklist = input<Tasklist>();
   isDeleting = input(false);
@@ -66,15 +67,10 @@ export class TasklistComponent {
       );
     }
 
-    this.onTaskDropped.emit();
-
-    this.tasklistService
-      .reorderTasks(
-        this.tasklist()!.id,
-        event.item.data.tasklist_id,
-        event.container.data.map((t) => t.id),
-      )
-      .subscribe();
+    this.applyTaskOrder(
+      event.container.data,
+      event.item.data.tasklist_id,
+    ).subscribe();
   }
 
   deleteTasklist() {
@@ -103,5 +99,31 @@ export class TasklistComponent {
 
   editTask(task: Task) {
     this.onTaskEdit.emit(task);
+  }
+
+  moveDoneTasks(position: 'top' | 'bottom') {
+    const { tasks } = this.tasklist()!;
+
+    if (tasks?.length) {
+      const done = tasks.filter((t) => t.done);
+      const active = tasks.filter((t) => !t.done);
+
+      const newOrder =
+        position === 'top' ? [...done, ...active] : [...active, ...done];
+
+      this.applyTaskOrder(newOrder, this.tasklist()!.id).subscribe(() => {
+        this.onTaskDoneReorder.emit();
+      });
+    }
+  }
+
+  private applyTaskOrder(tasks: Task[], tasklistId: number) {
+    this.onTaskDropped.emit();
+
+    return this.tasklistService.reorderTasks(
+      this.tasklist()!.id,
+      tasklistId,
+      tasks.map((t) => t.id),
+    );
   }
 }

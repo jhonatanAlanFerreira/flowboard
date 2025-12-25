@@ -12,6 +12,10 @@
     <app-edit-button-component
       (onDelete)="deleteTasklist()"
       (onEdit)="editTasklist()"
+      (onSortAsc)="moveDoneTasks('bottom')"
+      (onSortDesc)="moveDoneTasks('top')"
+      sortAscLabel="Move done tasks to bottom"
+      sortDescLabel="Move done tasks to top"
     ></app-edit-button-component>
     }
   </div>

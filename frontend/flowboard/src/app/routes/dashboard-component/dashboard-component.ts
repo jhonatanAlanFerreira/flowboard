@@ -385,4 +385,8 @@ export class DashboardComponent implements OnInit {
       };
     });
   }
+
+  onTaskDoneReorder() {
+    this.listTasklistsFromWorkspace()?.subscribe();
+  }
 }
