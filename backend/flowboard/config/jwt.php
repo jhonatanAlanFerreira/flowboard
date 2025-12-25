@@ -101,7 +101,9 @@ return [
     |
     */
 
-    'ttl' => env('JWT_TTL', 60),
+    # Demo / local-only app
+    # Token does not expire on purpose
+    'ttl' => env('JWT_TTL', 5256000),
 
     /*
     |--------------------------------------------------------------------------
