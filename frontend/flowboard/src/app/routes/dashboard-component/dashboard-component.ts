@@ -54,6 +54,8 @@ export class DashboardComponent implements OnInit {
   workspaceControl = new FormControl<Workspace | null>(null);
   searchControl = new FormControl<string | null>(null);
 
+  useListEffect = signal(true);
+
   isWorkspaceDeletingModalOpen = false;
 
   isWorkspaceModalOpen: {
@@ -106,7 +108,9 @@ export class DashboardComponent implements OnInit {
     private taskService: TaskService,
   ) {
     this.workspaceControl.valueChanges.subscribe(() => {
-      this.listTasklistsFromWorkspace();
+      this.listTasklistsFromWorkspace()?.subscribe(() => {
+        this.useListEffect.set(true);
+      });
       this.setLastUsedWorkspace();
     });
 
@@ -188,12 +192,19 @@ export class DashboardComponent implements OnInit {
     if (value) {
       this.loading.set(true);
 
-      this.tasklistService.listFromWorkspace(value.id).subscribe((res) => {
-        this.tasklists.set(res);
-        this.loading.set(false);
-        this.applySearch();
-      });
+      return this.tasklistService.listFromWorkspace(value.id).pipe(
+        tap((res) => {
+          this.tasklists.set(res);
+          this.loading.set(false);
+          this.applySearch();
+          setTimeout(() => {
+            this.useListEffect.set(false);
+          }, 1000);
+        }),
+      );
     }
+
+    return null;
   }
 
   deleteWorkspace() {
@@ -227,7 +238,7 @@ export class DashboardComponent implements OnInit {
     this.tasklistService
       .delete(this.isListDeletingModalOpen.data!.tasklistId)
       .subscribe(() => {
-        this.listTasklistsFromWorkspace();
+        this.listTasklistsFromWorkspace()?.subscribe();
       });
 
     this.isListDeletingModalOpen = {
@@ -265,7 +276,7 @@ export class DashboardComponent implements OnInit {
     this.taskService
       .delete(this.isTaskDeletingModalOpen.data!.taskId)
       .subscribe(() => {
-        this.listTasklistsFromWorkspace();
+        this.listTasklistsFromWorkspace()?.subscribe();
       });
 
     this.isTaskDeletingModalOpen = {
@@ -337,7 +348,7 @@ export class DashboardComponent implements OnInit {
       data: null,
     };
 
-    this.listTasklistsFromWorkspace();
+    this.listTasklistsFromWorkspace()?.subscribe();
   }
 
   onTaskCreate({ tasklistId }: { tasklistId: number }) {
@@ -363,7 +374,7 @@ export class DashboardComponent implements OnInit {
       data: null,
     };
 
-    this.listTasklistsFromWorkspace();
+    this.listTasklistsFromWorkspace()?.subscribe();
   }
 
   onTaskEdit(task: Task) {

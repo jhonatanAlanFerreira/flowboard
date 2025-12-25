@@ -58,11 +58,12 @@
     class="mx-2 mt-4 flex flex-1 flex-row gap-5 overflow-x-auto overflow-y-hidden pb-2"
   >
     <ng-container cdkDropListGroup>
-      @for (tasklist of tasklists(); track tasklist.id) {
+      @for (tasklist of tasklists(); track tasklist.id; let i = $index) {
       <app-tasklist-component
         cdkDrag
         cdkDragLockAxis="x"
         [cdkDragData]="tasklist"
+        [cdkDragDisabled]="useListEffect()"
         (onTaskCreate)="onTaskCreate($event)"
         (onTaskDelete)="onTaskDelete($event)"
         (onTasklistEdit)="onTasklistEdit($event)"
@@ -73,6 +74,7 @@
         [isDeleting]="isListDeleting(tasklist)"
         [taskIdDeleting]="isTaskDeletingModalOpen.data?.taskId"
         [taskIdEditing]="isTaskModalOpen.data?.task?.id"
+        [ngClass]="useListEffect() ? (i % 2 ? 'animate-up' : 'animate-down') : null"
       ></app-tasklist-component>
       }
     </ng-container>
