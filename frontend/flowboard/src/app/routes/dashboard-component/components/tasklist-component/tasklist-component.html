@@ -17,6 +17,7 @@
   </div>
   <div
     cdkScrollable
+    [cdkDropListAutoScrollStep]="40"
     cdkDropList
     [cdkDropListData]="tasklist()!.tasks"
     (cdkDropListDropped)="onDropTask($event)"

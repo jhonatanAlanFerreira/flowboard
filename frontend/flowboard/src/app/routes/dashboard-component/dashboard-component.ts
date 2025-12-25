@@ -23,6 +23,7 @@ import { TasklistModalComponent } from './modals/tasklist-modal-component/taskli
 import { TaskModalComponent } from './modals/task-modal-component/task-modal-component';
 import { tap } from 'rxjs';
 import { LoadingComponent } from '../../components/loading-component/loading-component';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -42,6 +43,7 @@ import { LoadingComponent } from '../../components/loading-component/loading-com
     TasklistModalComponent,
     TaskModalComponent,
     LoadingComponent,
+    CdkScrollable,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',

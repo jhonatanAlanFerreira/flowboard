@@ -50,10 +50,12 @@
     </div>
   </div>
   <div
+    cdkScrollable
     cdkDropList
     cdkDropListOrientation="horizontal"
+    [cdkDropListAutoScrollStep]="40"
     (cdkDropListDropped)="onDropTasklist($event)"
-    class="mx-2 mt-4 flex flex-1 flex-row gap-5 overflow-y-hidden pb-2"
+    class="mx-2 mt-4 flex flex-1 flex-row gap-5 overflow-x-auto overflow-y-hidden pb-2"
   >
     <ng-container cdkDropListGroup>
       @for (tasklist of tasklists(); track tasklist.id) {
