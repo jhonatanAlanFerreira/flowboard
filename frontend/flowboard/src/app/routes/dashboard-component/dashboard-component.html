@@ -6,7 +6,6 @@
         @if (!isWorkspaceDeletingModalOpen) {
         <app-dropdown-component
           [formControl]="workspaceControl"
-          (change)="listTasklistsFromWorkspace()"
           [options]="workspaces()"
           placeholder="Select Workspace"
           optionLabel="name"
