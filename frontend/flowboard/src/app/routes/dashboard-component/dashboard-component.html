@@ -25,13 +25,25 @@
         }
       </div>
       <div>
-        <div>
+        <div class="flex items-center">
           <input
-            class="text-white flex-auto rounded-lg bg-zinc-950 p-2"
+            class="flex-auto rounded-lg bg-zinc-950 p-2 text-white"
             type="text"
             placeholder="Search Tasks"
             [formControl]="searchControl"
           />
+          @if(searchControl.value){
+          <div class="scale-80">
+            <p-button
+              (onClick)="searchControl.reset()"
+              fluid
+              severity="secondary"
+              text
+              size="large"
+              icon="pi pi-times"
+            ></p-button>
+          </div>
+          }
         </div>
       </div>
     </div>
