@@ -19,3 +19,9 @@ export interface Tasklist {
   tasks?: Task[];
   hasMatchingTasks: boolean;
 }
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+}

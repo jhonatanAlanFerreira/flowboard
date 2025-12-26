@@ -8,6 +8,15 @@
   }
 }
 
+.p-toast-message-error {
+  color: #ef4444 !important;
+  background: #ef444429 !important;
+
+  .p-toast-detail {
+    color: #cbd5e1 !important;
+  }
+}
+
 .p-inputtext:enabled:focus {
   border-color: #cbd5e1 !important;
   box-shadow: none !important;

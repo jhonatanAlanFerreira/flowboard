@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigService } from '../../config.service';
 import { tap } from 'rxjs';
+import { User } from '../../models';
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +18,19 @@ export class LoginService {
       .post<{
         access_token: string;
       }>(`${this.config.apiBaseUrl}/api/login`, data)
+      .pipe(
+        tap((res) => {
+          localStorage.setItem('token', res.access_token);
+        }),
+      );
+  }
+
+  register(data: { name: string; password: string; email: string }) {
+    return this.http
+      .post<{
+        access_token: string;
+        user: User;
+      }>(`${this.config.apiBaseUrl}/api/register`, data)
       .pipe(
         tap((res) => {
           localStorage.setItem('token', res.access_token);

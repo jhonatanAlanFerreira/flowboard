@@ -6,14 +6,12 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { LoginService } from '../../services/login/login-service';
-import { Router } from '@angular/router';
-import { ToastModule } from 'primeng/toast';
+import { Router, RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-login-component',
-  imports: [ReactiveFormsModule, FormsModule, ToastModule],
-  providers: [MessageService],
+  imports: [ReactiveFormsModule, FormsModule, RouterModule],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
 })
