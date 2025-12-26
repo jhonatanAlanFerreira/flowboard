@@ -8,11 +8,7 @@ use Illuminate\Support\Facades\DB;
 class OrderService
 {
     /**
-     * Reorder items by explicit ID list (same parent)
-     *
-     * @param class-string<Model> $model
-     * @param array<int> $ids
-     * @param array<string, mixed> $scope
+     * Reorder items by explicit ID list
      */
     public function reorder(
         string $model,
@@ -36,39 +32,29 @@ class OrderService
     }
 
     /**
-     * Delete record and fix sibling order
+     * Delete record and normalize siblings
      */
     public function deleteAndFixOrder(
         Model $record,
-        string $foreignKey
+        string $foreignKey,
+        array $scope = []
     ): void {
-        DB::transaction(function () use ($record, $foreignKey) {
+        DB::transaction(function () use ($record, $foreignKey, $scope) {
 
-            $modelClass = $record::class;
+            $model = $record::class;
             $foreignId = $record->{$foreignKey};
-            $deletedOrder = $record->order;
 
             $record->delete();
 
-            if ($deletedOrder === null) {
-                return;
-            }
-
-            $modelClass::where($foreignKey, $foreignId)
-                ->where('order', '>', $deletedOrder)
-                ->decrement('order');
+            $this->normalize($model, [
+                $foreignKey => $foreignId,
+                ...$scope,
+            ]);
         });
     }
 
     /**
-     * Move items between parents and reorder target
-     *
-     * @param class-string<Model> $model
-     * @param string $foreignKey
-     * @param int $sourceId
-     * @param int $targetId
-     * @param array<int> $orderedIds
-     * @param array<string, mixed> $scope
+     * Move items between parents and normalize both sides
      */
     public function moveAndReorder(
         string $model,
@@ -80,54 +66,53 @@ class OrderService
     ): void {
         DB::transaction(function () use ($model, $foreignKey, $sourceId, $targetId, $orderedIds, $scope) {
 
-            $baseQuery = $model::query();
-
-            foreach ($scope as $column => $value) {
-                $baseQuery->where($column, $value);
-            }
-
             foreach ($orderedIds as $index => $id) {
-                (clone $baseQuery)
-                    ->where('id', $id)
-                    ->update([
-                        $foreignKey => $targetId,
-                        'order' => $index + 1,
-                    ]);
+                $model::where('id', $id)->update([
+                    $foreignKey => $targetId,
+                    'order' => $index + 1,
+                ]);
             }
+
+            $this->normalize($model, [
+                $foreignKey => $targetId,
+                ...$scope,
+            ]);
 
             if ($sourceId !== $targetId) {
-                $this->normalize(
-                    $model,
-                    $foreignKey,
-                    $sourceId,
-                    $scope
-                );
+                $this->normalize($model, [
+                    $foreignKey => $sourceId,
+                    ...$scope,
+                ]);
             }
         });
     }
 
     /**
-     * Normalize order sequence (1..N)
-     *
-     * @param class-string<Model> $model
+     * Normalize order sequence (1..N) inside a scope
      */
     public function normalize(
         string $model,
-        string $foreignKey,
-        int $foreignId,
-        array $scope = []
+        array $scope
     ): void {
-        $query = $model::where($foreignKey, $foreignId);
+        DB::transaction(function () use ($model, $scope) {
 
-        foreach ($scope as $column => $value) {
-            $query->where($column, $value);
-        }
+            $query = $model::query();
 
-        $query->orderBy('order')
-            ->get()
-            ->each(
-                fn($item, $i) =>
-                $item->update(['order' => $i + 1])
-            );
+            foreach ($scope as $column => $value) {
+                $query->where($column, $value);
+            }
+
+            $query->orderBy('order')
+                ->pluck('id')
+                ->each(function ($id, $index) use ($model, $scope) {
+                    $update = $model::where('id', $id);
+
+                    foreach ($scope as $column => $value) {
+                        $update->where($column, $value);
+                    }
+
+                    $update->update(['order' => $index + 1]);
+                });
+        });
     }
 }
