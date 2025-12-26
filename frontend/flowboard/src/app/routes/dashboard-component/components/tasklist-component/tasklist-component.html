@@ -1,5 +1,5 @@
 <div
-  class="w-min-70 flex max-h-full cursor-move flex-col rounded-2xl border border-zinc-800 bg-[#09090b] p-3 text-white"
+  class="flex max-h-full cursor-move flex-col rounded-2xl border border-zinc-800 bg-[#09090b] p-3 text-white"
   [class.bg-red-900!]="isDeleting()"
   [class.bg-yellow-900/30]="tasklist()?.hasMatchingTasks"
 >
@@ -25,7 +25,7 @@
     cdkDropList
     [cdkDropListData]="tasklist()!.tasks"
     (cdkDropListDropped)="onDropTask($event)"
-    class="mb-2 min-h-20 overflow-auto overflow-x-hidden rounded-md"
+    class="mb-2 min-h-20 min-w-70 overflow-auto overflow-x-hidden rounded-md"
   >
     @for (task of tasklist()!.tasks; track task.id) {
     <div cdkDrag [cdkDragData]="task" class="my-4">
