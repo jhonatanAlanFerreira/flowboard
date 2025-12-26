@@ -1,6 +1,13 @@
 @import "tailwindcss";
 @import "primeicons/primeicons.css";
 
+.p-drawer {
+  background-color: #18181b !important;
+  .p-drawer-title {
+    color: #cbd5e1 !important;
+  }
+}
+
 .p-inputtext:enabled:focus {
   border-color: #cbd5e1 !important;
   box-shadow: none !important;

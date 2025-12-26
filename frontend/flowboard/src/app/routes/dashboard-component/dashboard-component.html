@@ -3,6 +3,7 @@
   <div class="h-15 w-full bg-gray-500 p-3">
     <div class="flex h-full flex-row items-center justify-between">
       <div class="flex items-center gap-2">
+        <app-side-menu-component class="ml-2"></app-side-menu-component>
         @if (!isWorkspaceDeletingModalOpen) {
         <app-dropdown-component
           [formControl]="workspaceControl"
@@ -11,6 +12,7 @@
           optionLabel="name"
           [addOption]="true"
           (onAdd)="onAddWorkspace()"
+          class="ml-4"
         ></app-dropdown-component>
         } @else {
         <span
@@ -33,16 +35,12 @@
             [formControl]="searchControl"
           />
           @if(searchControl.value){
-          <div class="scale-80">
-            <p-button
-              (onClick)="searchControl.reset()"
-              fluid
-              severity="secondary"
-              text
-              size="large"
-              icon="pi pi-times"
-            ></p-button>
-          </div>
+          <button
+            class="ml-2 cursor-pointer hover:scale-110"
+            (click)="searchControl.reset()"
+          >
+            <span class="pi pi-times text-white/70"></span>
+          </button>
           }
         </div>
       </div>

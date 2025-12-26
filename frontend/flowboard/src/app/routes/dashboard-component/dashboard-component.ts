@@ -25,6 +25,7 @@ import { tap } from 'rxjs';
 import { LoadingComponent } from '../../components/loading-component/loading-component';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { RequestStatusComponent } from '../../components/request-status-component/request-status-component';
+import { SideMenuComponent } from './components/side-menu-component/side-menu-component';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -46,6 +47,7 @@ import { RequestStatusComponent } from '../../components/request-status-componen
     LoadingComponent,
     CdkScrollable,
     RequestStatusComponent,
+    SideMenuComponent,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
