@@ -8,6 +8,8 @@ export class RequestStatusService {
   private hasErrorInternal = signal(false);
   private showSuccess = signal(false);
 
+  private successTimeoutId: any = null;
+
   readonly state = computed<RequestUiState>(() => {
     if (this.hasErrorInternal()) return 'error';
     if (this.activeRequests() > 0) return 'loading';
@@ -32,10 +34,15 @@ export class RequestStatusService {
   }
 
   private triggerSuccess() {
+    if (this.successTimeoutId) {
+      clearTimeout(this.successTimeoutId);
+    }
+
     this.showSuccess.set(true);
 
-    setTimeout(() => {
+    this.successTimeoutId = setTimeout(() => {
       this.showSuccess.set(false);
+      this.successTimeoutId = null;
     }, 2000);
   }
 }

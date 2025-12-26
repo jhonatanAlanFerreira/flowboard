@@ -23,7 +23,12 @@ export const requestStatusInterceptor: HttpInterceptorFn = (
 
   return next(req).pipe(
     catchError((err) => {
-      requestStatusService.requestFailed();
+      if (
+        err.status !== 401 &&
+        !(req.method === 'POST' && req.url.endsWith('/api/login'))
+      ) {
+        requestStatusService.requestFailed();
+      }
       return throwError(() => err);
     }),
     finalize(() => {

@@ -100,7 +100,7 @@ export class DashboardComponent implements OnInit {
 
   workspaces = signal<Workspace[]>([]);
   tasklists = signal<Tasklist[]>([]);
-  loading = signal(true);
+  loading = signal(false);
 
   constructor(
     private workspaceService: WorkspaceService,
@@ -193,13 +193,18 @@ export class DashboardComponent implements OnInit {
       this.loading.set(true);
 
       return this.tasklistService.listFromWorkspace(value.id).pipe(
-        tap((res) => {
-          this.tasklists.set(res);
-          this.loading.set(false);
-          this.applySearch();
-          setTimeout(() => {
-            this.useListEffect.set(false);
-          }, 1000);
+        tap({
+          next: (res) => {
+            this.tasklists.set(res);
+            this.loading.set(false);
+            this.applySearch();
+            setTimeout(() => {
+              this.useListEffect.set(false);
+            }, 1000);
+          },
+          error: () => {
+            this.loading.set(false);
+          },
         }),
       );
     }
