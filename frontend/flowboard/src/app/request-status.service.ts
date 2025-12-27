@@ -12,19 +12,19 @@ export class RequestStatusService {
 
   readonly state = computed<RequestUiState>(() => {
     if (this.hasErrorInternal()) return 'error';
-    if (this.activeRequests() > 0) return 'loading';
+    if (this.activeRequests()) return 'loading';
     if (this.showSuccess()) return 'success';
     return 'idle';
   });
 
   requestStarted() {
-    this.activeRequests.update((v) => v + 1);
+    this.activeRequests.update((v) => ++v);
   }
 
   requestFinished() {
-    this.activeRequests.update((v) => Math.max(0, v - 1));
+    this.activeRequests.update((v) => Math.max(0, --v));
 
-    if (this.activeRequests() === 0 && !this.hasErrorInternal()) {
+    if (!this.activeRequests() && !this.hasErrorInternal()) {
       this.triggerSuccess();
     }
   }
