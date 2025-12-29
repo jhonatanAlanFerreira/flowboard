@@ -26,6 +26,7 @@ import { LoadingComponent } from '../../components/loading-component/loading-com
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { RequestStatusComponent } from '../../components/request-status-component/request-status-component';
 import { SideMenuComponent } from './components/side-menu-component/side-menu-component';
+import { CreateWorkspaceWithAiComponent } from './modals/create-workspace-with-ai-component/create-workspace-with-ai-component';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -48,6 +49,7 @@ import { SideMenuComponent } from './components/side-menu-component/side-menu-co
     CdkScrollable,
     RequestStatusComponent,
     SideMenuComponent,
+    CreateWorkspaceWithAiComponent,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
@@ -398,5 +400,11 @@ export class DashboardComponent implements OnInit {
     this.listTasklistsFromWorkspace()?.subscribe();
   }
 
-  onAiAddWorkspace() {}
+  onAiAddWorkspace() {
+    this.isCreateWorkspaceWithAiModalOpen = true;
+  }
+
+  onAiCreateWorkspaceModalCancel() {
+    this.isCreateWorkspaceWithAiModalOpen = false;
+  }
 }

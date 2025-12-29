@@ -152,4 +152,9 @@
   (onSave)="onTaskModalSave()"
 ></app-task-modal-component>
 
+<app-create-workspace-with-ai-component
+  [visible]="isCreateWorkspaceWithAiModalOpen"
+  (onCancel)="onAiCreateWorkspaceModalCancel()"
+></app-create-workspace-with-ai-component>
+
 <app-request-status-component></app-request-status-component>

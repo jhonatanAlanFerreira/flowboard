@@ -1,1 +1,41 @@
-<p>create-workspace-with-ai-component works!</p>
+<div class="card flex justify-center">
+  <p-dialog
+    header="Create Workspace with AI"
+    (onHide)="onHide()"
+    [modal]="true"
+    [visible]="visible()"
+    [style]="{ width: '28rem' }"
+  >
+    <div class="mb-4 flex flex-col gap-2">
+      <label class="text-lg text-zinc-400">
+        Describe the workspace you want to create
+      </label>
+
+      <textarea
+        rows="8"
+        [formControl]="descriptionControl"
+        placeholder="Example: A project management workspace for a SaaS startup with tasks, sprints, and documentation..."
+        pInputText
+        class="flex-auto resize-none rounded-lg bg-zinc-900 p-3 text-white"
+        autocomplete="off"
+      ></textarea>
+    </div>
+
+    <div class="flex justify-end gap-4">
+      <p-button
+        class="hover:scale-105!"
+        label="Cancel"
+        [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
+        (click)="onCancel.emit()"
+      />
+
+      <p-button
+        [class.hover:scale-105!]="descriptionControl.value"
+        label="Generate Workspace"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        [disabled]="!descriptionControl.value"
+        (click)="save()"
+      />
+    </div>
+  </p-dialog>
+</div>
