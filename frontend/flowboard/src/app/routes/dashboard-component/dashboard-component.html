@@ -3,7 +3,10 @@
   <div class="h-15 w-full bg-gray-500 p-3">
     <div class="flex h-full flex-row items-center justify-between">
       <div class="flex items-center gap-2">
-        <app-side-menu-component class="ml-2"></app-side-menu-component>
+        <app-side-menu-component
+          class="ml-2"
+          (onCreateWorkspace)="onAddWorkspace()"
+        ></app-side-menu-component>
         @if (!isWorkspaceDeletingModalOpen) {
         <app-dropdown-component
           [formControl]="workspaceControl"
