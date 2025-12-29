@@ -59,6 +59,7 @@ export class DashboardComponent implements OnInit {
   useListEffect = signal(true);
 
   isWorkspaceDeletingModalOpen = false;
+  isCreateWorkspaceWithAiModalOpen = false;
 
   isWorkspaceModalOpen: {
     opened: boolean;
@@ -396,4 +397,6 @@ export class DashboardComponent implements OnInit {
   onTaskDoneReorder() {
     this.listTasklistsFromWorkspace()?.subscribe();
   }
+
+  onAiAddWorkspace() {}
 }

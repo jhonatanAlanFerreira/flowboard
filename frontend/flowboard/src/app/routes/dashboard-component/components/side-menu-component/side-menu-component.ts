@@ -13,6 +13,7 @@ import { DrawerModule } from 'primeng/drawer';
 export class SideMenuComponent {
   constructor(private router: Router) {}
   @Output() onCreateWorkspace = new EventEmitter();
+  @Output() onAiCreateWorkspace = new EventEmitter();
 
   visible = false;
 
@@ -25,5 +26,10 @@ export class SideMenuComponent {
   createWorkspace() {
     this.visible = false;
     this.onCreateWorkspace.emit();
+  }
+
+  createWorkspaceWithAi() {
+    this.visible = false;
+    this.onAiCreateWorkspace.emit();
   }
 }

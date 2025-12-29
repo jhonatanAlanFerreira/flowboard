@@ -6,7 +6,15 @@
         <app-side-menu-component
           class="ml-2"
           (onCreateWorkspace)="onAddWorkspace()"
+          (onAiCreateWorkspace)="onAiAddWorkspace()"
         ></app-side-menu-component>
+        <button
+          (click)="onAiAddWorkspace()"
+          class="ml-4 flex h-10 cursor-pointer items-center justify-center gap-3 rounded-lg bg-linear-to-r from-purple-800 to-indigo-900 p-3 text-white shadow-lg transition hover:scale-105 hover:shadow-xl"
+        >
+          <i class="pi pi-lightbulb text-lg"></i>
+          <span>Workspace With AI</span>
+        </button>
         @if (!isWorkspaceDeletingModalOpen) {
         <app-dropdown-component
           [formControl]="workspaceControl"
