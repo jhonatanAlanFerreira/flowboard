@@ -17,6 +17,7 @@ import { Menu } from 'primeng/menu';
   styleUrl: './edit-button-component.css',
 })
 export class EditButtonComponent implements OnInit, OnChanges {
+  @Output() onAdd = new EventEmitter();
   @Output() onEdit = new EventEmitter();
   @Output() onDelete = new EventEmitter();
   @Output() onSortAsc = new EventEmitter();
@@ -24,6 +25,7 @@ export class EditButtonComponent implements OnInit, OnChanges {
 
   sortAscLabel = input<string>();
   sortDescLabel = input<string>();
+  addItemLabel = input<string>();
 
   items: MenuItem[] = [];
 
@@ -54,6 +56,15 @@ export class EditButtonComponent implements OnInit, OnChanges {
               labelClass: 'text-nowrap',
               icon: 'pi pi-sort-amount-down',
               command: () => this.onSortAsc.emit(),
+            },
+          ]
+        : []),
+      ...(this.addItemLabel()
+        ? [
+            {
+              label: this.addItemLabel(),
+              icon: 'pi pi-plus',
+              command: () => this.onAdd.emit(),
             },
           ]
         : []),
