@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AIWorkspaceController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TasklistController;
@@ -38,4 +39,9 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
     Route::delete('workspace/{workspaceId}', [WorkspaceController::class, "delete"]);
     Route::delete('tasklist/{tasklistId}', [TasklistController::class, "delete"]);
     Route::delete('task/{taskId}', [TaskController::class, "delete"]);
+
+    Route::prefix('ai/workspaces')->group(function () {
+        Route::post('/', [AIWorkspaceController::class, 'generate']);
+        Route::get('/latest', [AIWorkspaceController::class, 'latest']);
+    });
 });

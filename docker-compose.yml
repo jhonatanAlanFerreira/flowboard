@@ -29,6 +29,20 @@ services:
     working_dir: /var/www/html
     command: sh -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
 
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dev-queue
+    restart: unless-stopped
+    depends_on:
+      - mysql
+      - ai-api
+    volumes:
+      - ./backend/flowboard:/var/www/html
+    working_dir: /var/www/html
+    command: sh -c "composer install && php artisan queue:work --timeout=0"
+
   angular:
     build:
       context: ./frontend
