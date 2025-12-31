@@ -407,4 +407,18 @@ export class DashboardComponent implements OnInit {
   onAiCreateWorkspaceModalCancel() {
     this.isCreateWorkspaceWithAiModalOpen = false;
   }
+
+  onAiWorkspaceCreated({
+    workspace,
+    goToWorkspace,
+  }: {
+    workspace: Workspace;
+    goToWorkspace: boolean;
+  }) {
+    this.listWorkspaces().subscribe(() => {
+      if (goToWorkspace) {
+        this.workspaceControl.setValue(workspace);
+      }
+    });
+  }
 }

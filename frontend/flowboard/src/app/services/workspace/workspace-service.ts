@@ -5,6 +5,8 @@ import { Workspace } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class WorkspaceService {
+  private pollingInterval?: any;
+
   constructor(
     private http: HttpClient,
     private config: ConfigService,
@@ -19,6 +21,13 @@ export class WorkspaceService {
   create(data: { name: string }) {
     return this.http.post<Workspace>(
       `${this.config.apiBaseUrl}/api/me/workspace`,
+      data,
+    );
+  }
+
+  createByAI(data: { prompt: string }) {
+    return this.http.post(
+      `${this.config.apiBaseUrl}/api/me/ai/workspaces`,
       data,
     );
   }
@@ -41,5 +50,44 @@ export class WorkspaceService {
       workspaceId,
       order,
     });
+  }
+
+  getLatestStatus() {
+    return this.http.get<{
+      status: 'empty' | 'pending' | 'processing' | 'done';
+      workspace: null | Workspace;
+    }>(`${this.config.apiBaseUrl}/api/me/ai/workspaces/latest`, {
+      headers: { 'x-skip-status': 'true' },
+    });
+  }
+
+  startPolling(onDone: (workspace: any) => void) {
+    if (this.pollingInterval) return;
+
+    this.pollingInterval = setInterval(() => {
+      this.getLatestStatus().subscribe((res) => {
+        if (res.status === 'done') {
+          this.stopPolling();
+          localStorage.removeItem('aiWorkspacePending');
+          onDone(res.workspace);
+        }
+
+        if (res.status === 'empty') {
+          this.stopPolling();
+          localStorage.removeItem('aiWorkspacePending');
+        }
+      });
+    }, 5000);
+  }
+
+  stopPolling() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = undefined;
+    }
+  }
+
+  get isGenerating(): boolean {
+    return localStorage.getItem('aiWorkspacePending') === 'true';
   }
 }

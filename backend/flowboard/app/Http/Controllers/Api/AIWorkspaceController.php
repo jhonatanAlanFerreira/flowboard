@@ -45,8 +45,7 @@ class AIWorkspaceController extends Controller
             return response()->json(['status' => 'failed']);
         }
 
-        $workspace = Workspace::with('lists.tasks')
-            ->find($job->workspace_id);
+        $workspace = Workspace::find($job->workspace_id);
 
         return response()->json([
             'status' => 'done',

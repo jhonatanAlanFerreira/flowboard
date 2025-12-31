@@ -11,11 +11,17 @@ class AIWorkspaceService
     public function callAI(string $prompt): array
     {
         $response = Http::timeout(0)
-            ->connectTimeout(0)->post(config('services.ai.endpoint') . '/generate-workspace', [
-                    'prompt' => $prompt,
-                ]);
+            ->connectTimeout(0)
+            ->post(config('services.ai.endpoint') . '/generate-workspace', [
+                'prompt' => $prompt,
+            ]);
 
         if (!$response->successful()) {
+            logger()->error('AI API failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
             throw new \RuntimeException('AI API failed');
         }
 

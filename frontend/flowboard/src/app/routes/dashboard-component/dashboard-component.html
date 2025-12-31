@@ -154,7 +154,9 @@
 
 <app-create-workspace-with-ai-component
   [visible]="isCreateWorkspaceWithAiModalOpen"
+  (onCreate)="isCreateWorkspaceWithAiModalOpen = false"
   (onCancel)="onAiCreateWorkspaceModalCancel()"
+  (onWorkspaceClick)="onAiWorkspaceCreated($event)"
 ></app-create-workspace-with-ai-component>
 
 <app-request-status-component></app-request-status-component>
