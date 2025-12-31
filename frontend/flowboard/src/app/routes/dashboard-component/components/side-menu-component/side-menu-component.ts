@@ -20,6 +20,7 @@ export class SideMenuComponent {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('lastUsedWorkspace');
+    localStorage.removeItem('aiWorkspacePending');
     this.router.navigate(['/login']);
   }
 

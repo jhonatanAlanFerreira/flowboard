@@ -45,7 +45,7 @@ export class CreateWorkspaceWithAiComponent implements OnInit {
       this.workspaceService.startPolling((workspace) => {
         this.generatedWorkspace = workspace;
         this.workspaceDoneModal.set(true);
-      });
+      }, this.onPullingFailed);
     }
   }
 
@@ -62,12 +62,13 @@ export class CreateWorkspaceWithAiComponent implements OnInit {
           this.workspaceService.startPolling((workspace) => {
             this.generatedWorkspace = workspace;
             this.workspaceDoneModal.set(true);
-          });
+          }, this.onPullingFailed);
 
           this.messageService.add({
             severity: 'success',
             summary: 'Workspace generation started',
-            detail: 'We’ll notify you when it’s ready.',
+            detail:
+              'We’ll notify you when it’s ready. You can continue using the app while your workspace is being created.',
             sticky: true,
             closable: true,
           });
@@ -106,6 +107,17 @@ export class CreateWorkspaceWithAiComponent implements OnInit {
       goToWorkspace: false,
     });
   }
+
+  onPullingFailed = () => {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Failed to create the workspace by AI',
+      detail:
+        'The workspace could not be generated. This may happen if the description doesn’t include enough context, or if it contains content that isn’t allowed. Please add more details about your project and make sure the description follows acceptable use guidelines, then try again.',
+      sticky: true,
+      closable: true,
+    });
+  };
 
   get header() {
     return `Your workspace "${this.generatedWorkspace?.name}" is ready`;

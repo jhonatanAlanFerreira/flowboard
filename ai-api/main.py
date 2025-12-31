@@ -27,6 +27,12 @@ STRICT RULES:
 - NO extra text before or after JSON
 - NO trailing commas
 
+SIZE REQUIREMENTS (MANDATORY):
+- Create AT LEAST 6 lists
+- Each list MUST contain AT LEAST 6 tasks
+- Prefer more lists and tasks when possible
+- Tasks must be specific and non-duplicated
+
 JSON SCHEMA (must match exactly):
 
 {

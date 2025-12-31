@@ -54,14 +54,14 @@ export class WorkspaceService {
 
   getLatestStatus() {
     return this.http.get<{
-      status: 'empty' | 'pending' | 'processing' | 'done';
+      status: 'empty' | 'pending' | 'processing' | 'done' | 'failed';
       workspace: null | Workspace;
     }>(`${this.config.apiBaseUrl}/api/me/ai/workspaces/latest`, {
       headers: { 'x-skip-status': 'true' },
     });
   }
 
-  startPolling(onDone: (workspace: any) => void) {
+  startPolling(onDone: (workspace: any) => void, onFailed: () => void) {
     if (this.pollingInterval) return;
 
     this.pollingInterval = setInterval(() => {
@@ -75,6 +75,12 @@ export class WorkspaceService {
         if (res.status === 'empty') {
           this.stopPolling();
           localStorage.removeItem('aiWorkspacePending');
+        }
+
+        if (res.status === 'failed') {
+          this.stopPolling();
+          localStorage.removeItem('aiWorkspacePending');
+          onFailed();
         }
       });
     }, 5000);

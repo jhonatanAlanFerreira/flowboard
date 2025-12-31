@@ -14,7 +14,7 @@ class GenerateAIWorkspaceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'prompt' => ['required', 'string', 'min:10', 'max:1000'],
+            'prompt' => ['required', 'string'],
         ];
     }
 }
