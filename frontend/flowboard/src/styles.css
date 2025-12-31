@@ -107,6 +107,32 @@
   }
 }
 
+.p-toast-message-success {
+  background-color: #22c55ef3 !important;
+  border: none;
+  color: white !important;
+  .p-toast-summary {
+    color: white !important;
+    font-weight: bold !important;
+  }
+  .p-toast-detail {
+    color: white !important;
+  }
+}
+
+.p-toast-message-error {
+  background-color: #ef4444eb !important;
+  border: none;
+  color: white !important;
+  .p-toast-summary {
+    color: white !important;
+    font-weight: bold !important;
+  }
+  .p-toast-detail {
+    color: white !important;
+  }
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;
