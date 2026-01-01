@@ -23,6 +23,7 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'authenticate']);
 
 Route::middleware('auth:api')->prefix('me')->group(function () {
+    Route::get('/', [LoginController::class, "index"]);
     Route::get('workspace/{workspaceId}/tasklists', [WorkspaceController::class, "index"]);
     Route::get('workspaces', [WorkspaceController::class, "userWorkspaces"]);
 

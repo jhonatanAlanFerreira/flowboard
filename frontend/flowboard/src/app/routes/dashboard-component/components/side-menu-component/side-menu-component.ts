@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Divider } from 'primeng/divider';
 import { DrawerModule } from 'primeng/drawer';
+import { LoginService } from '../../../../services/login/login-service';
 
 @Component({
   selector: 'app-side-menu-component',
@@ -11,16 +12,18 @@ import { DrawerModule } from 'primeng/drawer';
   styleUrl: './side-menu-component.css',
 })
 export class SideMenuComponent {
-  constructor(private router: Router) {}
   @Output() onCreateWorkspace = new EventEmitter();
   @Output() onAiCreateWorkspace = new EventEmitter();
 
   visible = false;
 
+  constructor(
+    private router: Router,
+    private loginService: LoginService,
+  ) {}
+
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('lastUsedWorkspace');
-    localStorage.removeItem('aiWorkspacePending');
+    this.loginService.logout();
     this.router.navigate(['/login']);
   }
 

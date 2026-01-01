@@ -11,7 +11,8 @@ import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { WorkspaceService } from '../../../../services/workspace/workspace-service';
 import { MessageService } from 'primeng/api';
-import { Workspace } from '../../../../models';
+import { User, Workspace } from '../../../../models';
+import { LoginService } from '../../../../services/login/login-service';
 
 @Component({
   selector: 'app-create-workspace-with-ai-component',
@@ -28,41 +29,53 @@ export class CreateWorkspaceWithAiComponent implements OnInit {
     goToWorkspace: boolean;
   }>();
 
+  user: User | null = null;
   generatedWorkspace: Workspace | null = null;
   descriptionControl = new FormControl();
 
   workspaceDoneModal = signal(false);
-
   visible = input(false);
 
   constructor(
     private workspaceService: WorkspaceService,
     private messageService: MessageService,
+    private loginService: LoginService,
   ) {}
 
   ngOnInit(): void {
-    if (this.workspaceService.isGenerating) {
-      this.workspaceService.startPolling((workspace) => {
+    this.loginService.getUser().subscribe((user) => {
+      this.user = user;
+
+      if (!user) return;
+
+      if (this.workspaceService.hasPendingWorkspace(user.id)) {
+        this.startPolling();
+      }
+    });
+  }
+
+  startPolling() {
+    this.workspaceService.startPolling(
+      (workspace) => {
         this.generatedWorkspace = workspace;
         this.workspaceDoneModal.set(true);
-      }, this.onPullingFailed);
-    }
+      },
+      this.onPullingFailed,
+      this.user!.id,
+    );
   }
 
   save() {
+    if (!this.user) return;
+
     this.workspaceService
-      .createByAI({
-        prompt: this.descriptionControl.value,
-      })
+      .createByAI({ prompt: this.descriptionControl.value })
       .subscribe({
         next: () => {
           this.onCreate.emit();
-          localStorage.setItem('aiWorkspacePending', 'true');
 
-          this.workspaceService.startPolling((workspace) => {
-            this.generatedWorkspace = workspace;
-            this.workspaceDoneModal.set(true);
-          }, this.onPullingFailed);
+          this.workspaceService.setPendingWorkspace(this.user!.id);
+          this.startPolling();
 
           this.messageService.add({
             severity: 'success',

@@ -61,27 +61,59 @@ export class WorkspaceService {
     });
   }
 
-  startPolling(onDone: (workspace: any) => void, onFailed: () => void) {
+  private pendingKey(userId: number) {
+    return `aiWorkspacePending:${userId}`;
+  }
+
+  setPendingWorkspace(userId: number) {
+    localStorage.setItem(this.pendingKey(userId), 'true');
+  }
+
+  hasPendingWorkspace(userId: number): boolean {
+    return localStorage.getItem(this.pendingKey(userId)) === 'true';
+  }
+
+  clearPendingWorkspace(userId: number) {
+    localStorage.removeItem(this.pendingKey(userId));
+  }
+
+  startPolling(
+    onDone: (workspace: Workspace) => void,
+    onFailed: () => void,
+    userId?: number,
+  ) {
     if (this.pollingInterval) return;
 
     this.pollingInterval = setInterval(() => {
-      this.getLatestStatus().subscribe((res) => {
-        if (res.status === 'done') {
-          this.stopPolling();
-          localStorage.removeItem('aiWorkspacePending');
-          onDone(res.workspace);
-        }
+      this.getLatestStatus().subscribe({
+        next: (res) => {
+          if (res.status === 'done') {
+            this.cleanupPolling(userId);
+            onDone(res.workspace!);
+            return;
+          }
 
-        if (res.status === 'empty') {
-          this.stopPolling();
-          localStorage.removeItem('aiWorkspacePending');
-        }
+          if (res.status === 'empty') {
+            this.cleanupPolling(userId);
+            return;
+          }
 
-        if (res.status === 'failed') {
-          this.stopPolling();
-          localStorage.removeItem('aiWorkspacePending');
+          if (res.status === 'failed') {
+            this.cleanupPolling(userId);
+            onFailed();
+            return;
+          }
+        },
+
+        error: (err) => {
+          if (err.status === 401) {
+            this.stopPolling();
+            return;
+          }
+
+          this.cleanupPolling(userId);
           onFailed();
-        }
+        },
       });
     }, 5000);
   }
@@ -93,7 +125,11 @@ export class WorkspaceService {
     }
   }
 
-  get isGenerating(): boolean {
-    return localStorage.getItem('aiWorkspacePending') === 'true';
+  private cleanupPolling(userId?: number) {
+    this.stopPolling();
+
+    if (userId) {
+      this.clearPendingWorkspace(userId);
+    }
   }
 }
