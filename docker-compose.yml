@@ -68,7 +68,7 @@ services:
       - "${AI_API_PORT}:8001"
     working_dir: /app
     environment:
-      MODEL_PATH: /models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+      MODEL_PATH: "${MODEL_PATH}"
     command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 
 volumes:
