@@ -5,6 +5,7 @@ import {
   Output,
   input,
   signal,
+  OnDestroy,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
@@ -13,6 +14,7 @@ import { WorkspaceService } from '../../../../services/workspace/workspace-servi
 import { MessageService } from 'primeng/api';
 import { User, Workspace } from '../../../../models';
 import { LoginService } from '../../../../services/login/login-service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-create-workspace-with-ai-component',
@@ -20,7 +22,7 @@ import { LoginService } from '../../../../services/login/login-service';
   templateUrl: './create-workspace-with-ai-component.html',
   styleUrl: './create-workspace-with-ai-component.css',
 })
-export class CreateWorkspaceWithAiComponent implements OnInit {
+export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
   @Output() onCancel = new EventEmitter();
   @Output() onCreate = new EventEmitter();
   @Output() onSave = new EventEmitter();
@@ -28,6 +30,8 @@ export class CreateWorkspaceWithAiComponent implements OnInit {
     workspace: Workspace;
     goToWorkspace: boolean;
   }>();
+
+  private destroy$ = new Subject<void>();
 
   user: User | null = null;
   generatedWorkspace: Workspace | null = null;
@@ -43,26 +47,32 @@ export class CreateWorkspaceWithAiComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loginService.getUser().subscribe((user) => {
-      this.user = user;
+    this.workspaceService.doneWorkspace$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((workspace) => {
+        if (!workspace) return;
 
-      if (!user) return;
-
-      if (this.workspaceService.hasPendingWorkspace(user.id)) {
-        this.startPolling();
-      }
-    });
-  }
-
-  startPolling() {
-    this.workspaceService.startPolling(
-      (workspace) => {
         this.generatedWorkspace = workspace;
         this.workspaceDoneModal.set(true);
-      },
-      this.onPullingFailed,
-      this.user!.id,
-    );
+      });
+
+    this.loginService
+      .getUser()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
+        this.user = user;
+
+        if (!user) return;
+
+        if (this.workspaceService.hasPendingWorkspace(user.id)) {
+          this.workspaceService.startPolling(this.onPullingFailed, user.id);
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   save() {
@@ -75,7 +85,10 @@ export class CreateWorkspaceWithAiComponent implements OnInit {
           this.onCreate.emit();
 
           this.workspaceService.setPendingWorkspace(this.user!.id);
-          this.startPolling();
+          this.workspaceService.startPolling(
+            this.onPullingFailed,
+            this.user!.id,
+          );
 
           this.messageService.add({
             severity: 'success',
@@ -105,6 +118,7 @@ export class CreateWorkspaceWithAiComponent implements OnInit {
 
   goToWorkspace() {
     this.workspaceDoneModal.set(false);
+    this.workspaceService.clearDoneWorkspace();
 
     this.onWorkspaceClick.emit({
       workspace: this.generatedWorkspace!,
@@ -114,6 +128,7 @@ export class CreateWorkspaceWithAiComponent implements OnInit {
 
   onWorkspaceCreatedHide() {
     this.workspaceDoneModal.set(false);
+    this.workspaceService.clearDoneWorkspace();
 
     this.onWorkspaceClick.emit({
       workspace: this.generatedWorkspace!,

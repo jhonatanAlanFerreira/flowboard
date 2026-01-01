@@ -1,11 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { ConfigService } from '../../config.service';
 import { Workspace } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class WorkspaceService {
   private pollingInterval?: any;
+
+  private doneWorkspaceSubject = new BehaviorSubject<Workspace | null>(null);
+  doneWorkspace$ = this.doneWorkspaceSubject.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -77,11 +81,7 @@ export class WorkspaceService {
     localStorage.removeItem(this.pendingKey(userId));
   }
 
-  startPolling(
-    onDone: (workspace: Workspace) => void,
-    onFailed: () => void,
-    userId?: number,
-  ) {
+  startPolling(onFailed: () => void, userId?: number) {
     if (this.pollingInterval) return;
 
     this.pollingInterval = setInterval(() => {
@@ -89,7 +89,7 @@ export class WorkspaceService {
         next: (res) => {
           if (res.status === 'done') {
             this.cleanupPolling(userId);
-            onDone(res.workspace!);
+            this.doneWorkspaceSubject.next(res.workspace!);
             return;
           }
 
@@ -116,6 +116,10 @@ export class WorkspaceService {
         },
       });
     }, 5000);
+  }
+
+  clearDoneWorkspace() {
+    this.doneWorkspaceSubject.next(null);
   }
 
   stopPolling() {

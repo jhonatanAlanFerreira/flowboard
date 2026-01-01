@@ -44,8 +44,8 @@
 <div class="card flex justify-center">
   <p-dialog
     [header]="header"
-    (onHide)="onWorkspaceCreatedHide()"
     [modal]="true"
+    [closable]="false"
     [visible]="workspaceDoneModal()"
     [style]="{ width: '28rem' }"
   >
