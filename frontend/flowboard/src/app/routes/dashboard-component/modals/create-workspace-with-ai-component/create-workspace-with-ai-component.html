@@ -3,7 +3,7 @@
     header="Create Workspace with AI"
     (onHide)="onHide()"
     [modal]="true"
-    [visible]="visible()"
+    [visible]="visible() && !hasPendingWorkspace"
     [style]="{ width: '28rem' }"
   >
     <div class="mb-4 flex flex-col gap-2">
@@ -36,6 +36,25 @@
         [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
         [disabled]="!descriptionControl.value"
         (click)="save()"
+      />
+    </div>
+  </p-dialog>
+</div>
+
+<div class="card flex justify-center">
+  <p-dialog
+    header="A workspace is currently being generated."
+    [modal]="true"
+    [closable]="false"
+    [visible]="visible() && hasPendingWorkspace"
+    [style]="{ width: '28rem' }"
+  >
+    <div class="flex justify-end gap-4">
+      <p-button
+        (onClick)="onCancel.emit()"
+        label="Ok"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        (click)="workspaceDoneModal.set(false)"
       />
     </div>
   </p-dialog>

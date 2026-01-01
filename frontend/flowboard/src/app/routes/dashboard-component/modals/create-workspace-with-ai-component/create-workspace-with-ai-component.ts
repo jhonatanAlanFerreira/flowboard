@@ -64,7 +64,7 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
 
         if (!user) return;
 
-        if (this.workspaceService.hasPendingWorkspace(user.id)) {
+        if (this.hasPendingWorkspace) {
           this.workspaceService.startPolling(this.onPullingFailed, user.id);
         }
       });
@@ -149,5 +149,11 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
 
   get header() {
     return `Your workspace "${this.generatedWorkspace?.name}" is ready`;
+  }
+
+  get hasPendingWorkspace() {
+    return this.user
+      ? this.workspaceService.hasPendingWorkspace(this.user.id)
+      : false;
   }
 }
