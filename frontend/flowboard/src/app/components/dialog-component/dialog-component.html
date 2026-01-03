@@ -11,7 +11,7 @@
       @if(inputValueConfirmation()){
       <div class="flex flex-col gap-2">
         <p>
-          To delete this workspace, type "{{ inputValueConfirmation() }}" in the
+          To delete this item, type "{{ inputValueConfirmation() }}" in the
           field below to confirm.
         </p>
         <input
@@ -23,14 +23,15 @@
         />
       </div>
       }
-      <div class="mt-2 flex justify-end gap-2">
+      <div class="mt-2 flex justify-end gap-4">
         <p-button
           [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
-          class=""
+          class="hover:scale-105!"
           label="Cancel"
           (click)="onCancel.emit()"
         />
         <p-button
+          [class.hover:scale-105!]="!isDisabled"
           [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
           label="Yes"
           [disabled]="isDisabled"

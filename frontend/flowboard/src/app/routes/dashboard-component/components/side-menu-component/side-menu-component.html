@@ -1,19 +1,28 @@
 <p-drawer [(visible)]="visible" header="Account">
   <div class="flex flex-col gap-4 p-4">
-    <div class="flex items-center gap-3 border-b border-zinc-800 pb-4">
-      <div
-        class="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-white"
-      >
-        <i class="pi pi-user"></i>
-      </div>
-      <div class="flex">
-        <span class="text-xs text-zinc-400">Signed in</span>
-      </div>
-    </div>
+    <button
+      (click)="createWorkspaceWithAi()"
+      class="flex cursor-pointer items-center gap-3 rounded-lg p-3 text-gray-200 transition hover:scale-105 hover:bg-zinc-800"
+    >
+      <i class="pi pi-lightbulb text-lg"></i>
+      <span>Create Workspace using AI</span>
+    </button>
+
+    <p-divider class="m-0!"></p-divider>
+
+    <button
+      (click)="createWorkspace()"
+      class="flex cursor-pointer items-center gap-3 rounded-lg p-3 text-gray-200 transition hover:scale-105 hover:bg-zinc-800"
+    >
+      <i class="pi pi-folder-plus text-lg"></i>
+      <span class="font-medium">Create new Workspace</span>
+    </button>
+
+    <p-divider class="m-0!"></p-divider>
 
     <button
       (click)="logout();"
-      class="flex cursor-pointer items-center gap-3 rounded-lg p-3 text-red-500 transition hover:bg-zinc-800 hover:text-red-400"
+      class="flex cursor-pointer items-center gap-3 rounded-lg p-3 text-red-500 transition hover:scale-105 hover:bg-zinc-800 hover:text-red-400"
     >
       <i class="pi pi-sign-out text-lg"></i>
       <span class="font-medium">Logout</span>
@@ -22,7 +31,7 @@
 </p-drawer>
 
 <button
-  class="cursor-pointer transition-transform hover:scale-110"
+  class="cursor-pointer transition-transform hover:scale-120"
   (click)="visible = true"
 >
   <i class="pi pi-bars text-2xl! text-white/70"></i>

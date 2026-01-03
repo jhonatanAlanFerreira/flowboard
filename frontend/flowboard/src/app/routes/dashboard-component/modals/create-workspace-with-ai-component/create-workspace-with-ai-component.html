@@ -1,0 +1,86 @@
+<div class="card flex justify-center">
+  <p-dialog
+    header="Create Workspace with AI"
+    (onHide)="onHide()"
+    [modal]="true"
+    [visible]="visible() && !hasPendingWorkspace"
+    [style]="{ width: '28rem' }"
+  >
+    <div class="mb-4 flex flex-col gap-2">
+      <label class="text-lg text-zinc-200">
+        Describe the workspace you want to create
+      </label>
+
+      <textarea
+        rows="8"
+        [formControl]="descriptionControl"
+        (keydown.enter)="save()"
+        placeholder="Example: A project management workspace for a SaaS startup with tasks, sprints, and documentation..."
+        pInputText
+        class="flex-auto resize-none rounded-lg bg-zinc-900 p-3 text-white"
+        autocomplete="off"
+      ></textarea>
+    </div>
+
+    <div class="flex justify-end gap-4">
+      <p-button
+        class="hover:scale-105!"
+        label="Cancel"
+        [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
+        (click)="onCancel.emit()"
+      />
+
+      <p-button
+        [class.hover:scale-105!]="descriptionControl.value"
+        label="Generate Workspace"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        [disabled]="!descriptionControl.value"
+        (click)="save()"
+      />
+    </div>
+  </p-dialog>
+</div>
+
+<div class="card flex justify-center">
+  <p-dialog
+    header="A workspace is currently being generated."
+    [modal]="true"
+    [closable]="false"
+    [visible]="visible() && hasPendingWorkspace"
+    [style]="{ width: '28rem' }"
+  >
+    <div class="flex justify-end gap-4">
+      <p-button
+        (onClick)="onCancel.emit()"
+        label="Ok"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        (click)="workspaceDoneModal.set(false)"
+      />
+    </div>
+  </p-dialog>
+</div>
+
+<div class="card flex justify-center">
+  <p-dialog
+    [header]="header"
+    [modal]="true"
+    [closable]="false"
+    [visible]="workspaceDoneModal()"
+    [style]="{ width: '28rem' }"
+  >
+    <div class="flex justify-end gap-4">
+      <p-button
+        label="Go to Workspace"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        (click)="goToWorkspace()"
+      />
+
+      <p-button
+        (onClick)="onWorkspaceCreatedHide()"
+        label="Ok"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        (click)="workspaceDoneModal.set(false)"
+      />
+    </div>
+  </p-dialog>
+</div>

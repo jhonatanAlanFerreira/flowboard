@@ -1,5 +1,6 @@
 <div class="card flex justify-center">
   <p-select
+    #select
     [options]="options()"
     [ngModel]="value"
     (ngModelChange)="onValueChange($event)"
@@ -34,7 +35,7 @@
     <ng-template #footer>
       <div class="p-3">
         <p-button
-          (onClick)="onAdd.emit()"
+          (onClick)="select.hide(); onAdd.emit()"
           label="Add New"
           fluid
           severity="secondary"

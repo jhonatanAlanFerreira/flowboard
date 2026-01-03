@@ -3,7 +3,18 @@
   <div class="h-15 w-full bg-gray-500 p-3">
     <div class="flex h-full flex-row items-center justify-between">
       <div class="flex items-center gap-2">
-        <app-side-menu-component class="ml-2"></app-side-menu-component>
+        <app-side-menu-component
+          class="ml-2"
+          (onCreateWorkspace)="onAddWorkspace()"
+          (onAiCreateWorkspace)="onAiAddWorkspace()"
+        ></app-side-menu-component>
+        <button
+          (click)="onAiAddWorkspace()"
+          class="ml-4 flex h-10 cursor-pointer items-center justify-center gap-3 rounded-lg bg-linear-to-r from-purple-800 to-indigo-900 p-3 text-white shadow-lg transition hover:scale-105 hover:shadow-xl"
+        >
+          <i class="pi pi-lightbulb text-lg"></i>
+          <span>Workspace With AI</span>
+        </button>
         @if (!isWorkspaceDeletingModalOpen) {
         <app-dropdown-component
           [formControl]="workspaceControl"
@@ -23,6 +34,8 @@
         <app-edit-button-component
           (onDelete)="onWorkspaceDelete()"
           (onEdit)="onWorkspaceEdit()"
+          (onAdd)="onCreateNewList()"
+          addItemLabel="Add new List"
         ></app-edit-button-component>
         }
       </div>
@@ -138,5 +151,12 @@
   (onCancel)="onTaskModalCancel()"
   (onSave)="onTaskModalSave()"
 ></app-task-modal-component>
+
+<app-create-workspace-with-ai-component
+  [visible]="isCreateWorkspaceWithAiModalOpen"
+  (onCreate)="isCreateWorkspaceWithAiModalOpen = false"
+  (onCancel)="onAiCreateWorkspaceModalCancel()"
+  (onWorkspaceClick)="onAiWorkspaceCreated($event)"
+></app-create-workspace-with-ai-component>
 
 <app-request-status-component></app-request-status-component>

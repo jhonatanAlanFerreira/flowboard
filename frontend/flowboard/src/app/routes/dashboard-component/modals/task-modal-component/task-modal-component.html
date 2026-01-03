@@ -17,14 +17,15 @@
         (keydown.enter)="save()"
       ></textarea>
     </div>
-    <div class="flex justify-end gap-2">
+    <div class="flex justify-end gap-4">
       <p-button
+        class="hover:scale-105!"
         [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
-        class=""
         label="Cancel"
         (click)="onCancel.emit()"
       />
       <p-button
+        [class.hover:scale-105!]="descriptionControl.value"
         [disabled]="!descriptionControl.value"
         [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
         label="Save"

@@ -1,34 +1,67 @@
 # Flowboard
 
-Flowboard is a **Trello-inspired project management application** built with **Laravel (backend)** and **Angular (frontend)**.
+Flowboard is a Trello-inspired project management application built with **Laravel (backend)** and **Angular (frontend)**, featuring **AI-powered workspace generation** using a **local Large Language Model (LLM)**.
 
 It supports:
 
 - Multiple users
 - Multiple workspaces per user
 - Boards with lists and tasks
+- Tasks can be marked as **done**
+- Sort completed tasks **first or last**
+- Search tasks by content
 - Drag & drop for lists and tasks (Kanban-style)
+- **AI-generated workspaces** (lists, tasks, and structure)
 - Docker-based local development
+- **Fully local AI** (no external APIs required)
 
 ---
 
-## Screenshots
+## Screenshots & Demos
 
-### Workspaces and Login
+### 🤖 AI Workspace Generation - Board – Lists & Tasks (Drag & Drop)
 
-![Workspaces](screenshots/login.gif)
+<video
+  src="screenshots/ai_workspace_generate.mp4"
+  controls
+  autoplay
+  muted
+  loop
+  width="900">
+</video>
 
-### Board – Lists & Tasks (Drag & Drop)
+> The AI analyzes a natural-language description and generates a complete workspace structure (lists + tasks).  
+> The frontend handles async polling and automatically resumes generation after refresh or re-login.
 
-![Board Drag and Drop](screenshots/dragging.gif)
+### Login - Board – Lists & Tasks (Drag & Drop)
+
+<video
+  src="screenshots/login_drag_drop.mp4"
+  controls
+  autoplay
+  muted
+  loop
+  width="900">
+</video>
+
+---
 
 ## Tech Stack
 
-- Backend: Laravel (PHP)
-- Frontend: Angular
-- Database: MySQL
-- Authentication: JWT
-- Infrastructure: Docker & Docker Compose
+### Core
+
+- Backend: **Laravel (PHP)**
+- Frontend: **Angular**
+- Database: **MySQL**
+- Authentication: **JWT**
+- Infrastructure: **Docker & Docker Compose**
+
+### AI
+
+- AI API: **Python (FastAPI)**
+- LLM Runtime: **llama.cpp**
+- Model format: **GGUF**
+- Model execution: **Fully local / offline**
 
 ---
 
@@ -46,9 +79,13 @@ It supports:
 │       │   └── config/
 │       │       └── config.example.json  # Frontend runtime config example
 │       └── ...                          # Angular source files
+├── ai-api/
+│   ├── main.py                          # AI API (FastAPI + llama.cpp)
+│   └── requirements.txt
+├── models/
+│   └── mistral-7b-instruct-v0.2.Q4_K_M.gguf
 ├── docker-compose.yml
 ├── .env.example                         # Docker environment example
-
 ```
 
 ---
@@ -58,22 +95,24 @@ It supports:
 - Docker
 - Docker Compose
 
-No local PHP, Node, or MySQL installation is required.
+No local PHP, Node, Python, or MySQL installation is required.
 
 ---
 
 ## Environment Configuration
 
-### 1. Root .env
+### 1. Root `.env`
 
 Create a `.env` file in the root folder (same level as `docker-compose.yml`).
-
-Required variables:
 
 ```
 APP_PORT=4200
 MYSQL_PORT=3306
 BACKEND_PORT=8000
+AI_API_PORT=8001
+
+# Absolute path inside the container to the model file
+MODEL_PATH=/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
 ```
 
 ---
@@ -109,19 +148,57 @@ JWT_SECRET=
 
 Create the runtime config file:
 
-Path:
-
 ```
-frontend/flowboard/public/config
+frontend/flowboard/public/config/config.json
 ```
-
-Create `config.json`:
 
 ```
 {
   "apiBaseUrl": "http://localhost:8000"
 }
 ```
+
+---
+
+## AI Setup (Local LLM)
+
+### 1. Download a GGUF model
+
+Recommended (balanced quality/performance):
+
+**Mistral 7B Instruct (Q4_K_M)**
+
+Download from Hugging Face:
+https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF
+
+File:
+
+```
+mistral-7b-instruct-v0.2.Q4_K_M.gguf
+```
+
+---
+
+### 2. Place the model
+
+Create the `models` folder at the project root and place the model inside:
+
+```
+models/
+└── mistral-7b-instruct-v0.2.Q4_K_M.gguf
+```
+
+---
+
+### 3. Configure model path
+
+Ensure your root `.env` points to the correct path:
+
+```
+MODEL_PATH=/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+```
+
+The AI API runs **fully offline** and loads the model at startup.
 
 ---
 
@@ -133,14 +210,14 @@ From the root folder:
 docker compose up --build
 ```
 
-Generate keys:
+Generate Laravel keys:
 
 ```
 docker exec -it dev-laravel php artisan key:generate
 docker exec -it dev-laravel php artisan jwt:secret
 ```
 
-Run Migrations:
+Run migrations:
 
 ```
 docker exec -it dev-laravel php artisan migrate
@@ -152,15 +229,6 @@ docker exec -it dev-laravel php artisan migrate
 
 - Frontend: http://localhost:4200
 - Backend API: http://localhost:8000
-
----
-
----
-
-## Notes
-
-- Inspired by Trello
-- Built for learning and portfolio purposes
-- Server-side ordering ensures drag & drop consistency
+- AI API: http://localhost:8001
 
 ---
