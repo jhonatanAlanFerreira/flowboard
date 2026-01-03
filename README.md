@@ -21,28 +21,14 @@ It supports:
 
 ### 🤖 AI Workspace Generation - Board – Lists & Tasks (Drag & Drop)
 
-<video
-  src="screenshots/ai_workspace_generate.mp4"
-  controls
-  autoplay
-  muted
-  loop
-  width="900">
-</video>
+![AI Workspace Generation](screenshots/ai_workspace_generate.gif)
 
 > The AI analyzes a natural-language description and generates a complete workspace structure (lists + tasks).  
 > The frontend handles async polling and automatically resumes generation after refresh or re-login.
 
 ### Login - Board – Lists & Tasks (Drag & Drop)
 
-<video
-  src="screenshots/login_drag_drop.mp4"
-  controls
-  autoplay
-  muted
-  loop
-  width="900">
-</video>
+![Login - Board – Lists & Tasks (Drag & Drop)](screenshots/login_drag_drop.gif)
 
 ---
 
