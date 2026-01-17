@@ -41,7 +41,6 @@ export class TasklistModalComponent {
         .update({
           name: this.nameControl.value!,
           id: this.tasklist()!.id,
-          workspaceId: this.workspaceId()!,
         })
         .subscribe(() => {
           this.onSave.emit();

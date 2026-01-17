@@ -32,13 +32,13 @@ class TasklistController extends Controller
             'name' => $request->name,
             'workspace_id' => $workspace->id,
             'order' => $nextOrder,
+            'user_id' => $request->user()->id
         ]);
     }
 
-    public function update(UpdateTasklistRequest $request, $workspaceId, $tasklistId)
+    public function update(UpdateTasklistRequest $request, $tasklistId)
     {
         $tasklist = Tasklist::ownedBy($request->user())
-            ->where('workspace_id', $workspaceId)
             ->findOrFail($tasklistId);
 
         $tasklist->update($request->validated());

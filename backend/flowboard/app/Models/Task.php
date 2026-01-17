@@ -11,7 +11,8 @@ class Task extends Model
         "description",
         "tasklist_id",
         "order",
-        "done"
+        "done",
+        "user_id"
     ];
 
     public function tasklist(): BelongsTo
@@ -21,8 +22,6 @@ class Task extends Model
 
     public function scopeOwnedBy($query, User $user)
     {
-        return $query->whereHas('tasklist.workspace', function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-        });
+        return $query->where('user_id', $user->id);
     }
 }

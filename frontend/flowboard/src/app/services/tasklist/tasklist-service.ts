@@ -23,9 +23,9 @@ export class TasklistService {
     );
   }
 
-  update(data: { name: string; id: number; workspaceId: number }) {
+  update(data: { name: string; id: number }) {
     return this.http.put<Tasklist>(
-      `${this.config.apiBaseUrl}/api/me/workspace/${data.workspaceId}/tasklist/${data.id}`,
+      `${this.config.apiBaseUrl}/api/me/tasklist/${data.id}`,
       data,
     );
   }

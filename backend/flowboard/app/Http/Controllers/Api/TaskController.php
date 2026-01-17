@@ -30,6 +30,7 @@ class TaskController extends Controller
             'description' => $request->description,
             'tasklist_id' => $tasklist->id,
             'order' => $nextOrder,
+            'user_id' => $request->user()->id
         ]);
 
         return response()->json(['success' => true], 201);

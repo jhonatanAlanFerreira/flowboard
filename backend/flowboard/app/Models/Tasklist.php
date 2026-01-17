@@ -11,7 +11,8 @@ class Tasklist extends Model
     protected $fillable = [
         "name",
         "workspace_id",
-        "order"
+        "order",
+        "user_id"
     ];
 
     public function workspace(): BelongsTo
@@ -24,10 +25,13 @@ class Tasklist extends Model
         return $this->hasMany(Task::class)->orderBy('order');
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function scopeOwnedBy($query, User $user)
     {
-        return $query->whereHas('workspace', function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-        });
+        return $query->where('user_id', $user->id);
     }
 }
