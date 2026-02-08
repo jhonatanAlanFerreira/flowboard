@@ -12,7 +12,13 @@ export class ConfigService {
     return firstValueFrom(
       this.http.get<{ apiBaseUrl: string }>('/config/config.json'),
     ).then((config) => {
-      this.config = config;
+      let apiBaseUrl = config.apiBaseUrl;
+
+      if (apiBaseUrl.startsWith(':')) {
+        apiBaseUrl = `${window.location.protocol}//${window.location.hostname}${apiBaseUrl}`;
+      }
+
+      this.config = { apiBaseUrl };
     });
   }
 

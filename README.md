@@ -134,15 +134,51 @@ JWT_SECRET=
 
 Create the runtime config file:
 
-```
-frontend/flowboard/public/config/config.json
-```
+    frontend/flowboard/public/config/config.json
 
-```
+You can configure the backend API in two ways:
+
+#### Option A --- Backend on the same machine (recommended for LAN)
+
+Use only the port:
+
+```json
 {
-  "apiBaseUrl": "http://localhost:8000"
+  "apiBaseUrl": ":8001"
 }
 ```
+
+In this mode, the application will automatically use the same IP/host
+that was used to access the frontend in the browser.
+
+Example:
+
+If you open the frontend at:
+
+    http://192.168.1.50:4200
+
+The API base URL will automatically resolve to:
+
+    http://192.168.1.50:8001
+
+---
+
+#### Option B --- Backend on a different machine
+
+Use the full URL:
+
+```json
+{
+  "apiBaseUrl": "http://192.168.0.20:8001"
+}
+```
+
+In this case, the frontend will always call that exact address,
+regardless of how it was accessed.
+
+---
+
+Choose the option that matches your infrastructure setup.
 
 ---
 
