@@ -32,10 +32,7 @@
         >
         } @if (workspaceControl.value) {
         <app-edit-button-component
-          (onDelete)="onWorkspaceDelete()"
-          (onEdit)="onWorkspaceEdit()"
-          (onAdd)="onCreateNewList()"
-          addItemLabel="Add new List"
+          [items]="editButtonItems"
         ></app-edit-button-component>
         }
       </div>

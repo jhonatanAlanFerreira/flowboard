@@ -10,14 +10,7 @@
     </div>
     @if (!isDeleting()) {
     <app-edit-button-component
-      (onDelete)="deleteTasklist()"
-      (onEdit)="editTasklist()"
-      (onSortAsc)="moveDoneTasks('bottom')"
-      (onSortDesc)="moveDoneTasks('top')"
-      (onAdd)="createTask()"
-      sortAscLabel="Move done tasks to bottom"
-      sortDescLabel="Move done tasks to top"
-      addItemLabel="Add new Task"
+      [items]="editButtonItems"
     ></app-edit-button-component>
     }
   </div>

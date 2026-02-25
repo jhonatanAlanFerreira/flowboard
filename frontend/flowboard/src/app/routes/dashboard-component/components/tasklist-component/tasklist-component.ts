@@ -14,6 +14,7 @@ import {
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Divider } from 'primeng/divider';
 import { TasklistService } from '../../../../services/tasklist/tasklist-service';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-tasklist-component',
@@ -44,6 +45,38 @@ export class TasklistComponent {
   isDeleting = input(false);
   taskIdDeleting = input<number>();
   taskIdEditing = input<number>();
+
+  editButtonItems: MenuItem[] = [
+    {
+      label: 'Move done tasks to top',
+      labelClass: 'text-nowrap',
+      icon: 'pi pi-sort-amount-up',
+      command: () => this.moveDoneTasks('top'),
+    },
+    {
+      label: 'Move done tasks to bottom',
+      labelClass: 'text-nowrap',
+      icon: 'pi pi-sort-amount-down',
+      command: () => this.moveDoneTasks('bottom'),
+    },
+    {
+      label: 'Add new Task',
+      icon: 'pi pi-plus',
+      command: () => this.createTask(),
+    },
+    {
+      label: 'Edit',
+      icon: 'pi pi-pencil',
+      command: () => this.editTasklist(),
+    },
+    {
+      label: 'Delete',
+      icon: 'pi pi-trash',
+      iconClass: 'text-red-500',
+      labelClass: 'text-red-500',
+      command: () => this.deleteTasklist(),
+    },
+  ];
 
   constructor(private tasklistService: TasklistService) {}
 

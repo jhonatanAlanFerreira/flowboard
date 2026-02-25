@@ -3,6 +3,7 @@ import { Task } from '../../../../models';
 import { EditButtonComponent } from '../../../../components/edit-button-component/edit-button-component';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../../../services/task/task-service';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-task-component',
@@ -17,6 +18,21 @@ export class TaskComponent {
 
   isDeleting = input(false);
   isEditing = input(false);
+
+  editButtonItems: MenuItem[] = [
+    {
+      label: 'Edit',
+      icon: 'pi pi-pencil',
+      command: () => this.editTask(),
+    },
+    {
+      label: 'Delete',
+      icon: 'pi pi-trash',
+      iconClass: 'text-red-500',
+      labelClass: 'text-red-500',
+      command: () => this.deleteTask(),
+    },
+  ];
 
   constructor(private taskService: TaskService) {}
 

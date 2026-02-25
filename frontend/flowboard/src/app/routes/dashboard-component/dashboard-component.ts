@@ -27,6 +27,7 @@ import { CdkScrollable } from '@angular/cdk/scrolling';
 import { RequestStatusComponent } from '../../components/request-status-component/request-status-component';
 import { SideMenuComponent } from './components/side-menu-component/side-menu-component';
 import { CreateWorkspaceWithAiComponent } from './modals/create-workspace-with-ai-component/create-workspace-with-ai-component';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -106,6 +107,26 @@ export class DashboardComponent implements OnInit {
   workspaces = signal<Workspace[]>([]);
   tasklists = signal<Tasklist[]>([]);
   loading = signal(false);
+
+  editButtonItems: MenuItem[] = [
+    {
+      label: 'Add new List',
+      icon: 'pi pi-plus',
+      command: () => this.onCreateNewList(),
+    },
+    {
+      label: 'Edit',
+      icon: 'pi pi-pencil',
+      command: () => this.onWorkspaceEdit(),
+    },
+    {
+      label: 'Delete',
+      icon: 'pi pi-trash',
+      iconClass: 'text-red-500',
+      labelClass: 'text-red-500',
+      command: () => this.onWorkspaceDelete(),
+    },
+  ];
 
   constructor(
     private workspaceService: WorkspaceService,
