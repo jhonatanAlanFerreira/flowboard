@@ -78,6 +78,7 @@
         (onTaskEdit)="onTaskEdit($event)"
         (onTaskDropped)="applySearch()"
         (onTaskDoneReorder)="onTaskDoneReorder()"
+        (onSendListToWorkspace)="onSendListToWorkspace($event)"
         [tasklist]="tasklist"
         [isDeleting]="isListDeleting(tasklist)"
         [taskIdDeleting]="isTaskDeletingModalOpen.data?.taskId"
@@ -155,5 +156,13 @@
   (onCancel)="onAiCreateWorkspaceModalCancel()"
   (onWorkspaceClick)="onAiWorkspaceCreated($event)"
 ></app-create-workspace-with-ai-component>
+
+<app-send-list-to-workspace-modal-component
+  [visible]="isSendListToWorkspaceModalOpen.opened"
+  [workspaces]="workspaces()"
+  [workspaceFrom]="workspaceControl.value!"
+  (onCancel)="onSendListToWorkspaceCancel()"
+  (onSave)="onSendListToWorkspaceSave($event)"
+></app-send-list-to-workspace-modal-component>
 
 <app-request-status-component></app-request-status-component>

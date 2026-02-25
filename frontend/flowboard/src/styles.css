@@ -133,6 +133,10 @@
   }
 }
 
+.p-dialog-content {
+  overflow: visible !important;
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;

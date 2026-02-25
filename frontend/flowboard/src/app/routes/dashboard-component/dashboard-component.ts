@@ -28,6 +28,7 @@ import { RequestStatusComponent } from '../../components/request-status-componen
 import { SideMenuComponent } from './components/side-menu-component/side-menu-component';
 import { CreateWorkspaceWithAiComponent } from './modals/create-workspace-with-ai-component/create-workspace-with-ai-component';
 import { MenuItem } from 'primeng/api';
+import { SendListToWorkspaceModalComponent } from './modals/send-list-to-workspace-modal-component/send-list-to-workspace-modal-component';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -51,6 +52,7 @@ import { MenuItem } from 'primeng/api';
     RequestStatusComponent,
     SideMenuComponent,
     CreateWorkspaceWithAiComponent,
+    SendListToWorkspaceModalComponent,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
@@ -63,6 +65,11 @@ export class DashboardComponent implements OnInit {
 
   isWorkspaceDeletingModalOpen = false;
   isCreateWorkspaceWithAiModalOpen = false;
+
+  isSendListToWorkspaceModalOpen: {
+    opened: boolean;
+    data: Tasklist | null;
+  } = { opened: false, data: null };
 
   isWorkspaceModalOpen: {
     opened: boolean;
@@ -415,6 +422,30 @@ export class DashboardComponent implements OnInit {
         data: { task, tasklistId: task.tasklist_id },
       };
     });
+  }
+
+  onSendListToWorkspace(taskList: Tasklist) {
+    this.isSendListToWorkspaceModalOpen = {
+      opened: true,
+      data: taskList,
+    };
+  }
+
+  onSendListToWorkspaceCancel() {
+    this.isSendListToWorkspaceModalOpen = {
+      opened: false,
+      data: null,
+    };
+  }
+
+  onSendListToWorkspaceSave(workspace: Workspace) {
+    console.log('Selected List', this.isSendListToWorkspaceModalOpen.data);
+    console.log('Selected Workspace', workspace);
+
+    this.isSendListToWorkspaceModalOpen = {
+      opened: false,
+      data: null,
+    };
   }
 
   onTaskDoneReorder() {

@@ -40,6 +40,7 @@ export class TasklistComponent {
   @Output() onTaskEdit = new EventEmitter<Task>();
   @Output() onTaskDropped = new EventEmitter();
   @Output() onTaskDoneReorder = new EventEmitter();
+  @Output() onSendListToWorkspace = new EventEmitter<Tasklist>();
 
   tasklist = input<Tasklist>();
   isDeleting = input(false);
@@ -58,6 +59,12 @@ export class TasklistComponent {
       labelClass: 'text-nowrap',
       icon: 'pi pi-sort-amount-down',
       command: () => this.moveDoneTasks('bottom'),
+    },
+    {
+      label: 'Copy this list to another workspace',
+      labelClass: 'text-nowrap',
+      icon: 'pi pi-clone',
+      command: () => this.onSendListToWorkspace.emit(this.tasklist()),
     },
     {
       label: 'Add new Task',
