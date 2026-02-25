@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\Tasklist;
+use App\Models\Workspace;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use App\Http\Requests\TasklistController\{
@@ -44,6 +45,42 @@ class TasklistController extends Controller
         $tasklist->update($request->validated());
 
         return $tasklist;
+    }
+
+    public function copyList(Request $request, $tasklistId, $workspaceId)
+    {
+        $userId = $request->user()->id;
+
+        $destinationWorkspace = Workspace::where('id', $workspaceId)
+            ->where('user_id', $userId)
+            ->firstOrFail();
+
+        $tasklist = Tasklist::with('tasks')
+            ->where('id', $tasklistId)
+            ->where('user_id', $userId)
+            ->firstOrFail();
+
+        $nextOrder = ($destinationWorkspace->tasklists()->max('order') ?? 0) + 1;
+
+        $newTasklist = $destinationWorkspace->tasklists()->create([
+            'name' => $tasklist->name,
+            'order' => $nextOrder,
+            'user_id' => $userId,
+        ]);
+
+        foreach ($tasklist->tasks as $task) {
+            $newTasklist->tasks()->create(
+                $task->only([
+                    'name',
+                    'description',
+                    'order',
+                    'done',
+                    'user_id'
+                ])
+            );
+        }
+
+        return response()->json($newTasklist->load('tasks'), 201);
     }
 
     public function delete(Request $request, $tasklistId)

@@ -30,6 +30,13 @@ export class TasklistService {
     );
   }
 
+  copyList(tasklistId: number, workspaceId: number) {
+    return this.http.put<Tasklist>(
+      `${this.config.apiBaseUrl}/api/me/copy-list/${tasklistId}/workspace/${workspaceId}`,
+      {},
+    );
+  }
+
   delete(tasklistId: number) {
     return this.http.delete(
       `${this.config.apiBaseUrl}/api/me/tasklist/${tasklistId}`,

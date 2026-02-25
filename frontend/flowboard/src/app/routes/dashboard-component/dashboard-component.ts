@@ -27,7 +27,7 @@ import { CdkScrollable } from '@angular/cdk/scrolling';
 import { RequestStatusComponent } from '../../components/request-status-component/request-status-component';
 import { SideMenuComponent } from './components/side-menu-component/side-menu-component';
 import { CreateWorkspaceWithAiComponent } from './modals/create-workspace-with-ai-component/create-workspace-with-ai-component';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { SendListToWorkspaceModalComponent } from './modals/send-list-to-workspace-modal-component/send-list-to-workspace-modal-component';
 
 @Component({
@@ -139,6 +139,7 @@ export class DashboardComponent implements OnInit {
     private workspaceService: WorkspaceService,
     private tasklistService: TasklistService,
     private taskService: TaskService,
+    private messageService: MessageService,
   ) {
     this.workspaceControl.valueChanges.subscribe(() => {
       this.listTasklistsFromWorkspace()?.subscribe(() => {
@@ -439,8 +440,22 @@ export class DashboardComponent implements OnInit {
   }
 
   onSendListToWorkspaceSave(workspace: Workspace) {
-    console.log('Selected List', this.isSendListToWorkspaceModalOpen.data);
-    console.log('Selected Workspace', workspace);
+    this.tasklistService
+      .copyList(this.isSendListToWorkspaceModalOpen.data!.id, workspace.id)
+      .subscribe({
+        next: () =>
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'List copied successfully.',
+          }),
+        error: () =>
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to copy the list.',
+          }),
+      });
 
     this.isSendListToWorkspaceModalOpen = {
       opened: false,
