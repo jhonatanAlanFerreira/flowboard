@@ -31,6 +31,6 @@ export class SendListToWorkspaceModalComponent {
   }
 
   get workspaceOptions() {
-    return this.workspaces().filter((ws) => ws.id != this.workspaceFrom().id);
+    return this.workspaces().filter((ws) => ws.id != this.workspaceFrom()?.id);
   }
 }
