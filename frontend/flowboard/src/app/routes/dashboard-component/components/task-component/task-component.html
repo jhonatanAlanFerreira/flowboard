@@ -4,7 +4,7 @@
   [class.bg-gray-200!]="isEditing()"
   [class.bg-yellow-800/40!]="hasMatchesSearchBackground"
 >
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-2 overflow-hidden">
     <label
       class="flex min-h-5 w-fit translate-y-1 cursor-pointer items-center gap-2 text-sm text-zinc-300 opacity-30 transition-all duration-200 ease-out select-none group-hover:translate-y-0 group-hover:opacity-100 hover:text-white"
       [class.opacity-100]="task.done"
@@ -32,6 +32,7 @@
     <p
       class="text-zinc-200 transition-all peer-checked:text-zinc-400 peer-checked:line-through"
       [class.text-gray-900!]="isEditing()"
+      [title]="task.description"
     >
       {{ task.description }}
     </p>
