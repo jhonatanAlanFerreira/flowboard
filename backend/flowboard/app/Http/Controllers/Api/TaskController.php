@@ -91,6 +91,7 @@ class TaskController extends Controller
                 'tasklist_id' => $importedList->id,
                 'order' => $nextTaskOrder,
                 'user_id' => $task->user_id,
+                'done' => $task->done
             ]);
 
             $this->orderService->deleteAndFixOrder(
