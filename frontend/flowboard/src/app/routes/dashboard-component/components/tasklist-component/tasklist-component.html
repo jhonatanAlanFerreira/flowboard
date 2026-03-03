@@ -29,6 +29,7 @@
         [isEditing]="isTaskEditing(task)"
         (onDelete)="deleteTask($event)"
         (onEdit)="editTask($event)"
+        (onSend)="onSendTask($event)"
         [task]="task"
       />
     </div>

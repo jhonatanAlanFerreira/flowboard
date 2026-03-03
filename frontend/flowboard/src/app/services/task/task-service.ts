@@ -23,4 +23,11 @@ export class TaskService {
       ...task,
     });
   }
+
+  sendTask(taskId: number, workspaceId: number) {
+    return this.http.put<Task>(
+      `${this.config.apiBaseUrl}/api/me/send-task/${taskId}/workspace/${workspaceId}`,
+      {},
+    );
+  }
 }

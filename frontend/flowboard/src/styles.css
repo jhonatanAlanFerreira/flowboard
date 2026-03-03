@@ -100,6 +100,7 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
   .p-menu-item-content {
     color: white !important;
+    width: max-content !important;
   }
   .p-menu-item-content:hover {
     background-color: #ffffff !important;

@@ -37,6 +37,7 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
     Route::put('tasklists/reorder', [WorkspaceController::class, "reorderTasklists"]);
     Route::put('tasks/reorder', [TasklistController::class, "reorderTasks"]);
     Route::put('copy-list/{tasklistId}/workspace/{workspaceId}', [TasklistController::class, "copyList"]);
+    Route::put('send-task/{taskId}/workspace/{workspaceId}', [TaskController::class, 'sendToWorkspace']);
 
     Route::delete('workspace/{workspaceId}', [WorkspaceController::class, "delete"]);
     Route::delete('tasklist/{tasklistId}', [TasklistController::class, "delete"]);

@@ -14,12 +14,18 @@ import { MenuItem } from 'primeng/api';
 export class TaskComponent {
   @Output() onDelete = new EventEmitter<{ taskId: number }>();
   @Output() onEdit = new EventEmitter<Task>();
+  @Output() onSend = new EventEmitter<Task>();
   @Input({ required: true }) task!: Task;
 
   isDeleting = input(false);
   isEditing = input(false);
 
   editButtonItems: MenuItem[] = [
+    {
+      label: 'Send this task to another workspace',
+      icon: 'pi pi-send',
+      command: () => this.sendTask(),
+    },
     {
       label: 'Edit',
       icon: 'pi pi-pencil',
@@ -46,6 +52,10 @@ export class TaskComponent {
 
   editTask() {
     this.onEdit.emit(this.task);
+  }
+
+  sendTask() {
+    this.onSend.emit(this.task);
   }
 
   get hasMatchesSearchBackground() {

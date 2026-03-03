@@ -41,6 +41,7 @@ export class TasklistComponent {
   @Output() onTaskDropped = new EventEmitter();
   @Output() onTaskDoneReorder = new EventEmitter();
   @Output() onSendListToWorkspace = new EventEmitter<Tasklist>();
+  @Output() onSendTaskToWorkspace = new EventEmitter<Task>();
 
   tasklist = input<Tasklist>();
   isDeleting = input(false);
@@ -155,6 +156,10 @@ export class TasklistComponent {
         this.onTaskDoneReorder.emit();
       });
     }
+  }
+
+  onSendTask(task: Task) {
+    this.onSendTaskToWorkspace.emit(task);
   }
 
   private applyTaskOrder(tasks: Task[], tasklistId: number) {

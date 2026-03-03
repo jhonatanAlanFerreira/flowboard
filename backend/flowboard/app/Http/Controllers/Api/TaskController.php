@@ -11,6 +11,7 @@ use App\Http\Requests\TaskController\{
     StoreTaskRequest,
     UpdateTaskRequest
 };
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
@@ -57,5 +58,47 @@ class TaskController extends Controller
         );
 
         return response()->noContent();
+    }
+
+    public function sendToWorkspace(Request $request, $taskId, $workspaceId)
+    {
+        $user = $request->user();
+        $task = Task::ownedBy($user)->findOrFail($taskId);
+        $workspace = $user->workspaces()->findOrFail($workspaceId);
+
+        $importedList = Tasklist::where('workspace_id', $workspace->id)
+            ->where('user_id', $user->id)
+            ->where('name', 'Imported Tasks')
+            ->first();
+
+        if (!$importedList) {
+            $nextOrder = ($workspace->tasklists()->max('order') ?? 0) + 1;
+
+            $importedList = Tasklist::create([
+                'name' => 'Imported Tasks',
+                'workspace_id' => $workspace->id,
+                'order' => $nextOrder,
+                'user_id' => $user->id,
+            ]);
+        }
+
+        $nextTaskOrder = ($importedList->tasks()->max('order') ?? 0) + 1;
+
+        DB::transaction(function () use ($task, $importedList, $nextTaskOrder) {
+
+            Task::create([
+                'description' => $task->description,
+                'tasklist_id' => $importedList->id,
+                'order' => $nextTaskOrder,
+                'user_id' => $task->user_id,
+            ]);
+
+            $this->orderService->deleteAndFixOrder(
+                $task,
+                'tasklist_id'
+            );
+        });
+
+        return response()->json(['success' => true]);
     }
 }

@@ -29,6 +29,7 @@ import { SideMenuComponent } from './components/side-menu-component/side-menu-co
 import { CreateWorkspaceWithAiComponent } from './modals/create-workspace-with-ai-component/create-workspace-with-ai-component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { SendListToWorkspaceModalComponent } from './modals/send-list-to-workspace-modal-component/send-list-to-workspace-modal-component';
+import { SendTaskToWorkspaceModalComponent } from './modals/send-task-to-workspace-modal-component/send-task-to-workspace-modal-component';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -53,6 +54,7 @@ import { SendListToWorkspaceModalComponent } from './modals/send-list-to-workspa
     SideMenuComponent,
     CreateWorkspaceWithAiComponent,
     SendListToWorkspaceModalComponent,
+    SendTaskToWorkspaceModalComponent,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
@@ -69,6 +71,11 @@ export class DashboardComponent implements OnInit {
   isSendListToWorkspaceModalOpen: {
     opened: boolean;
     data: Tasklist | null;
+  } = { opened: false, data: null };
+
+  isSendTaskToWorkspaceModalOpen: {
+    opened: boolean;
+    data: Task | null;
   } = { opened: false, data: null };
 
   isWorkspaceModalOpen: {
@@ -458,6 +465,47 @@ export class DashboardComponent implements OnInit {
       });
 
     this.isSendListToWorkspaceModalOpen = {
+      opened: false,
+      data: null,
+    };
+  }
+
+  onSendTaskToWorkspace(task: Task) {
+    this.isSendTaskToWorkspaceModalOpen = {
+      opened: true,
+      data: task,
+    };
+  }
+
+  onSendTaskToWorkspaceCancel() {
+    this.isSendTaskToWorkspaceModalOpen = {
+      opened: false,
+      data: null,
+    };
+  }
+
+  onSendTaskToWorkspaceSave(workspace: Workspace) {
+    this.taskService
+      .sendTask(this.isSendTaskToWorkspaceModalOpen.data!.id, workspace.id)
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Task sent successfully.',
+          });
+
+          this.listTasklistsFromWorkspace()?.subscribe();
+        },
+        error: () =>
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to send the task.',
+          }),
+      });
+
+    this.isSendTaskToWorkspaceModalOpen = {
       opened: false,
       data: null,
     };
