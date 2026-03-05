@@ -166,6 +166,13 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  get editingTaskId(): number | undefined {
+    const taskToEditId = this.isTaskModalOpen.data?.task?.id;
+    const taskToMoveId = this.isSendTaskToWorkspaceModalOpen.data?.id;
+
+    return taskToEditId || taskToMoveId;
+  }
+
   onDropTasklist(event: CdkDragDrop<Tasklist>) {
     moveItemInArray(this.tasklists(), event.previousIndex, event.currentIndex);
 
@@ -300,6 +307,22 @@ export class DashboardComponent implements OnInit {
     const isTasklistDeleting = opened && data?.tasklistId == tasklist.id;
 
     return isWorkspaceDeleting || isTasklistDeleting;
+  }
+
+  isListEditing(tasklist: Tasklist) {
+    const { data: listModalData, opened: listModalOpened } =
+      this.isListModalOpen;
+
+    const { data: sendListModalData, opened: sendListModalOpened } =
+      this.isSendListToWorkspaceModalOpen;
+
+    const isTasklistEditing =
+      listModalOpened && listModalData?.id == tasklist.id;
+
+    const isTasklistCloning =
+      sendListModalOpened && sendListModalData?.id == tasklist.id;
+
+    return isTasklistEditing || isTasklistCloning;
   }
 
   onTaskDelete({ taskId }: { taskId: number }) {

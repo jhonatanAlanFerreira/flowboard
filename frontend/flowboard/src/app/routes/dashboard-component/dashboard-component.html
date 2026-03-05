@@ -82,8 +82,9 @@
         (onSendTaskToWorkspace)="onSendTaskToWorkspace($event)"
         [tasklist]="tasklist"
         [isDeleting]="isListDeleting(tasklist)"
+        [isEditing]="isListEditing(tasklist)"
         [taskIdDeleting]="isTaskDeletingModalOpen.data?.taskId"
-        [taskIdEditing]="isTaskModalOpen.data?.task?.id"
+        [taskIdEditing]="editingTaskId"
         [ngClass]="useListEffect() ? (i % 2 ? 'animate-up' : 'animate-down') : null"
       ></app-tasklist-component>
       }
