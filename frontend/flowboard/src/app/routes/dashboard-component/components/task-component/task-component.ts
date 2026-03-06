@@ -1,13 +1,22 @@
-import { Component, EventEmitter, Input, Output, input } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  input,
+  signal,
+} from '@angular/core';
 import { Task } from '../../../../models';
 import { EditButtonComponent } from '../../../../components/edit-button-component/edit-button-component';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../../../services/task/task-service';
 import { MenuItem } from 'primeng/api';
+import { Button } from 'primeng/button';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'app-task-component',
-  imports: [EditButtonComponent, FormsModule],
+  imports: [EditButtonComponent, FormsModule, Button, ClipboardModule],
   templateUrl: './task-component.html',
   styleUrl: './task-component.css',
 })
@@ -19,6 +28,8 @@ export class TaskComponent {
 
   isDeleting = input(false);
   isEditing = input(false);
+
+  contentCopied = signal(false);
 
   editButtonItems: MenuItem[] = [
     {
@@ -58,6 +69,13 @@ export class TaskComponent {
     this.onSend.emit(this.task);
   }
 
+  showCopied() {
+    this.contentCopied.set(true);
+
+    setTimeout(() => {
+      this.contentCopied.set(false);
+    }, 1500);
+  }
   get hasMatchesSearchBackground() {
     return this.task.matchesSearch && !this.isDeleting() && !this.isEditing();
   }

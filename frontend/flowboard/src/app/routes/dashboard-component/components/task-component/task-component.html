@@ -4,30 +4,47 @@
   [class.bg-gray-200!]="isEditing()"
   [class.bg-yellow-800/40!]="hasMatchesSearchBackground"
 >
-  <div class="flex flex-col gap-2 overflow-hidden">
-    <label
-      class="flex min-h-5 w-fit translate-y-1 cursor-pointer items-center gap-2 text-sm text-zinc-300 opacity-30 transition-all duration-200 ease-out select-none group-hover:translate-y-0 group-hover:opacity-100 hover:text-white"
-      [class.opacity-100]="task.done"
-      [class.translate-y-0]="task.done"
-      [class.text-gray-900!]="isEditing()"
-    >
-      <input
-        [(ngModel)]="task.done"
-        (change)="update()"
-        type="checkbox"
-        class="peer hidden"
-      />
-
-      <span
-        class="flex h-4 w-4 items-center justify-center rounded border border-zinc-600 bg-zinc-900 transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-600"
+  <div class="flex w-full flex-col gap-2 overflow-hidden">
+    <div class="flex flex-row justify-between">
+      <label
+        class="flex min-h-5 w-fit translate-y-1 cursor-pointer items-center gap-2 text-sm text-zinc-300 opacity-30 transition-all duration-200 ease-out select-none group-hover:translate-y-0 group-hover:opacity-100 hover:text-white"
+        [class.opacity-100]="task.done"
+        [class.translate-y-0]="task.done"
+        [class.text-gray-900!]="isEditing()"
       >
-        <i
-          class="pi pi-check scale-0 text-xs text-white transition-transform peer-checked:scale-100"
-        ></i>
-      </span>
+        <input
+          [(ngModel)]="task.done"
+          (change)="update()"
+          type="checkbox"
+          class="peer hidden"
+        />
 
-      Done
-    </label>
+        <span
+          class="flex h-4 w-4 items-center justify-center rounded border border-zinc-600 bg-zinc-900 transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-600"
+        >
+          <i
+            class="pi pi-check scale-0 text-xs text-white transition-transform peer-checked:scale-100"
+          ></i>
+        </span>
+
+        Done
+      </label>
+      <div class="flex gap-2">
+        <p-button
+          [icon]="contentCopied() ? 'pi pi-check' : 'pi pi-copy'"
+          [cdkCopyToClipboard]="task.description"
+          (cdkCopyToClipboardCopied)="showCopied()"
+          [title]="contentCopied() ? 'Copied!' : 'Copy Content'"
+          size="small"
+          class="translate-x-1 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100 [&_.p-button]:border-none! [&_.p-button]:bg-zinc-800/50! [&_.p-button]:text-zinc-100! [&_.p-button]:hover:bg-zinc-700!"
+        ></p-button>
+        <app-edit-button-component
+          title="Options"
+          [items]="editButtonItems"
+          class="translate-x-1 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100"
+        ></app-edit-button-component>
+      </div>
+    </div>
 
     <p
       class="text-zinc-200 transition-all peer-checked:text-zinc-400 peer-checked:line-through"
@@ -37,9 +54,4 @@
       {{ task.description }}
     </p>
   </div>
-
-  <app-edit-button-component
-    [items]="editButtonItems"
-    class="translate-x-1 opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100"
-  ></app-edit-button-component>
 </div>
