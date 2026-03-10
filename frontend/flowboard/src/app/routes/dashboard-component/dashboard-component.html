@@ -83,6 +83,7 @@
         [tasklist]="tasklist"
         [isDeleting]="isListDeleting(tasklist)"
         [isEditing]="isListEditing(tasklist)"
+        [isCloning]="isListCloning(tasklist)"
         [taskIdDeleting]="isTaskDeletingModalOpen.data?.taskId"
         [taskIdEditing]="editingTaskId"
         [ngClass]="useListEffect() ? (i % 2 ? 'animate-up' : 'animate-down') : null"

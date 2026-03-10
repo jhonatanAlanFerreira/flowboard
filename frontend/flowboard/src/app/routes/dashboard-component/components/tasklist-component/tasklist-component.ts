@@ -46,6 +46,7 @@ export class TasklistComponent {
   tasklist = input<Tasklist>();
   isDeleting = input(false);
   isEditing = input(false);
+  isCloning = input(false);
   taskIdDeleting = input<number>();
   taskIdEditing = input<number>();
 
@@ -124,7 +125,7 @@ export class TasklistComponent {
   }
 
   isTaskEditing(task: Task) {
-    return this.isEditing() || task.id == this.taskIdEditing();
+    return this.isCloning() || task.id == this.taskIdEditing();
   }
 
   deleteTask({ taskId }: { taskId: number }) {

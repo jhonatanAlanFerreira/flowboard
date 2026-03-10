@@ -310,19 +310,15 @@ export class DashboardComponent implements OnInit {
   }
 
   isListEditing(tasklist: Tasklist) {
-    const { data: listModalData, opened: listModalOpened } =
-      this.isListModalOpen;
+    const { data, opened } = this.isListModalOpen;
 
-    const { data: sendListModalData, opened: sendListModalOpened } =
-      this.isSendListToWorkspaceModalOpen;
+    return opened && data?.id == tasklist.id;
+  }
 
-    const isTasklistEditing =
-      listModalOpened && listModalData?.id == tasklist.id;
+  isListCloning(tasklist: Tasklist) {
+    const { data, opened } = this.isSendListToWorkspaceModalOpen;
 
-    const isTasklistCloning =
-      sendListModalOpened && sendListModalData?.id == tasklist.id;
-
-    return isTasklistEditing || isTasklistCloning;
+    return opened && data?.id == tasklist.id;
   }
 
   onTaskDelete({ taskId }: { taskId: number }) {
