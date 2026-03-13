@@ -154,9 +154,11 @@ export class TasklistComponent {
       const newOrder =
         position === 'top' ? [...done, ...active] : [...active, ...done];
 
-      this.applyTaskOrder(newOrder, this.tasklist()!.id).subscribe(() => {
-        this.onTaskDoneReorder.emit();
-      });
+      this.applyTaskOrder(newOrder, this.tasklist()!.id, position).subscribe(
+        () => {
+          this.onTaskDoneReorder.emit();
+        },
+      );
     }
   }
 
@@ -164,13 +166,18 @@ export class TasklistComponent {
     this.onSendTaskToWorkspace.emit(task);
   }
 
-  private applyTaskOrder(tasks: Task[], tasklistId: number) {
+  private applyTaskOrder(
+    tasks: Task[],
+    tasklistId: number,
+    doneTasksOrder: 'top' | 'bottom' | null = null,
+  ) {
     this.onTaskDropped.emit();
 
     return this.tasklistService.reorderTasks(
       this.tasklist()!.id,
       tasklistId,
       tasks.map((t) => t.id),
+      doneTasksOrder,
     );
   }
 }

@@ -104,6 +104,8 @@ class TasklistController extends Controller
             $request->newTasklistId
         );
 
+        Tasklist::find($request->newTasklistId)->update(['done_order' => $request->doneTasksOrder]);
+
         $this->orderService->moveAndReorder(
             Task::class,
             'tasklist_id',

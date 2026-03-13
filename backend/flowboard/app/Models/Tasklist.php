@@ -12,7 +12,8 @@ class Tasklist extends Model
         "name",
         "workspace_id",
         "order",
-        "user_id"
+        "user_id",
+        "done_order"
     ];
 
     public function workspace(): BelongsTo

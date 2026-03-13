@@ -47,11 +47,13 @@ export class TasklistService {
     newTasklistId: number,
     sourceTasklistId: number,
     order: number[],
+    doneTasksOrder: 'top' | 'bottom' | null = null,
   ) {
     return this.http.put(`${this.config.apiBaseUrl}/api/me/tasks/reorder`, {
       newTasklistId,
       sourceTasklistId,
       order,
+      doneTasksOrder,
     });
   }
 }

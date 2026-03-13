@@ -25,12 +25,17 @@ class TaskController extends Controller
         $tasklist = Tasklist::ownedBy($request->user())
             ->findOrFail($request->tasklistId);
 
-        $nextOrder = (Task::where('tasklist_id', $tasklist->id)->max('order') ?? 0) + 1;
+        if ($tasklist->done_order === 'bottom') {
+            Task::where('tasklist_id', $tasklist->id)->increment('order');
+            $order = 1;
+        } else {
+            $order = (Task::where('tasklist_id', $tasklist->id)->max('order') ?? 0) + 1;
+        }
 
         Task::create([
             'description' => $request->description,
             'tasklist_id' => $tasklist->id,
-            'order' => $nextOrder,
+            'order' => $order,
             'user_id' => $request->user()->id
         ]);
 

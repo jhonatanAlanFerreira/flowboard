@@ -18,6 +18,7 @@ class ReorderTasksRequest extends FormRequest
             'sourceTasklistId' => ['required', 'integer', 'exists:tasklists,id'],
             'order' => ['required', 'array', 'min:1'],
             'order.*' => ['integer', 'exists:tasks,id'],
+            'doneTasksOrder' => ['nullable', 'in:top,bottom']
         ];
     }
 }
