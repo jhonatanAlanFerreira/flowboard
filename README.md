@@ -1,6 +1,6 @@
 # Flowboard
 
-Flowboard is a Trello-inspired project management application built with **Laravel (backend)** and **Angular (frontend)**, featuring **AI-powered workspace generation** using a **local Large Language Model (LLM)**.
+Flowboard is a full-stack project management application built with **Angular**, **Laravel**, and **Python**, designed to support **multiple users and multiple workspaces**. It features a **drag-and-drop interface** for task and column management, **LLM-powered content generation** via prompt engineering, and ongoing exploration of **RAG (Retrieval-Augmented Generation)** for enhanced context-aware capabilities. The project is **containerized with Docker** to ensure a consistent development environment.
 
 It supports:
 
