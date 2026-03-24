@@ -208,6 +208,10 @@ docker exec -it dev-laravel php artisan key:generate
 docker exec -it dev-laravel php artisan jwt:secret
 ```
 
+```
+docker exec -it dev-laravel php artisan jwt:secret --env=testing
+```
+
 Run migrations:
 
 ```
@@ -215,6 +219,12 @@ docker exec -it dev-laravel php artisan migrate
 ```
 
 ---
+
+## Run Tests
+
+```
+docker exec -it dev-laravel php artisan test
+```
 
 ## Access
 
