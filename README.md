@@ -118,6 +118,10 @@ cp .env.example .env
 cp backend/flowboard/.env.example backend/flowboard/.env
 ```
 
+```
+cp backend/flowboard/.env.testing.example backend/flowboard/.env.testing
+```
+
 ---
 
 ## 3. Frontend Config
