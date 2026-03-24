@@ -21,15 +21,16 @@ services:
     restart: unless-stopped
     depends_on:
       - mysql
-      - ai-api
     volumes:
       - ./backend/flowboard:/var/www/html
+      - ./backend/flowboard/vendor:/var/www/html/vendor
     ports:
       - "${BACKEND_PORT}:8000"
     working_dir: /var/www/html
     command: sh -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
 
   queue:
+    profiles: ["workers"]
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -40,6 +41,7 @@ services:
       - ai-api
     volumes:
       - ./backend/flowboard:/var/www/html
+      - ./backend/flowboard/vendor:/var/www/html/vendor
     working_dir: /var/www/html
     command: sh -c "composer install && php artisan queue:work --timeout=0"
 
@@ -52,10 +54,10 @@ services:
       - "${APP_PORT}:4200"
     volumes:
       - ./frontend/flowboard:/usr/src/app
-      - /usr/src/app/node_modules
-    command: ng serve --host 0.0.0.0 --port 4200
+    command: sh -c "npm install && ng serve --host 0.0.0.0 --port 4200"
 
   ai-api:
+    profiles: ["ai"]
     build:
       context: ./ai-api
       dockerfile: Dockerfile

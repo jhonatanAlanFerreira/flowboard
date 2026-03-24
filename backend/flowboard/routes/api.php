@@ -46,5 +46,6 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
     Route::prefix('ai/workspaces')->group(function () {
         Route::post('/', [AIWorkspaceController::class, 'generate']);
         Route::get('/latest', [AIWorkspaceController::class, 'latest']);
+        Route::get('/health', [AIWorkspaceController::class, 'checkAiEndpoint']);
     });
 });

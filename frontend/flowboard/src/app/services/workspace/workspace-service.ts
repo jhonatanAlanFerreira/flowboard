@@ -129,6 +129,12 @@ export class WorkspaceService {
     }
   }
 
+  checkAiEndpoint() {
+    return this.http.get(
+      `${this.config.apiBaseUrl}/api/me/ai/workspaces/health`,
+    );
+  }
+
   private cleanupPolling(userId?: number) {
     this.stopPolling();
 

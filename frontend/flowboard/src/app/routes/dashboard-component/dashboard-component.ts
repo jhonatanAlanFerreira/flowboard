@@ -66,7 +66,7 @@ export class DashboardComponent implements OnInit {
   useListEffect = signal(true);
 
   isWorkspaceDeletingModalOpen = false;
-  isCreateWorkspaceWithAiModalOpen = false;
+  isCreateWorkspaceWithAiModalOpen = signal(false);
 
   isSendListToWorkspaceModalOpen: {
     opened: boolean;
@@ -535,11 +535,27 @@ export class DashboardComponent implements OnInit {
   }
 
   onAiAddWorkspace() {
-    this.isCreateWorkspaceWithAiModalOpen = true;
+    this.workspaceService.checkAiEndpoint().subscribe({
+      next: (res) => {
+        if (!!res) {
+          this.isCreateWorkspaceWithAiModalOpen.set(true);
+        } else this.showAIError();
+      },
+      error: () => this.showAIError(),
+    });
+  }
+
+  showAIError() {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail:
+        'The AI system is currently unavailable or still initializing. Please try again shortly.',
+    });
   }
 
   onAiCreateWorkspaceModalCancel() {
-    this.isCreateWorkspaceWithAiModalOpen = false;
+    this.isCreateWorkspaceWithAiModalOpen.set(false);
   }
 
   onAiWorkspaceCreated({

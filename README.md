@@ -1,34 +1,47 @@
 # Flowboard
 
-Flowboard is a full-stack project management application built with **Angular**, **Laravel**, and **Python**, designed to support **multiple users and multiple workspaces**. It features a **drag-and-drop interface** for task and column management, **LLM-powered content generation** via prompt engineering, and ongoing exploration of **RAG (Retrieval-Augmented Generation)** for enhanced context-aware capabilities. The project is **containerized with Docker** to ensure a consistent development environment.
+Flowboard is a full-stack project management application built with **Angular**, **Laravel**, and **Python**, designed to support **multiple users and multiple workspaces**.
 
-It supports:
+It features a **drag-and-drop interface** for task and column management and includes **AI-powered workspace generation**, with ongoing exploration of **RAG (Retrieval-Augmented Generation)** for context-aware capabilities.
 
-- Multiple users
-- Multiple workspaces per user
-- Boards with lists and tasks
-- Tasks can be marked as **done**
-- Sort completed tasks **first or last**
-- Search tasks by content
-- Drag & drop for lists and tasks (Kanban-style)
-- **AI-generated workspaces** (lists, tasks, and structure)
-- Docker-based local development
-- **Fully local AI** (no external APIs required)
+The project is fully **containerized with Docker**, allowing a consistent and simple setup.
+
+---
+
+## Features
+
+- Multiple users  
+- Multiple workspaces per user  
+- Boards with lists and tasks  
+- Tasks can be marked as **done**  
+- Sort completed tasks **first or last**  
+- Search tasks by content  
+- Drag & drop for lists and tasks (Kanban-style)  
+- Move lists and tasks across workspaces
+- Docker-based local development  
+
+### AI (Optional)
+
+- AI-generated workspaces (lists, tasks, structure)  
+- Fully local LLM (no external APIs)  
+- Async processing with queue workers  
 
 ---
 
 ## Screenshots & Demos
 
-### 🤖 AI Workspace Generation - Board – Lists & Tasks (Drag & Drop)
+### 🤖 AI Workspace Generation
 
 ![AI Workspace Generation](screenshots/ai_workspace_generate.gif)
 
 > The AI analyzes a natural-language description and generates a complete workspace structure (lists + tasks).  
-> The frontend handles async polling and automatically resumes generation after refresh or re-login.
+> The frontend handles async polling and resumes generation after refresh or re-login.
 
-### Login - Board – Lists & Tasks (Drag & Drop)
+---
 
-![Login - Board – Lists & Tasks (Drag & Drop)](screenshots/login_drag_drop.gif)
+### Login & Board Interaction
+
+![Login - Board](screenshots/login_drag_drop.gif)
 
 ---
 
@@ -36,18 +49,18 @@ It supports:
 
 ### Core
 
-- Backend: **Laravel (PHP)**
-- Frontend: **Angular**
-- Database: **MySQL**
-- Authentication: **JWT**
+- Backend: **Laravel (PHP)**  
+- Frontend: **Angular**  
+- Database: **MySQL**  
+- Authentication: **JWT**  
 - Infrastructure: **Docker & Docker Compose**
 
-### AI
+### AI (Optional)
 
-- AI API: **Python (FastAPI)**
-- LLM Runtime: **llama.cpp**
-- Model format: **GGUF**
-- Model execution: **Fully local / offline**
+- API: **FastAPI (Python)**  
+- LLM Runtime: **llama.cpp**  
+- Model format: **GGUF**  
+- Execution: **Fully local / offline**
 
 ---
 
@@ -76,61 +89,38 @@ It supports:
 
 ---
 
+# Getting Started (Core App)
+
+The application is designed to work **without AI by default**.
+
+This means you can run the full frontend + backend stack without needing to download any model or run the AI services.
+
 ## Requirements
 
-- Docker
-- Docker Compose
-
-No local PHP, Node, Python, or MySQL installation is required.
+- Docker  
+- Docker Compose  
 
 ---
 
-## Environment Configuration
+## 1. Environment Configuration
 
-### 1. Root `.env`
-
-Create a `.env` file in the root folder (same level as `docker-compose.yml`).
-
-```
-APP_PORT=4200
-MYSQL_PORT=3306
-BACKEND_PORT=8000
-AI_API_PORT=8001
-
-# Absolute path inside the container to the model file
-MODEL_PATH=/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
-```
-
----
-
-### 2. Backend environment (Laravel)
-
-Inside `backend/flowboard`:
+Create a `.env` file in the root:
 
 ```
 cp .env.example .env
 ```
 
-Important variables:
+---
+
+## 2. Backend Setup
 
 ```
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost
-
-DB_CONNECTION=mysql
-DB_HOST=dev-mysql
-DB_PORT=3306
-DB_DATABASE=flowboard
-DB_USERNAME=root
-DB_PASSWORD=root
-
-JWT_SECRET=
+cp backend/flowboard/.env.example backend/flowboard/.env
 ```
 
 ---
 
-### 3. Frontend configuration
+## 3. Frontend Config
 
 Create the runtime config file:
 
@@ -144,7 +134,7 @@ Use only the port:
 
 ```json
 {
-  "apiBaseUrl": ":8001"
+  "apiBaseUrl": ":8000"
 }
 ```
 
@@ -159,7 +149,7 @@ If you open the frontend at:
 
 The API base URL will automatically resolve to:
 
-    http://192.168.1.50:8001
+    http://192.168.1.50:8000
 
 ---
 
@@ -169,7 +159,7 @@ Use the full URL:
 
 ```json
 {
-  "apiBaseUrl": "http://192.168.0.20:8001"
+  "apiBaseUrl": "http://192.168.0.20:8000"
 }
 ```
 
@@ -182,60 +172,39 @@ Choose the option that matches your infrastructure setup.
 
 ---
 
-## AI Setup (Local LLM)
-
-### 1. Download a GGUF model
-
-Recommended (balanced quality/performance):
-
-**Mistral 7B Instruct (Q4_K_M)**
-
-Download from Hugging Face:
-https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF
-
-File:
+## 4. Run Core App
 
 ```
-mistral-7b-instruct-v0.2.Q4_K_M.gguf
+docker compose up -d
 ```
 
----
+This will start:
 
-### 2. Place the model
+- MySQL  
+- Laravel backend  
+- Angular frontend
 
-Create the `models` folder at the project root and place the model inside:
+⏳ Wait for Laravel to be ready
 
-```
-models/
-└── mistral-7b-instruct-v0.2.Q4_K_M.gguf
-```
-
----
-
-### 3. Configure model path
-
-Ensure your root `.env` points to the correct path:
+Before generating the keys, check the container logs:
 
 ```
-MODEL_PATH=/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+docker logs -f dev-laravel
 ```
 
-The AI API runs **fully offline** and loads the model at startup.
-
----
-
-## Build & Run
-
-From the root folder:
+✅ You should wait until you see something like:
 
 ```
-docker compose up --build
+Starting Laravel development server: http://0.0.0.0:8000
 ```
 
-Generate Laravel keys:
+Generate keys:
 
 ```
 docker exec -it dev-laravel php artisan key:generate
+```
+
+```
 docker exec -it dev-laravel php artisan jwt:secret
 ```
 
@@ -249,8 +218,82 @@ docker exec -it dev-laravel php artisan migrate
 
 ## Access
 
-- Frontend: http://localhost:4200
-- Backend API: http://localhost:8000
+- Frontend: http://localhost:4200  
+- Backend: http://localhost:8000  
+
+---
+
+# 🤖 AI Setup (Optional)
+
+The AI system is **completely optional** and runs separately using Docker profiles.
+
+## Why Local LLM?
+
+Flowboard uses a **local LLM** to:
+
+- Avoid API rate limits  
+- Eliminate usage costs  
+- Ensure privacy (no external calls)  
+- Allow unlimited experimentation  
+
+---
+
+## 1. Download Model
+
+Recommended:
+
+**Mistral 7B Instruct (Q4_K_M)**
+
+https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF
+
+File:
+
+```
+mistral-7b-instruct-v0.2.Q4_K_M.gguf
+```
+
+---
+
+## 2. Place Model
+
+```
+models/
+└── mistral-7b-instruct-v0.2.Q4_K_M.gguf
+```
+
+---
+
+## 3. Configure Model Path
+
+Update the root .env file (same level as docker-compose.yml):
+
+```
+MODEL_PATH=/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+```
+
+## 4. Run AI Services
+
+```
+docker compose --profile ai --profile workers up -d
+```
+
+This enables:
+
+- AI API (FastAPI + llama.cpp)  
+- Queue workers (for async processing)  
+
+---
+
+## AI Access
+
 - AI API: http://localhost:8001
 
 ---
+
+## Notes
+
+- The app works fully **without AI**  
+- AI features require both:
+  - `ai` profile  
+  - `workers` profile  
+- Queue is required for async AI generation  

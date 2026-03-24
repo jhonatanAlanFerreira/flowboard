@@ -154,8 +154,8 @@
 ></app-task-modal-component>
 
 <app-create-workspace-with-ai-component
-  [visible]="isCreateWorkspaceWithAiModalOpen"
-  (onCreate)="isCreateWorkspaceWithAiModalOpen = false"
+  [visible]="isCreateWorkspaceWithAiModalOpen()"
+  (onCreate)="isCreateWorkspaceWithAiModalOpen.set(false)"
   (onCancel)="onAiCreateWorkspaceModalCancel()"
   (onWorkspaceClick)="onAiWorkspaceCreated($event)"
 ></app-create-workspace-with-ai-component>
