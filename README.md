@@ -71,6 +71,7 @@ The project is fully **containerized with Docker**, allowing a consistent and si
 ├── backend/
 │   └── flowboard/
 │       ├── .env.example                 # Laravel environment example
+│       ├── .env.testing.example         # Laravel environment for testing example
 │       └── ...                          # Laravel source files
 ├── frontend/
 │   └── flowboard/
