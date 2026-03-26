@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Task\TaskCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\Tasklist;
@@ -17,8 +18,7 @@ class TaskController extends Controller
 {
     public function __construct(
         private OrderService $orderService
-    ) {
-    }
+    ) {}
 
     public function store(StoreTaskRequest $request)
     {
@@ -32,12 +32,14 @@ class TaskController extends Controller
             $order = (Task::where('tasklist_id', $tasklist->id)->max('order') ?? 0) + 1;
         }
 
-        Task::create([
+        $task = Task::create([
             'description' => $request->description,
             'tasklist_id' => $tasklist->id,
             'order' => $order,
             'user_id' => $request->user()->id
         ]);
+
+        event(new TaskCreated($task));
 
         return response()->json(['success' => true], 201);
     }
