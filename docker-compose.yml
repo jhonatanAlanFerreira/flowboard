@@ -11,7 +11,7 @@ services:
       - "${MYSQL_PORT}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./docker/mysql/init:/docker-entrypoint-initdb.d 
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
     command: --default-authentication-plugin=mysql_native_password
 
   laravel:
@@ -31,7 +31,6 @@ services:
     command: sh -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
 
   queue:
-    profiles: ["workers"]
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -39,7 +38,7 @@ services:
     restart: unless-stopped
     depends_on:
       - mysql
-      - ai-api
+      - laravel
     volumes:
       - ./backend/flowboard:/var/www/html
       - ./backend/flowboard/vendor:/var/www/html/vendor
@@ -62,6 +61,7 @@ services:
     build:
       context: ./ai-api
       dockerfile: Dockerfile
+    image: ai-api-image
     container_name: dev-ai-api
     restart: unless-stopped
     volumes:
@@ -72,7 +72,42 @@ services:
     working_dir: /app
     environment:
       MODEL_PATH: "${MODEL_PATH}"
-    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+
+  weaviate:
+    image: semitechnologies/weaviate:latest
+    ports:
+      - "8080:8080"
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      ENABLE_MODULES: ""
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+
+  redis:
+    image: redis:7
+    container_name: dev-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  ai-worker:
+    profiles: ["ai"]
+    image: ai-api-image 
+    container_name: dev-ai-worker
+    depends_on:
+      - redis
+    volumes:
+      - ./ai-api:/app
+      - ./models:/models
+    working_dir: /app
+    environment:
+      MODEL_PATH: "${MODEL_PATH}"
+    command: celery -A app.tasks worker --loglevel=info --concurrency=1
 
 volumes:
   mysql_data:
+  weaviate_data:

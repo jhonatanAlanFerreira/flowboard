@@ -86,4 +86,9 @@ class RagChunk extends Model
     {
         $this->update(['has_embedding' => true]);
     }
+
+    public function isTask(): bool
+    {
+        return $this->type === ChunkType::TASK->value;
+    }
 }

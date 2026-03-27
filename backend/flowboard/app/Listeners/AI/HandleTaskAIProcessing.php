@@ -11,6 +11,7 @@ class HandleTaskAIProcessing
     {
         if ($event instanceof TaskCreated) {
             GenerateTaskChunkJob::dispatch($event->task);
+            // GenerateEmbeddingJob::dispatch($chunk->id);
         }
 
         // if ($event instanceof TaskUpdated) {

@@ -3,6 +3,7 @@
 namespace App\Jobs\AI;
 
 use App\Models\Task;
+use App\Services\AI\Agents\TaggingAgent;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -23,7 +24,8 @@ class GenerateTaskChunkJob implements ShouldQueue
 
     public function handle(
         ChunkService $chunkService,
-        TaskChunkBuilder $taskChunkBuilder
+        TaskChunkBuilder $taskChunkBuilder,
+        TaggingAgent $taggingAgent
     ): void {
 
         $chunkData = $taskChunkBuilder->build($this->task);
@@ -33,9 +35,6 @@ class GenerateTaskChunkJob implements ShouldQueue
             data: $chunkData
         );
 
-        // GenerateTaskTagsJob::dispatch($chunk->id);
-        // GenerateEmbeddingJob::dispatch($chunk->id);
-
-        // update has_embeddings and tags
+        $taggingAgent->generateTags($chunk);
     }
 }

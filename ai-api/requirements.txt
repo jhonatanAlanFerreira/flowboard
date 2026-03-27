@@ -2,3 +2,5 @@ fastapi
 uvicorn
 pydantic
 llama-cpp-python
+celery
+redis
