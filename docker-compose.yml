@@ -106,7 +106,7 @@ services:
     working_dir: /app
     environment:
       MODEL_PATH: "${MODEL_PATH}"
-    command: celery -A app.tasks worker --loglevel=info --concurrency=1
+    command: celery -A app.celery_app worker -Q tagging,workflow,celery --loglevel=info --concurrency=1
 
 volumes:
   mysql_data:

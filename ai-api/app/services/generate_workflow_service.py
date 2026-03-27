@@ -1,6 +1,6 @@
 from app.llm import get_llm
 
-class WorkspaceGenerator:
+class GenerateWorkflowService:
     
   def __init__(self):
     self.llm = get_llm()

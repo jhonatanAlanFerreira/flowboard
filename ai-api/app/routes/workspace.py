@@ -1,30 +1,14 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-import json
-
-from app.services.llm.workspace_generator import WorkspaceGenerator
+from fastapi import APIRouter
+from app.models.request.workspace_request import WorkspaceRequest
+from app.models.response.workspace_response import WorkflowResponse
+from app.tasks.generate_workflow_task import generate_workflow_task
 
 router = APIRouter()
 
-workspace_generator = WorkspaceGenerator()
+@router.post("/generate-workspace", response_model=WorkflowResponse)
+def generate_workspace(request: WorkspaceRequest):
+    prompt = request.prompt.strip()
 
-class WorkspaceRequest(BaseModel):
-    prompt: str
+    generate_workflow_task.delay(prompt)
 
-
-@router.post("/generate-workspace")
-def generate_workspace(data: WorkspaceRequest):
-    raw_output = workspace_generator.generate_workspace_llm(data.prompt)
-
-    try:
-        parsed = json.loads(raw_output)
-    except json.JSONDecodeError:
-        raise HTTPException(
-            status_code=500,
-            detail={
-                "error": "invalid_json_from_model",
-                "raw_output": raw_output
-            }
-        )
-
-    return parsed
+    return {"status": "queued"}

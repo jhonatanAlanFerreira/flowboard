@@ -2,7 +2,6 @@
 
 namespace App\Services\AI\Agents;
 
-use App\Models\ChunkTag;
 use App\Models\RagChunk;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\AIWorkspaceController\GenerateAIWorkspaceRequest;
 use App\Http\Controllers\Controller;
-use App\Jobs\ProcessAIWorkspace;
+use App\Jobs\AI\GenerateWorkspaceJob;
 use App\Models\AIJob;
 use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
@@ -22,7 +22,7 @@ class AIWorkspaceController extends Controller
             'prompt' => $request->prompt,
         ]);
 
-        ProcessAIWorkspace::dispatch($job);
+        GenerateWorkspaceJob::dispatch($job);
 
         return response()->json([
             'status' => 'accepted'

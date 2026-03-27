@@ -1,6 +1,5 @@
 from app.celery_app import celery
-
-from app.services.llm.tagging_service import TaggingService
+from app.services.tagging_service import TaggingService
 from celery.utils.log import get_task_logger
 
 service = TaggingService()  

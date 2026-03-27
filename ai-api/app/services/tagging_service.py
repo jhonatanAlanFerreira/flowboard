@@ -1,6 +1,5 @@
 from typing import List
 import json
-import logging
 from app.llm import get_llm
 
 class TaggingService:
@@ -11,8 +10,6 @@ class TaggingService:
 
     def __init__(self):
         self.llm = get_llm()
-
-        logging.basicConfig(level=logging.INFO)
 
     def generate_tags(self, text: str, known_tags: List[str] = None) -> List[str]:
         """
