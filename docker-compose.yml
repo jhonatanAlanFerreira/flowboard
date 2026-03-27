@@ -61,9 +61,10 @@ services:
     build:
       context: ./ai-api
       dockerfile: Dockerfile
-    image: ai-api-image
     container_name: dev-ai-api
     restart: unless-stopped
+    depends_on:
+      - redis
     volumes:
       - ./ai-api:/app
       - ./models:/models
@@ -73,6 +74,24 @@ services:
     environment:
       MODEL_PATH: "${MODEL_PATH}"
     command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+
+  ai-worker:
+    profiles: ["ai"]
+    build:
+      context: ./ai-api
+      dockerfile: Dockerfile
+    container_name: dev-ai-worker
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - ai-api
+    volumes:
+      - ./ai-api:/app
+      - ./models:/models
+    working_dir: /app
+    environment:
+      MODEL_PATH: "${MODEL_PATH}"
+    command: celery -A app.celery_app worker -Q tagging,workflow,celery --loglevel=info --concurrency=1
 
   weaviate:
     image: semitechnologies/weaviate:latest
@@ -93,20 +112,6 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
-
-  ai-worker:
-    profiles: ["ai"]
-    image: ai-api-image 
-    container_name: dev-ai-worker
-    depends_on:
-      - redis
-    volumes:
-      - ./ai-api:/app
-      - ./models:/models
-    working_dir: /app
-    environment:
-      MODEL_PATH: "${MODEL_PATH}"
-    command: celery -A app.celery_app worker -Q tagging,workflow,celery --loglevel=info --concurrency=1
 
 volumes:
   mysql_data:
