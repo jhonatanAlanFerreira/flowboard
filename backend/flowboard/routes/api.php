@@ -28,6 +28,7 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
     Route::get('workspaces', [WorkspaceController::class, "userWorkspaces"]);
 
     Route::post('workspace', [WorkspaceController::class, "store"]);
+    Route::post('workspace/import-json', [WorkspaceController::class, "storeFromJson"]);
     Route::post('tasklist', [TasklistController::class, "store"]);
     Route::post('task', [TaskController::class, "store"]);
 

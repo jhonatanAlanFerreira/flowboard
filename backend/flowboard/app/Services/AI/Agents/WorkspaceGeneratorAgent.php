@@ -2,6 +2,7 @@
 
 namespace App\Services\AI\Agents;
 
+use App\Models\AIJob;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -17,12 +18,12 @@ class WorkspaceGeneratorAgent
     /**
      * Generate workspace from prompt using Python API
      */
-    public function generateWorkspace(string $prompt): array
+    public function generateWorkspace(AIJob $job): array
     {
 
         try {
             $response = Http::timeout(10)
-                ->post($this->endpoint, $this->buildPayload($prompt));
+                ->post($this->endpoint, $this->buildPayload($job));
 
             if ($response->successful()) {
                 return $response->json();
@@ -44,10 +45,11 @@ class WorkspaceGeneratorAgent
         throw new \RuntimeException('AI API is not responding');
     }
 
-    protected function buildPayload(string $prompt): array
+    protected function buildPayload(AIJob $job): array
     {
         return [
-            'prompt' => $prompt,
+            'job_id' => $job->id,
+            'prompt' => $job->prompt,
         ];
     }
 }

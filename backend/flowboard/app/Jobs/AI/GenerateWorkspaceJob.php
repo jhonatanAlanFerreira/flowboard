@@ -19,7 +19,7 @@ class GenerateWorkspaceJob implements ShouldQueue
     public function handle(WorkspaceGeneratorAgent $workspaceGeneratorAgent): void
     {
         try {
-            $workspaceGeneratorAgent->generateWorkspace($this->job->prompt);
+            $workspaceGeneratorAgent->generateWorkspace($this->job);
         } catch (\Throwable $e) {
             logger($e->getMessage());
             $this->job->update(['status' => 'failed']);
