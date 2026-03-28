@@ -108,6 +108,7 @@ services:
       PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
       DEFAULT_VECTORIZER_MODULE: "none"
       ENABLE_MODULES: ""
+      RAFT_BOOTSTRAP_TIMEOUT: 120
     volumes:
       - weaviate_data:/var/lib/weaviate
 
