@@ -253,4 +253,59 @@ class WorkspaceTest extends TestCase
             'description' => 'Reel in the fish',
         ]);
     }
+
+    /** @test */
+    public function ai_can_create_workspace_from_json_and_complete_job()
+    {
+        $user = User::factory()->create();
+
+        // Create pending job first (simulates AI request lifecycle)
+        \App\Models\AIJob::create([
+            'job_id' => 1,
+            'user_id' => $user->id,
+            'prompt' => 'How to catch a fish?',
+            'status' => 'pending',
+        ]);
+
+        $jsonPayload = [
+            "job_id" => 1,
+            "workflow" => [
+                "name" => "Fishing",
+                "lists" => [
+                    [
+                        "name" => "Prepare for Fishing",
+                        "tasks" => [
+                            ["description" => "Buy a fishing rod"],
+                            ["description" => "Buy bait"],
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $response = $this->withHeaders([
+            'X-AI-SECRET' => config('ai.ai_api_secret'),
+        ])->postJson('/api/internal/ai/workspaces', $jsonPayload);
+
+        $response->assertStatus(204);
+
+        // Assert workspace created (AI might assign to a system user or nullable)
+        $this->assertDatabaseHas('workspaces', [
+            'name' => 'Fishing',
+        ]);
+
+        $this->assertDatabaseHas('tasklists', [
+            'name' => 'Prepare for Fishing',
+        ]);
+
+        $this->assertDatabaseHas('tasks', [
+            'description' => 'Buy a fishing rod',
+        ]);
+
+        // ✅ Assert job completed
+        $this->assertDatabaseHas('ai_jobs', [
+            'id' => 1,
+            'status' => 'done',
+        ]);
+    }
 }

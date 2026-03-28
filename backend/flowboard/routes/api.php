@@ -50,3 +50,7 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
         Route::get('/health', [AIWorkspaceController::class, 'checkAiEndpoint']);
     });
 });
+
+Route::middleware('ai')->prefix('internal/ai')->group(function () {
+    Route::post('/workspaces', [AIWorkspaceController::class, 'storeFromAI']);
+});

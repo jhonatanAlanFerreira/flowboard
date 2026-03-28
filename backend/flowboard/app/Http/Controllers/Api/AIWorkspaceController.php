@@ -2,17 +2,25 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Data\WorkspaceData;
 use App\Http\Requests\AIWorkspaceController\GenerateAIWorkspaceRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AIWorkspaceController\StoreWorkspaceFromAIRequest;
 use App\Jobs\AI\GenerateWorkspaceJob;
 use App\Models\AIJob;
 use App\Models\Workspace;
+use App\Services\Workspace\WorkspaceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class AIWorkspaceController extends Controller
 {
+    public function __construct(
+        private WorkspaceService $workspaceService
+    ) {}
+
+
     public function generate(
         GenerateAIWorkspaceRequest $request,
     ): JsonResponse {
@@ -79,5 +87,23 @@ class AIWorkspaceController extends Controller
 
             return false;
         }
+    }
+
+    public function storeFromAI(StoreWorkspaceFromAIRequest $request)
+    {
+        $params = new StoreWorkspaceFromAIRequest($request->validated());
+        $workspaceData = new WorkspaceData($request->validated());
+
+        $job = AIJob::find($params->job_id);
+        $userId = $job->user->id;
+
+        $workspace = $this->workspaceService->persistWorkspace($workspaceData, $userId);
+
+        $job->update([
+            'status' => 'done',
+            'workspace_id' => $workspace->id,
+        ]);
+
+        return response()->noContent();
     }
 }
