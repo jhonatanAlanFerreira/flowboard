@@ -10,7 +10,8 @@ dependencies = [
     "pydantic",
     "llama-cpp-python",
     "celery",
-    "redis"
+    "redis",
+    "requests"
 ]
 
 [build-system]

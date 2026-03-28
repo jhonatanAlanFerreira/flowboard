@@ -1,4 +1,5 @@
 from app.llm import get_llm
+from app.grammars.workflow import WORKFLOW_JSON_GRAMMAR
 
 class GenerateWorkflowService:
     
@@ -41,8 +42,8 @@ class GenerateWorkflowService:
   If there is not enough information, return EXACTLY:
 
   {
-    "error": "missing_information",
-    "message": "ask a clear follow-up question"
+    "workflow": null,
+    "error": "missing_information"
   }
   """
 
@@ -60,7 +61,8 @@ class GenerateWorkflowService:
       result = self.llm(
           full_prompt,
           temperature=0.2,
-          max_tokens=1200
+          max_tokens=1200,
+          grammar=WORKFLOW_JSON_GRAMMAR
       )
 
       return result["choices"][0]["text"].strip()

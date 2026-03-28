@@ -92,6 +92,8 @@ services:
     working_dir: /app
     environment:
       MODEL_PATH: "${MODEL_PATH}"
+      BACKEND_URL: "http://dev-laravel:8000"
+      AI_API_SECRET: "${AI_API_SECRET}"
       LOAD_LLM: 1
     command: celery -A app.celery_app worker -Q tagging,workflow,celery --loglevel=info --concurrency=1
 
