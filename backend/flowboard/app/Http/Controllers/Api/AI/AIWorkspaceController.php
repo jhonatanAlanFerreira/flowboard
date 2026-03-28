@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\AI;
 
 use App\Data\WorkspaceData;
 use App\Http\Requests\AIWorkspaceController\GenerateAIWorkspaceRequest;

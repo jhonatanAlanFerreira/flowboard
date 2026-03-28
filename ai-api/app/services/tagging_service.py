@@ -1,63 +1,73 @@
-from typing import List
+from typing import List, Dict
 import json
 from app.llm import get_llm
 
 class TaggingService:
     """
     LLM-based tagging service.
-    Accepts a list of known tags from Laravel, can suggest new ones.
+    Returns structured tags:
+    - known_tags: subset of provided known tags
+    - new_tags: optional new suggestions (can be empty)
     """
 
     def __init__(self):
         self.llm = get_llm()
 
-    def generate_tags(self, text: str, known_tags: List[str] = None) -> List[str]:
-        """
-        text: task description
-        known_tags: tags Laravel already uses
-        returns: suggested tags (subset of known_tags + optionally 1 new tag)
-        """
+    def generate_tags(
+        self, text: str, known_tags: List[str] = None
+    ) -> Dict[str, List[str]]:
         known_tags = known_tags or []
 
-        system_prompt = (
-            "You are a tagging assistant. "
-            "You MUST return a JSON list of tags. "
-            "Use only the tags provided, but if a new useful tag is obvious, include one extra tag. "
-            "Do not include duplicates. Return only JSON."
-            "Return ONLY a valid JSON array of strings."
-            "Create a maximum of 3 tags"
+        system_prompt = """
+        You are a backend service that generates structured data.
 
-            "DO NOT explain."
-            "DO NOT add text."
-            "DO NOT add code."
-            "DO NOT add markdown."
-        )
+        Your task:
+        - Read the task description.
+        - Select one or more relevant tags from the provided "Known tags".
+        - If none of the known tags are suitable, create one or more new tags.
+
+        Rules:
+        - Tags must be concise (1-3 words).
+        - Avoid duplicates or synonyms of existing tags.
+        - Prefer existing tags whenever possible.
+        - Output must be valid JSON only (no explanations, no extra text).
+
+        JSON schema (must match exactly):
+        {
+        "tags": string[]
+        }
+        """
 
         user_prompt = f"""
-            Task description: "{text}"
+        Task description: "{text}"
 
-            Known tags: {known_tags}
-
-            Return a JSON list of tags.
+        Known tags: {known_tags}
         """
 
         full_prompt = f"{system_prompt}\n\n{user_prompt}\nJSON:"
-        
+
         result = self.llm(
             full_prompt,
-            max_tokens=64,
-            temperature=0.2
+            max_tokens=80,
+            temperature=0.3
         )
 
         raw_output = result["choices"][0]["text"].strip()
-        
-        # Parse JSON safely
-        try:
-            tags = json.loads(raw_output)
-            if not isinstance(tags, list):
-                tags = []
-        except json.JSONDecodeError:
-            # fallback to empty list if LLM output fails
-            tags = []
 
-        return tags
+        # Safe parsing
+        try:
+            data = json.loads(raw_output)
+
+            if not isinstance(data, dict):
+                raise ValueError("Invalid format")
+
+            tags = data.get("tags", [])
+
+            return {
+                "tags": tags
+            }
+
+        except (json.JSONDecodeError, ValueError):
+            return {
+                "tags": [],
+            }

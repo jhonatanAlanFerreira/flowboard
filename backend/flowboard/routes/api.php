@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\AIWorkspaceController;
+use App\Http\Controllers\Api\AI\AIChunkController;
+use App\Http\Controllers\Api\AI\AIWorkspaceController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TasklistController;
@@ -53,4 +54,5 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
 
 Route::middleware('ai')->prefix('internal/ai')->group(function () {
     Route::post('/workspaces', [AIWorkspaceController::class, 'storeFromAI']);
+    Route::put('/chunk/{chunkId}/tags', [AIChunkController::class, 'updateChunkTags']);
 });

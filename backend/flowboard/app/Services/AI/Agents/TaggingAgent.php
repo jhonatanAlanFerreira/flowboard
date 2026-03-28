@@ -2,6 +2,7 @@
 
 namespace App\Services\AI\Agents;
 
+use App\Models\ChunkTag;
 use App\Models\RagChunk;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -48,7 +49,7 @@ class TaggingAgent
 
         return [
             'text' => $chunk->content,
-            'known_tags' => [],
+            'known_tags' => ChunkTag::pluck('name')->toArray(),
             'chunk_id' => $chunk->id
         ];
     }
