@@ -4,9 +4,11 @@ from app.clients.backend_client import BackendClient
 from app.schemas.chunk import UpdateTagsPayload
 import json
 from app.observability.phoenix import get_tracer
+from app.services.agents.tagging_agent import TaggingAgent
 
 tracer = get_tracer()
-service = TaggingService()  
+service = TaggingService()
+tag_agent = TaggingAgent()
 backend_client = BackendClient()
 
 @celery.task
@@ -21,15 +23,15 @@ def generate_tags_task(chunk_id, text):
         span.set_attribute("input.known_tags", known_tags)
 
         # Generate tags using LLM or other logic
-        data = service.generate_tags(text, known_tags)
-
-        span.set_attribute("output.tags", data)
+        data = tag_agent.generate_tags(text, known_tags)
 
         if isinstance(data, str):
             data = json.loads(data)
 
         # Insert new tags into Weaviate Tag class
         new_tags = data.get("tags", [])
+        span.set_attribute("output.tags", new_tags)
+
         for tag_name in new_tags:
             service.create_tag_if_not_exists(tag_name)
 

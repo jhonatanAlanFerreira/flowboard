@@ -1,7 +1,7 @@
 from app.llm import get_llm
 from app.grammars.workflow import WORKFLOW_JSON_GRAMMAR
 
-class GenerateWorkflowService:
+class GenerateWorkflowAgent:
     
   def __init__(self):
     self.llm = get_llm()

@@ -1,15 +1,15 @@
-from app.services.generate_workflow_service import GenerateWorkflowService
+from app.services.agents.generate_workflow_agent import GenerateWorkflowAgent
 from app.celery_app import celery
 from app.clients.backend_client import BackendClient
 from app.schemas.workspace import AIWorkspacePayload
 import json
 
-service = GenerateWorkflowService()
+generator_agent = GenerateWorkflowAgent()
 backend_client = BackendClient()
 
 @celery.task
 def generate_workflow_task(user_prompt: str, job_id: str):
-    workspace_data = service.generate_workspace_llm(user_prompt)
+    workspace_data = generator_agent.generate_workspace_llm(user_prompt)
 
     if isinstance(workspace_data, str):
         workspace_data = json.loads(workspace_data)
