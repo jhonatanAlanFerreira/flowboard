@@ -10,12 +10,16 @@ def generate_tags(request: TaggingRequest):
     text = request.text.strip()
     content = request.content.strip()
     chunk_id = request.chunk_id
+    tasklist_id = request.tasklist_id
+    workspace_id = request.workspace_id
 
     # Queue Celery task
     generate_tags_task.delay(
         chunk_id,
         text,
-        content
+        content,
+        tasklist_id,
+        workspace_id
     )
 
     return {"status": "queued"}

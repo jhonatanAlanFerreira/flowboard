@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('workspace_id')->constrained()->cascadeOnDelete();
 
-            $table->foreignId('tasklist_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('task_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('tasklist_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('task_id')->constrained()->cascadeOnDelete();
 
             $table->text('content');
             $table->text('task_description');

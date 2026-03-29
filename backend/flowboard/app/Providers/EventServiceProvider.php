@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Events\Task\TaskCreated;
+use App\Events\Task\TaskDeleted;
+use App\Events\Task\TaskUpdated;
 use App\Listeners\AI\HandleTaskAIProcessing;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -23,12 +25,12 @@ class EventServiceProvider extends ServiceProvider
         TaskCreated::class => [
             HandleTaskAIProcessing::class,
         ],
-        // TaskUpdated::class => [
-        //     HandleTaskAIProcessing::class,
-        // ],
-        // TaskDeleted::class => [
-        //     HandleTaskAIProcessing::class,
-        // ],
+        TaskUpdated::class => [
+            HandleTaskAIProcessing::class,
+        ],
+        TaskDeleted::class => [
+            HandleTaskAIProcessing::class,
+        ],
     ];
 
     /**

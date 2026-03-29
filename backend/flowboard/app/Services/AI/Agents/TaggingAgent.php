@@ -49,7 +49,9 @@ class TaggingAgent
         return [
             'text' => $chunk->task_description,
             'content' => $chunk->content,
-            'chunk_id' => $chunk->id
+            'chunk_id' => $chunk->id,
+            'tasklist_id' => $chunk->tasklist_id,
+            'workspace_id' => $chunk->workspace_id
         ];
     }
 }

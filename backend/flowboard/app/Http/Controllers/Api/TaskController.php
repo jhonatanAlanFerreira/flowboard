@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\Task\TaskCreated;
+use App\Events\Task\TaskDeleted;
+use App\Events\Task\TaskUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\Tasklist;
@@ -51,6 +53,8 @@ class TaskController extends Controller
 
         $task->update($request->validated());
 
+        event(new TaskUpdated($task));
+
         return $task;
     }
 
@@ -58,6 +62,8 @@ class TaskController extends Controller
     {
         $task = Task::ownedBy($request->user())
             ->findOrFail($taskId);
+
+        event(new TaskDeleted($task));
 
         $this->orderService->deleteAndFixOrder(
             $task,

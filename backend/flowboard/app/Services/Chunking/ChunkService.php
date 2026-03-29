@@ -4,10 +4,18 @@ namespace App\Services\Chunking;
 
 use App\Models\ChunkTag;
 use App\Models\RagChunk;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ChunkService
 {
+    protected string $endpoint;
+
+    public function __construct()
+    {
+        $this->endpoint = config('services.ai.endpoint') . '/chunks';
+    }
+
 
     public function upsertTaskChunk(int $taskId, array $data): RagChunk
     {
@@ -27,17 +35,23 @@ class ChunkService
     }
 
 
-    public function deleteTaskChunk(int $taskId): void
+    public function deleteTaskChunk(int $chunkId): void
     {
-        RagChunk::where('reference_id', $taskId)
-            ->delete();
-    }
+        try {
+            $response = Http::timeout(10)
+                ->delete($this->endpoint . "/" . $chunkId);
 
-
-    public function getTaskChunksByList(int $listId): Collection
-    {
-        return RagChunk::where('list_id', $listId)
-            ->get();
+            if (!$response->successful()) {
+                Log::warning('Deleting failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Deleting exception', [
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
 

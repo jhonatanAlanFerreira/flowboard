@@ -3,6 +3,9 @@
 namespace App\Listeners\AI;
 
 use App\Events\Task\TaskCreated;
+use App\Events\Task\TaskDeleted;
+use App\Events\Task\TaskUpdated;
+use App\Jobs\AI\DeleteTaskChunkJob;
 use App\Jobs\AI\GenerateTaskChunkJob;
 
 class HandleTaskAIProcessing
@@ -11,19 +14,14 @@ class HandleTaskAIProcessing
     {
         if ($event instanceof TaskCreated) {
             GenerateTaskChunkJob::dispatch($event->task);
-            // GenerateEmbeddingJob::dispatch($chunk->id);
         }
 
-        // if ($event instanceof TaskUpdated) {
-        //     GenerateTaskChunkJob::dispatch($event->task);
-        // }
+        if ($event instanceof TaskUpdated) {
+            GenerateTaskChunkJob::dispatch($event->task);
+        }
 
-        // if ($event instanceof TaskDeleted) {
-        //     DeleteTaskChunkJob::dispatch($event->taskId);
-        // }
-
-
-        // MarkListDirtyJob::dispatch($event->listId);
-        // MarkWorkspaceDirtyJob::dispatch($event->listId);
+        if ($event instanceof TaskDeleted) {
+            DeleteTaskChunkJob::dispatch($event->task->chunk->id);
+        }
     }
 }

@@ -14,13 +14,15 @@ tag_agent = TaggingAgent()
 backend_client = BackendClient()
 
 @celery.task
-def generate_tags_task(chunk_id: int, text: str, content: str):
+def generate_tags_task(chunk_id: int, text: str, content: str, tasklist_id: int, workspace_id: int):
     with tracer.start_as_current_span("tagging") as span:
         
         # Fetch known tags semantically related to the text
         known_tags = tagging_service.suggest_tags_for_text(text, limit=5)
 
         span.set_attribute("chunk.id", chunk_id)
+        span.set_attribute("chunk.tasklist_id", tasklist_id)
+        span.set_attribute("chunk.workspace_id", workspace_id)
         span.set_attribute("input.text", text)
         span.set_attribute("input.known_tags", known_tags)
 
@@ -42,7 +44,7 @@ def generate_tags_task(chunk_id: int, text: str, content: str):
             tags=new_tags,
         )
 
-        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content)
+        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id)
 
         span.set_attribute("output.chunking", json.dumps(chunking_res))
         
