@@ -44,7 +44,7 @@ class TaggingService:
             .get(self.class_name, ["name"])
             .with_near_vector({
                 "vector": text_vector,
-                "distance": 0.6
+                "distance": 0.8
             })
             .with_additional(["distance"])
             .with_limit(limit)
