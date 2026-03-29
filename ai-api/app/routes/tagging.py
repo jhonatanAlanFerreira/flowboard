@@ -8,12 +8,14 @@ router = APIRouter()
 @router.post("/", response_model=TaggingResponse)
 def generate_tags(request: TaggingRequest):
     text = request.text.strip()
+    content = request.content.strip()
     chunk_id = request.chunk_id
 
     # Queue Celery task
     generate_tags_task.delay(
         chunk_id,
-        text
+        text,
+        content
     )
 
     return {"status": "queued"}
