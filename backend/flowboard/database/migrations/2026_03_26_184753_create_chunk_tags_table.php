@@ -13,10 +13,8 @@ return new class extends Migration
     {
         Schema::create('chunk_tags', function (Blueprint $table) {
             $table->id();
-
             $table->string('name')->unique();
             $table->timestamps();
-
             $table->index('name');
         });
     }

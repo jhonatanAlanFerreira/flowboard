@@ -20,21 +20,15 @@ return new class extends Migration
             $table->foreignId('tasklist_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('task_id')->nullable()->constrained()->nullOnDelete();
 
-            $table->string('type');
-
             $table->text('content');
+            $table->text('task_description');
 
             $table->json('metadata')->nullable();
-
-            $table->boolean('is_durty')->default(false);
 
             $table->boolean('has_embedding')->default(false);
 
             $table->timestamps();
 
-            $table->index(['workspace_id', 'is_durty']);
-            $table->index(['workspace_id', 'type']);
-            $table->index(['tasklist_id', 'type']);
             $table->index(['task_id']);
         });
     }

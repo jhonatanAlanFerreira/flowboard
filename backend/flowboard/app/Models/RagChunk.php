@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\ChunkType;
 use Illuminate\Database\Eloquent\Model;
 
 class RagChunk extends Model
@@ -14,16 +13,14 @@ class RagChunk extends Model
         'workspace_id',
         'tasklist_id',
         'task_id',
-        'type',
         'content',
+        'task_description',
         'metadata',
-        'is_durty',
         'has_embedding',
     ];
 
     protected $casts = [
         'metadata' => 'array',
-        'is_durty' => 'boolean',
         'has_embedding' => 'boolean',
     ];
 
@@ -47,48 +44,13 @@ class RagChunk extends Model
         return $this->belongsTo(Task::class);
     }
 
-    public function scopeTasks($query)
-    {
-        return $query->where('type', ChunkType::TASK->value);
-    }
-
-    public function scopeListPatterns($query)
-    {
-        return $query->where('type', ChunkType::TAG_GROUP->value);
-    }
-
-    public function scopeWorkspacePatterns($query)
-    {
-        return $query->where('type', ChunkType::PATTERN_STRUCTURE->value);
-    }
-
-    public function scopeDirty($query)
-    {
-        return $query->where('is_durty', true);
-    }
-
     public function scopeWithoutEmbedding($query)
     {
         return $query->where('has_embedding', false);
     }
 
-    public function markClean(): void
-    {
-        $this->update(['is_durty' => false]);
-    }
-
-    public function markDirty(): void
-    {
-        $this->update(['is_durty' => true]);
-    }
-
     public function markEmbedded(): void
     {
         $this->update(['has_embedding' => true]);
-    }
-
-    public function isTask(): bool
-    {
-        return $this->type === ChunkType::TASK->value;
     }
 }

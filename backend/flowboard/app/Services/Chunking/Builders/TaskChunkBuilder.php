@@ -14,16 +14,12 @@ class TaskChunkBuilder
         $task->loadMissing('tasklist.workspace');
 
         return [
-            'type' => 'task',
-
             'user_id' => $task->user_id,
             'workspace_id' => $task->tasklist->workspace_id,
             'tasklist_id' => $task->tasklist_id,
             'task_id' => $task->id,
-
+            'task_description' => $task->description,
             'content' => $this->buildContent($task),
-
-            // Structured metadata (used later for patterns)
             'metadata' => $this->buildMetadata($task),
         ];
     }
@@ -33,8 +29,14 @@ class TaskChunkBuilder
      */
     protected function buildContent(Task $task): string
     {
-        // For now: just description (cleaned)
-        return trim($task->description);
+        $workspace = $task->tasklist->workspace->name ?? '';
+        $list = $task->tasklist->name ?? '';
+
+        return trim(
+            "Workspace: {$workspace}\n" .
+                "List: {$list}\n" .
+                "Task: {$task->description}"
+        );
     }
 
     /**
@@ -45,8 +47,6 @@ class TaskChunkBuilder
         return [
             'created_at' => $task->created_at?->toISOString(),
             'updated_at' => $task->updated_at?->toISOString(),
-
-            // Future-ready fields
             'tags' => [], // will be filled by AI later
         ];
     }

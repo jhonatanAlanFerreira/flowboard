@@ -2,7 +2,6 @@
 
 namespace App\Services\AI\Agents;
 
-use App\Models\ChunkTag;
 use App\Models\RagChunk;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -48,7 +47,7 @@ class TaggingAgent
     {
 
         return [
-            'text' => $chunk->content,
+            'text' => $chunk->task_description,
             'chunk_id' => $chunk->id
         ];
     }
