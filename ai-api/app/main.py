@@ -1,14 +1,29 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from app.clients.weaviate_schema import create_weaviate_schema
 
 from app.routes.workspace import router as workspace_router
 from app.routes.tagging import router as tagging_router
-# from app.routes.embedding import router as embedding_router
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        create_weaviate_schema()
+        print("Weaviate schema ready")
+    except Exception as e:
+        print(f"Weaviate init failed: {e}")
+
+    yield
+
+    print("App shutting down")
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(workspace_router)
 app.include_router(tagging_router, prefix="/tagging")
-# app.include_router(embedding_router, prefix="/embedding")
 
 
 @app.get("/health")

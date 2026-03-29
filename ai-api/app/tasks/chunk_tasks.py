@@ -10,22 +10,31 @@ service = TaggingService()
 backend_client = BackendClient()
 
 @celery.task
-def generate_tags_task(chunk_id, text, known_tags):
+def generate_tags_task(chunk_id, text):
     with tracer.start_as_current_span("tagging") as span:
+        
+        # Fetch known tags semantically related to the text
+        known_tags = service.suggest_tags_for_text(text, limit=5)
 
         span.set_attribute("chunk.id", chunk_id)
         span.set_attribute("input.text", text)
         span.set_attribute("input.known_tags", known_tags)
 
+        # Generate tags using LLM or other logic
         data = service.generate_tags(text, known_tags)
+
+        span.set_attribute("output.tags", data)
 
         if isinstance(data, str):
             data = json.loads(data)
 
-        span.set_attribute("output.tags", data)
+        # Insert new tags into Weaviate Tag class
+        new_tags = data.get("tags", [])
+        for tag_name in new_tags:
+            service.create_tag_if_not_exists(tag_name)
 
+        # Update backend with new tags for the chunk
         payload = UpdateTagsPayload(
-            tags=data["tags"],
+            tags=new_tags,
         )
-
         backend_client.put_update_tags(payload, chunk_id)

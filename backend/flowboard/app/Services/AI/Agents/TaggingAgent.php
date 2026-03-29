@@ -49,7 +49,6 @@ class TaggingAgent
 
         return [
             'text' => $chunk->content,
-            'known_tags' => ChunkTag::pluck('name')->toArray(),
             'chunk_id' => $chunk->id
         ];
     }
