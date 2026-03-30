@@ -24,7 +24,7 @@ class HandleTaskAIProcessing
             GenerateTaskChunkJob::dispatch($event->task);
         }
 
-        if ($event instanceof TaskDeleted) {
+        if ($event instanceof TaskDeleted && $event->task->chunk) {
             DeleteTaskChunkJob::dispatch($event->task->chunk->id);
         }
 
