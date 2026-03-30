@@ -271,6 +271,7 @@ docker exec -it dev-laravel php artisan test
 ## Access
 
 - Frontend: http://localhost:4200  
-- Backend: http://localhost:8000  
+- Backend: http://localhost:8000
+- Phoenix: http://localhost:6006
 
 ---
