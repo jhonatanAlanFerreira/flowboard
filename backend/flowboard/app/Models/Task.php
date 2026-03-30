@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Task extends Model
 {
@@ -21,6 +22,12 @@ class Task extends Model
     public function tasklist(): BelongsTo
     {
         return $this->belongsTo(Tasklist::class);
+    }
+
+
+    public function chunk(): HasOne
+    {
+        return $this->hasOne(RagChunk::class);
     }
 
     public function scopeOwnedBy($query, User $user)

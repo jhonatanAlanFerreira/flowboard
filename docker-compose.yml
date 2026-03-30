@@ -11,7 +11,7 @@ services:
       - "${MYSQL_PORT}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./docker/mysql/init:/docker-entrypoint-initdb.d 
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
     command: --default-authentication-plugin=mysql_native_password
 
   laravel:
@@ -31,7 +31,6 @@ services:
     command: sh -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
 
   queue:
-    profiles: ["workers"]
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -39,7 +38,7 @@ services:
     restart: unless-stopped
     depends_on:
       - mysql
-      - ai-api
+      - laravel
     volumes:
       - ./backend/flowboard:/var/www/html
       - ./backend/flowboard/vendor:/var/www/html/vendor
@@ -64,6 +63,8 @@ services:
       dockerfile: Dockerfile
     container_name: dev-ai-api
     restart: unless-stopped
+    depends_on:
+      - redis
     volumes:
       - ./ai-api:/app
       - ./models:/models
@@ -72,7 +73,67 @@ services:
     working_dir: /app
     environment:
       MODEL_PATH: "${MODEL_PATH}"
-    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+      PHOENIX_ENDPOINT: "http://dev-phoenix:4317"
+      LOAD_LLM: 0
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+
+  ai-worker:
+    profiles: ["ai"]
+    build:
+      context: ./ai-api
+      dockerfile: Dockerfile
+    container_name: dev-ai-worker
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - ai-api
+    volumes:
+      - ./ai-api:/app
+      - ./models:/models
+    working_dir: /app
+    environment:
+      MODEL_PATH: "${MODEL_PATH}"
+      BACKEND_URL: "http://dev-laravel:8000"
+      PHOENIX_ENDPOINT: "http://dev-phoenix:4317"
+      AI_API_SECRET: "${AI_API_SECRET}"
+      LOAD_LLM: 1
+    command: celery -A app.celery_app worker -Q tagging,workflow,celery --loglevel=info --concurrency=1
+
+  weaviate:
+    image: semitechnologies/weaviate:latest
+    container_name: dev-weaviate
+    ports:
+      - "8080:8080"
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      ENABLE_MODULES: ""
+      RAFT_BOOTSTRAP_TIMEOUT: 120
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+
+  redis:
+    image: redis:7
+    container_name: dev-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    container_name: dev-phoenix
+    restart: unless-stopped
+    ports:
+      - "6006:6006"
+      - "4317:4317"
+    environment:
+      PHOENIX_WORKING_DIR: /data
+    volumes:
+      - phoenix_data:/data
 
 volumes:
   mysql_data:
+  weaviate_data:
+  phoenix_data:
