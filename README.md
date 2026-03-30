@@ -275,9 +275,17 @@ docker exec -it dev-laravel php artisan migrate
 docker exec -it dev-laravel php artisan test
 ```
 
+## Commands
+
+### Create missing chunks
+
+```
+docker exec -it dev-laravel php artisan tasks:chunk-missing
+```
+
 ## Access
 
-- Frontend: http://localhost:4200  
+- Frontend: http://localhost:4200
 - Backend: http://localhost:8000
 - Phoenix: http://localhost:6006
 
