@@ -97,6 +97,12 @@ class WorkspaceController extends Controller
         return response()->noContent();
     }
 
+    public function exportWorkspace(Request $request, int $workspaceId)
+    {
+        $workspace = $request->user()->workspaces()->findOrFail($workspaceId);
+        return $this->workspaceService->exportWorkspace($workspace);
+    }
+
     private function assertTasklistsBelongToWorkspace(
         int $workspaceId,
         array $tasklistIds

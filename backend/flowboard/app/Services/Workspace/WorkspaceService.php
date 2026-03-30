@@ -4,7 +4,6 @@ namespace App\Services\Workspace;
 
 use App\Data\WorkspaceData;
 use App\Models\Workspace;
-use Illuminate\Support\Facades\DB;
 
 class WorkspaceService
 {
@@ -33,5 +32,33 @@ class WorkspaceService
         }
 
         return $workspace;
+    }
+
+    public function exportWorkspace(Workspace $workspace)
+    {
+        $workspace->loadMissing('tasklists.tasks');
+
+        $data = [
+            'name' => $workspace->name,
+            'lists' => $workspace->tasklists
+                ->sortBy('order')
+                ->values()
+                ->map(function ($list) {
+                    return [
+                        'name' => $list->name,
+                        'tasks' => $list->tasks
+                            ->sortBy('order')
+                            ->values()
+                            ->map(function ($task) {
+                                return [
+                                    'description' => $task->description,
+                                    'done' => $task->done ? "True" : "False"
+                                ];
+                            }),
+                    ];
+                }),
+        ];
+
+        return response()->json($data);
     }
 }

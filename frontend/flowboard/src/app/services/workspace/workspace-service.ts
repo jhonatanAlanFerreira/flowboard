@@ -135,6 +135,27 @@ export class WorkspaceService {
     );
   }
 
+  exportWorkspace(workspace: Workspace) {
+    return this.http
+      .get(
+        `${this.config.apiBaseUrl}/api/me/workspace/${workspace.id}/export-json`,
+      )
+      .subscribe((res) => {
+        const blob = new Blob([JSON.stringify(res, null, 2)], {
+          type: 'application/json',
+        });
+
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${workspace.name || 'workspace'}.json`;
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+      });
+  }
+
   private cleanupPolling(userId?: number) {
     this.stopPolling();
 

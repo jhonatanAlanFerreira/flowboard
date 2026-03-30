@@ -134,6 +134,11 @@ export class DashboardComponent implements OnInit {
       command: () => this.onWorkspaceEdit(),
     },
     {
+      label: 'Export as json',
+      icon: 'pi pi-upload',
+      command: () => this.exportWorkspace(),
+    },
+    {
       label: 'Delete',
       icon: 'pi pi-trash',
       iconClass: 'text-red-500',
@@ -232,6 +237,11 @@ export class DashboardComponent implements OnInit {
         this.workspaces.set(res);
       }),
     );
+  }
+
+  exportWorkspace() {
+    const { value } = this.workspaceControl;
+    this.workspaceService.exportWorkspace(value!);
   }
 
   listTasklistsFromWorkspace() {
