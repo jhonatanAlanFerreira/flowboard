@@ -28,9 +28,16 @@ The entire system is fully **containerized with Docker**, ensuring a consistent,
 
 ---
 
+## Status
+
+This project is currently under active development.  
+Core systems like chunking, embeddings, and retrieval are implemented, while RAG-based generation is in progress.
+
+---
+
 ## Screenshots & Demos
 
-### 🤖 AI Workspace Generation
+### AI Workspace Generation
 
 ![AI Workspace Generation](screenshots/ai_workspace_generate.gif)
 
