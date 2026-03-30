@@ -156,4 +156,156 @@ class WorkspaceTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    /** @test */
+    public function user_can_create_workspace_from_json()
+    {
+        $user = User::factory()->create();
+
+        $jsonPayload = [
+            "workflow" => [
+                "name" => "Fishing",
+                "lists" => [
+                    [
+                        "name" => "Prepare for Fishing",
+                        "tasks" => [
+                            ["description" => "Buy a fishing rod"],
+                            ["description" => "Buy bait"],
+                            ["description" => "Pack a lunch"],
+                            ["description" => "Check weather conditions"],
+                            ["description" => "Pack sunscreen"],
+                            ["description" => "Pack a hat"]
+                        ]
+                    ],
+                    [
+                        "name" => "Fishing at the Lake",
+                        "tasks" => [
+                            ["description" => "Find a good fishing spot"],
+                            ["description" => "Cast your line"],
+                            ["description" => "Wait for a bite"],
+                            ["description" => "Reel in the fish"],
+                            ["description" => "Clean the fish"],
+                            ["description" => "Prepare the fish for cooking"]
+                        ]
+                    ],
+                    [
+                        "name" => "Cooking the Fish",
+                        "tasks" => [
+                            ["description" => "Choose a cooking method"],
+                            ["description" => "Prepare the cooking area"],
+                            ["description" => "Season the fish"],
+                            ["description" => "Cook the fish"],
+                            ["description" => "Serve the fish"],
+                            ["description" => "Clean up the cooking area"]
+                        ]
+                    ],
+                    [
+                        "name" => "Enjoying the Meal",
+                        "tasks" => [
+                            ["description" => "Set the table"],
+                            ["description" => "Serve the fish"],
+                            ["description" => "Pour drinks"],
+                            ["description" => "Light candles"],
+                            ["description" => "Enjoy the meal"],
+                            ["description" => "Clear the table"]
+                        ]
+                    ],
+                    [
+                        "name" => "Disposing of the Remains",
+                        "tasks" => [
+                            ["description" => "Dispose of fish bones"],
+                            ["description" => "Clean the dishes"],
+                            ["description" => "Put away leftovers"],
+                            ["description" => "Take out the trash"],
+                            ["description" => "Wash the fishing gear"],
+                            ["description" => "Store the fishing gear"]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $response = $this->auth($user)
+            ->postJson('/api/me/workspace/import-json', $jsonPayload);
+
+        // Assert successful creation
+        $response->assertStatus(204); // or 201 if you return a message
+
+        // Assert workspace created
+        $this->assertDatabaseHas('workspaces', [
+            'name' => 'Fishing',
+            'user_id' => $user->id,
+        ]);
+
+        // Assert some lists created
+        $this->assertDatabaseHas('tasklists', [
+            'name' => 'Prepare for Fishing',
+        ]);
+        $this->assertDatabaseHas('tasklists', [
+            'name' => 'Fishing at the Lake',
+        ]);
+
+        // Assert some tasks created
+        $this->assertDatabaseHas('tasks', [
+            'description' => 'Buy a fishing rod',
+        ]);
+        $this->assertDatabaseHas('tasks', [
+            'description' => 'Reel in the fish',
+        ]);
+    }
+
+    /** @test */
+    public function ai_can_create_workspace_from_json_and_complete_job()
+    {
+        $user = User::factory()->create();
+
+        // Create pending job first (simulates AI request lifecycle)
+        \App\Models\AIJob::create([
+            'job_id' => 1,
+            'user_id' => $user->id,
+            'prompt' => 'How to catch a fish?',
+            'status' => 'pending',
+        ]);
+
+        $jsonPayload = [
+            "job_id" => 1,
+            "workflow" => [
+                "name" => "Fishing",
+                "lists" => [
+                    [
+                        "name" => "Prepare for Fishing",
+                        "tasks" => [
+                            ["description" => "Buy a fishing rod"],
+                            ["description" => "Buy bait"],
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $response = $this->withHeaders([
+            'X-AI-SECRET' => config('ai.ai_api_secret'),
+        ])->postJson('/api/internal/ai/workspaces', $jsonPayload);
+
+        $response->assertStatus(204);
+
+        // Assert workspace created (AI might assign to a system user or nullable)
+        $this->assertDatabaseHas('workspaces', [
+            'name' => 'Fishing',
+        ]);
+
+        $this->assertDatabaseHas('tasklists', [
+            'name' => 'Prepare for Fishing',
+        ]);
+
+        $this->assertDatabaseHas('tasks', [
+            'description' => 'Buy a fishing rod',
+        ]);
+
+        // ✅ Assert job completed
+        $this->assertDatabaseHas('ai_jobs', [
+            'id' => 1,
+            'status' => 'done',
+        ]);
+    }
 }

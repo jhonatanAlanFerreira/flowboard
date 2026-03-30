@@ -15,6 +15,7 @@ class ReorderTasksRequest extends FormRequest
     {
         return [
             'newTasklistId' => ['required', 'integer', 'exists:tasklists,id'],
+            'droppedTaskId' => ['nullable', 'integer'],
             'sourceTasklistId' => ['required', 'integer', 'exists:tasklists,id'],
             'order' => ['required', 'array', 'min:1'],
             'order.*' => ['integer', 'exists:tasks,id'],

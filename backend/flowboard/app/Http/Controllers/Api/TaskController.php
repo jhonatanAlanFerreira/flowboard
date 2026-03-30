@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\Task\TaskCreated;
+use App\Events\Task\TaskDeleted;
+use App\Events\Task\TaskUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\Tasklist;
@@ -17,8 +20,7 @@ class TaskController extends Controller
 {
     public function __construct(
         private OrderService $orderService
-    ) {
-    }
+    ) {}
 
     public function store(StoreTaskRequest $request)
     {
@@ -32,12 +34,14 @@ class TaskController extends Controller
             $order = (Task::where('tasklist_id', $tasklist->id)->max('order') ?? 0) + 1;
         }
 
-        Task::create([
+        $task = Task::create([
             'description' => $request->description,
             'tasklist_id' => $tasklist->id,
             'order' => $order,
             'user_id' => $request->user()->id
         ]);
+
+        event(new TaskCreated($task));
 
         return response()->json(['success' => true], 201);
     }
@@ -49,6 +53,8 @@ class TaskController extends Controller
 
         $task->update($request->validated());
 
+        event(new TaskUpdated($task));
+
         return $task;
     }
 
@@ -56,6 +62,8 @@ class TaskController extends Controller
     {
         $task = Task::ownedBy($request->user())
             ->findOrFail($taskId);
+
+        event(new TaskDeleted($task));
 
         $this->orderService->deleteAndFixOrder(
             $task,
@@ -91,13 +99,16 @@ class TaskController extends Controller
 
         DB::transaction(function () use ($task, $importedList, $nextTaskOrder) {
 
-            Task::create([
+            $newTask = Task::create([
                 'description' => $task->description,
                 'tasklist_id' => $importedList->id,
                 'order' => $nextTaskOrder,
                 'user_id' => $task->user_id,
                 'done' => $task->done
             ]);
+
+            event(new TaskCreated($newTask));
+            event(new TaskDeleted($task));
 
             $this->orderService->deleteAndFixOrder(
                 $task,

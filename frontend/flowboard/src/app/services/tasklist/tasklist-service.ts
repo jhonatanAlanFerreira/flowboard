@@ -48,12 +48,14 @@ export class TasklistService {
     sourceTasklistId: number,
     order: number[],
     doneTasksOrder: 'top' | 'bottom' | null = null,
+    droppedTaskId: number | null = null,
   ) {
     return this.http.put(`${this.config.apiBaseUrl}/api/me/tasks/reorder`, {
       newTasklistId,
       sourceTasklistId,
       order,
       doneTasksOrder,
+      droppedTaskId,
     });
   }
 }

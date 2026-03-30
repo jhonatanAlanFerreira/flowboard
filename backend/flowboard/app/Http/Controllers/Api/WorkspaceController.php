@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Data\WorkspaceData;
+use App\Events\Workspace\WorkspaceDeleted;
 use App\Http\Controllers\Controller;
 use App\Models\Tasklist;
 use App\Models\Workspace;
@@ -11,15 +13,18 @@ use App\Http\Requests\WorkspaceController\{
     IndexWorkspaceRequest,
     StoreWorkspaceRequest,
     UpdateWorkspaceRequest,
-    ReorderTasklistsRequest
+    ReorderTasklistsRequest,
+    StoreWorkspaceFromJsonRequest
 };
+use App\Models\AIJob;
+use App\Services\Workspace\WorkspaceService;
 
 class WorkspaceController extends Controller
 {
     public function __construct(
-        private OrderService $orderService
-    ) {
-    }
+        private OrderService $orderService,
+        private WorkspaceService $workspaceService
+    ) {}
 
     public function index(IndexWorkspaceRequest $request, $workspaceId)
     {
@@ -54,7 +59,12 @@ class WorkspaceController extends Controller
 
     public function delete(Request $request, $workspaceId)
     {
-        $request->user()->workspaces()->findOrFail($workspaceId)->delete();
+        $workspace = $request->user()->workspaces()->findOrFail($workspaceId);
+
+        event(new WorkspaceDeleted($workspace));
+
+        $workspace->delete();
+
         return response()->noContent();
     }
 
@@ -76,6 +86,15 @@ class WorkspaceController extends Controller
         );
 
         return response()->json(['success' => true]);
+    }
+
+    public function storeFromJson(StoreWorkspaceFromJsonRequest $request)
+    {
+        $workspaceData = new WorkspaceData($request->validated());
+
+        $this->workspaceService->persistWorkspace($workspaceData, $request->user()->id);
+
+        return response()->noContent();
     }
 
     private function assertTasklistsBelongToWorkspace(

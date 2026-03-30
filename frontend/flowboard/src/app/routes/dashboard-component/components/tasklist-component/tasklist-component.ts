@@ -95,6 +95,8 @@ export class TasklistComponent {
       return;
     }
 
+    const droppedTask: Task = event.item.data;
+
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,
@@ -113,6 +115,8 @@ export class TasklistComponent {
     this.applyTaskOrder(
       event.container.data,
       event.item.data.tasklist_id,
+      null,
+      droppedTask.id,
     ).subscribe();
   }
 
@@ -170,6 +174,7 @@ export class TasklistComponent {
     tasks: Task[],
     tasklistId: number,
     doneTasksOrder: 'top' | 'bottom' | null = null,
+    droppedTaskId: null | number = null,
   ) {
     this.onTaskDropped.emit();
 
@@ -178,6 +183,7 @@ export class TasklistComponent {
       tasklistId,
       tasks.map((t) => t.id),
       doneTasksOrder,
+      droppedTaskId,
     );
   }
 }
