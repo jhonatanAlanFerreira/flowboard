@@ -26,26 +26,26 @@ def generate_tags_task(chunk_id: int, text: str, content: str, tasklist_id: int,
         span.set_attribute("input.text", text)
         span.set_attribute("input.known_tags", known_tags)
 
-        # Generate tags using LLM or other logic
+        # Generate tags using LLM
         data = tag_agent.generate_tags(text, known_tags)
 
         if isinstance(data, str):
             data = json.loads(data)
 
-        # Insert new tags into Weaviate Tag class
         new_tags = data.get("tags", [])
         span.set_attribute("output.tags", new_tags)
 
         for tag_name in new_tags:
             tagging_service.create_tag_if_not_exists(tag_name)
 
-        # Update backend with new tags for the chunk
         payload = UpdateTagsPayload(
             tags=new_tags,
         )
 
+        #Insert new tags into Weaviate Tag class
         chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id)
 
         span.set_attribute("output.chunking", json.dumps(chunking_res))
         
+        # Update backend with new tags for the chunk
         backend_client.put_update_tags(payload, chunk_id)
