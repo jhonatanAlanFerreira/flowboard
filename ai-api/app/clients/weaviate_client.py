@@ -1,4 +1,5 @@
 import weaviate
+import os
 
 _client = None
 
@@ -7,7 +8,7 @@ def get_weaviate_client():
 
     if _client is None:
         _client = weaviate.Client(
-            url="http://dev-weaviate:8080",
+            url=os.getenv("WEAVIATE_URL"),
             startup_period=30
         )
 
