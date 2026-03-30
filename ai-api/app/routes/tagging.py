@@ -5,15 +5,22 @@ from app.models.response.tagging_response import TaggingResponse
 
 router = APIRouter()
 
-@router.post("/", response_model=TaggingResponse)
+@router.post(
+    "/",
+    response_model=TaggingResponse,
+    summary="Queue tag generation for a chunk"
+)
 def generate_tags(request: TaggingRequest):
+    """
+    Receives text and metadata, then queues a background task
+    to generate semantic tags using AI.
+    """
     text = request.text.strip()
     content = request.content.strip()
     chunk_id = request.chunk_id
     tasklist_id = request.tasklist_id
     workspace_id = request.workspace_id
 
-    # Queue Celery task
     generate_tags_task.delay(
         chunk_id,
         text,
