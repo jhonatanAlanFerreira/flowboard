@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\List\TasklistDeleted;
+use App\Events\Task\TaskCreated;
+use App\Events\Task\TaskUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\Tasklist;
@@ -19,8 +21,7 @@ class TasklistController extends Controller
 {
     public function __construct(
         private OrderService $orderService
-    ) {
-    }
+    ) {}
 
     public function store(StoreTasklistRequest $request)
     {
@@ -79,6 +80,8 @@ class TasklistController extends Controller
                     'user_id'
                 ])
             );
+
+            event(new TaskCreated($task));
         }
 
         return response()->json($newTasklist->load('tasks'), 201);
@@ -119,6 +122,10 @@ class TasklistController extends Controller
             $request->order
         );
 
+        if ($request->droppedTaskId) {
+            event(new TaskUpdated(Task::find($request->droppedTaskId)));
+        }
+
         return response()->json(['success' => true]);
     }
 
@@ -139,5 +146,4 @@ class TasklistController extends Controller
             abort(403, 'You do not own one or more of the tasklists involved.');
         }
     }
-
 }

@@ -99,13 +99,16 @@ class TaskController extends Controller
 
         DB::transaction(function () use ($task, $importedList, $nextTaskOrder) {
 
-            Task::create([
+            $newTask = Task::create([
                 'description' => $task->description,
                 'tasklist_id' => $importedList->id,
                 'order' => $nextTaskOrder,
                 'user_id' => $task->user_id,
                 'done' => $task->done
             ]);
+
+            event(new TaskCreated($newTask));
+            event(new TaskDeleted($task));
 
             $this->orderService->deleteAndFixOrder(
                 $task,
