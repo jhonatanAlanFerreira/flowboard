@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\List\TasklistDeleted;
 use App\Http\Controllers\Controller;
 use App\Models\Task;
 use App\Models\Tasklist;
@@ -87,6 +88,8 @@ class TasklistController extends Controller
     {
         $tasklist = Tasklist::ownedBy($request->user())
             ->findOrFail($tasklistId);
+
+        event(new TasklistDeleted($tasklist));
 
         $this->orderService->deleteAndFixOrder(
             $tasklist,

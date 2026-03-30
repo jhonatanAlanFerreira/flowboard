@@ -54,6 +54,44 @@ class ChunkService
         }
     }
 
+    public function deleteTaskChunksFromList(int $tasklistId): void
+    {
+        try {
+            $response = Http::timeout(10)
+                ->delete($this->endpoint . "/tasklist/" . $tasklistId);
+
+            if (!$response->successful()) {
+                Log::warning('Deleting failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Deleting exception', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function deleteTaskChunksFromWorkspace(int $workspaceId): void
+    {
+        try {
+            $response = Http::timeout(10)
+                ->delete($this->endpoint . "/workspace/" . $workspaceId);
+
+            if (!$response->successful()) {
+                Log::warning('Deleting failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Deleting exception', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
 
     public function updateChunkTags(int $chunkId, array $params): void
     {

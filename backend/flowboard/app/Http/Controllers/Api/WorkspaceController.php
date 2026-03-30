@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Data\WorkspaceData;
+use App\Events\Workspace\WorkspaceDeleted;
 use App\Http\Controllers\Controller;
 use App\Models\Tasklist;
 use App\Models\Workspace;
@@ -58,7 +59,12 @@ class WorkspaceController extends Controller
 
     public function delete(Request $request, $workspaceId)
     {
-        $request->user()->workspaces()->findOrFail($workspaceId)->delete();
+        $workspace = $request->user()->workspaces()->findOrFail($workspaceId);
+
+        event(new WorkspaceDeleted($workspace));
+
+        $workspace->delete();
+
         return response()->noContent();
     }
 

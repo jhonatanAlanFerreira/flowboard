@@ -10,21 +10,21 @@ use Illuminate\Queue\SerializesModels;
 
 use App\Services\Chunking\ChunkService;
 
-class DeleteTaskChunkJob implements ShouldQueue
+class DeleteTaskChunksFromListJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
     public int $timeout = 30;
 
-    public function __construct(public int $chunkId) {}
+    public function __construct(public int $tasklistId) {}
 
     public function handle(
         ChunkService $chunkService,
     ): void {
 
-        $chunkService->deleteTaskChunk(
-            $this->chunkId
+        $chunkService->deleteTaskChunksFromList(
+            $this->tasklistId
         );
     }
 }
