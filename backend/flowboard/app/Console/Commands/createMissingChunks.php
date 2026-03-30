@@ -13,8 +13,11 @@ class CreateMissingChunks extends Command
 
     public function handle()
     {
-        // Fetch all tasks without a chunk, eager-load relationships
-        $tasks = Task::doesntHave('chunk')
+        // Fetch tasks that are missing a chunk OR have a chunk without embedding
+        $tasks = Task::whereDoesntHave('chunk')
+            ->orWhereHas('chunk', function ($query) {
+                $query->withoutEmbedding();
+            })
             ->with(['user', 'tasklist.workspace'])
             ->get();
 
