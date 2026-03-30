@@ -1,10 +1,10 @@
 # Flowboard
 
-Flowboard is a full-stack project management application built with **Angular**, **Laravel**, and **Python**, designed to support **multiple users and multiple workspaces**.
-
-It features a **drag-and-drop interface** for task and column management and includes **AI-powered workspace generation**, with ongoing exploration of **RAG (Retrieval-Augmented Generation)** for context-aware capabilities.
-
-The project is fully **containerized with Docker**, allowing a consistent and simple setup.
+**Flowboard** is a full-stack, AI-powered project management platform built with **Angular**, **Laravel**, and **Python**, designed to support **multiple users and workspaces at scale**.
+It features an intuitive **drag-and-drop interface** for managing tasks and workflows, enhanced by **semantic tagging** and **LLM-based content generation** to streamline organization and productivity.
+The platform includes **AI-driven workspace generation**, capable of creating new workspaces based on **user patterns and behavior**, enabling a more personalized and adaptive experience.
+It also leverages **RAG (Retrieval-Augmented Generation)** for context-aware task suggestions and smarter content generation.
+The entire system is fully **containerized with Docker**, ensuring a consistent, scalable, and easy-to-deploy development environment.
 
 ---
 
@@ -20,11 +20,11 @@ The project is fully **containerized with Docker**, allowing a consistent and si
 - Move lists and tasks across workspaces
 - Docker-based local development  
 
-### AI (Optional)
+### AI
 
 - AI-generated workspaces (lists, tasks, structure)  
-- Fully local LLM (no external APIs)  
-- Async processing with queue workers  
+- Fully local LLM (no external APIs)
+- Async processing with queue workers
 
 ---
 
@@ -55,7 +55,7 @@ The project is fully **containerized with Docker**, allowing a consistent and si
 - Authentication: **JWT**  
 - Infrastructure: **Docker & Docker Compose**
 
-### AI (Optional)
+### AI
 
 - API: **FastAPI (Python)**  
 - LLM Runtime: **llama.cpp**  
@@ -92,10 +92,6 @@ The project is fully **containerized with Docker**, allowing a consistent and si
 ---
 
 # Getting Started (Core App)
-
-The application is designed to work **without AI by default**.
-
-This means you can run the full frontend + backend stack without needing to download any model or run the AI services.
 
 ## Requirements
 
@@ -178,17 +174,57 @@ Choose the option that matches your infrastructure setup.
 
 ---
 
-## 4. Run Core App
+## 3. Download LLM Model
+
+Recommended:
+
+**Mistral 7B Instruct (Q4_K_M)**
+
+https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF
+
+File:
 
 ```
-docker compose up -d
+mistral-7b-instruct-v0.2.Q4_K_M.gguf
 ```
 
-This will start:
+---
 
-- MySQL  
-- Laravel backend  
-- Angular frontend
+## 4. Place Model
+
+```
+models/
+└── mistral-7b-instruct-v0.2.Q4_K_M.gguf
+```
+
+---
+
+## 5. Configure Model Path
+
+Update the root .env file (same level as docker-compose.yml):
+
+```
+MODEL_PATH=/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+```
+
+## 6. Start the Full Development Environment
+
+Run:
+```
+    docker compose up -d
+```
+
+This will start the following services:
+
+- **mysql8.0** – relational database  
+- **flowboard-laravel** – main backend (API & business logic)  
+- **flowboard-angular** – frontend application  
+- **flowboard-ai-api** – AI service (LLM integration & orchestration)  
+- **flowboard-ai-worker** – background worker for AI tasks (tagging, generation, RAG processing)  
+- **flowboard-queue** – queue processor for async jobs  
+- **redis7** – caching and queue broker  
+- **weaviate** – vector database for semantic search / RAG  
+- **phoenix** – observability and tracing for LLM workflows  
 
 ⏳ Wait for Laravel to be ready
 
@@ -238,78 +274,3 @@ docker exec -it dev-laravel php artisan test
 - Backend: http://localhost:8000  
 
 ---
-
-# 🤖 AI Setup (Optional)
-
-The AI system is **completely optional** and runs separately using Docker profiles.
-
-## Why Local LLM?
-
-Flowboard uses a **local LLM** to:
-
-- Avoid API rate limits  
-- Eliminate usage costs  
-- Ensure privacy (no external calls)  
-- Allow unlimited experimentation  
-
----
-
-## 1. Download Model
-
-Recommended:
-
-**Mistral 7B Instruct (Q4_K_M)**
-
-https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF
-
-File:
-
-```
-mistral-7b-instruct-v0.2.Q4_K_M.gguf
-```
-
----
-
-## 2. Place Model
-
-```
-models/
-└── mistral-7b-instruct-v0.2.Q4_K_M.gguf
-```
-
----
-
-## 3. Configure Model Path
-
-Update the root .env file (same level as docker-compose.yml):
-
-```
-MODEL_PATH=/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
-```
-
-## 4. Run AI Services
-
-```
-docker compose --profile ai --profile workers up -d
-```
-
-This enables:
-
-- AI API (FastAPI + llama.cpp)  
-- Queue workers (for async processing)  
-
----
-
-## AI Access
-
-- AI API: http://localhost:8001
-
----
-
-## Notes
-
-- The app works fully **without AI**  
-- AI features require both:
-  - `ai` profile  
-  - `workers` profile  
-- Queue is required for async AI generation  
