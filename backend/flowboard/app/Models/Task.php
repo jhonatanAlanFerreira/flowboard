@@ -24,6 +24,10 @@ class Task extends Model
         return $this->belongsTo(Tasklist::class);
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function chunk(): HasOne
     {
