@@ -64,13 +64,14 @@ The project is fully **containerized with Docker**, allowing a consistent and si
 
 ---
 
-## Project Structure
+## Environment & Configuration Files
 
 ```
 .
 ├── backend/
 │   └── flowboard/
 │       ├── .env.example                 # Laravel environment example
+│       ├── .env.testing.example         # Laravel environment for testing example  
 │       └── ...                          # Laravel source files
 ├── frontend/
 │   └── flowboard/
@@ -79,8 +80,9 @@ The project is fully **containerized with Docker**, allowing a consistent and si
 │       │       └── config.example.json  # Frontend runtime config example
 │       └── ...                          # Angular source files
 ├── ai-api/
-│   ├── main.py                          # AI API (FastAPI + llama.cpp)
-│   └── requirements.txt
+│   └── app/
+│       ├── main.py                      # AI API (FastAPI + llama.cpp)
+│       └── ...                          # AI source files
 ├── models/
 │   └── mistral-7b-instruct-v0.2.Q4_K_M.gguf
 ├── docker-compose.yml
