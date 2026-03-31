@@ -66,9 +66,10 @@ class AIWorkspaceController extends Controller
     public function checkAiEndpoint(): bool
     {
         try {
-            $response = Http::timeout(2)
+            $response = Http::ai()
+                ->timeout(2)
                 ->connectTimeout(1)
-                ->get(config('services.ai.endpoint') . '/health');
+                ->get('/health');
 
             if ($response->successful()) {
                 return true;
