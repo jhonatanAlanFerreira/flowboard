@@ -8,18 +8,30 @@ use App\Models\Task;
 
 class CreateMissingChunks extends Command
 {
-    protected $signature = 'tasks:chunk-missing';
+    protected $signature = 'tasks:chunk-missing {--user_id=} {--preview}';
     protected $description = 'Generate missing chunks for tasks';
 
     public function handle()
     {
-        // Fetch tasks that are missing a chunk OR have a chunk without embedding
-        $tasks = Task::whereDoesntHave('chunk')
-            ->orWhereHas('chunk', function ($query) {
-                $query->withoutEmbedding();
+        $userId = $this->option('user_id');
+        $preview = $this->option('preview');
+
+        $query = Task::query()
+            ->where(function ($q) {
+                $q->whereDoesntHave('chunk')
+                    ->orWhereHas('chunk', function ($query) {
+                        $query->withoutEmbedding();
+                    });
             })
-            ->with(['user', 'tasklist.workspace'])
-            ->get();
+            ->with(['user', 'tasklist.workspace']);
+
+        // Apply filter only if user_id is provided
+        if ($userId) {
+            $query->where('user_id', $userId);
+            $this->info("Filtering by user_id: {$userId}");
+        }
+
+        $tasks = $query->get();
 
         // Summary info
         $userCount = $tasks->pluck('user.id')->unique()->count();
@@ -33,10 +45,14 @@ class CreateMissingChunks extends Command
         ];
 
         $this->info(json_encode($summary, JSON_PRETTY_PRINT));
-
         $this->line("");
 
-        // Nested group processing: user -> workspace -> list -> task
+        if ($preview) {
+            $this->info("Preview mode enabled. No events will be dispatched.");
+            return;
+        }
+
+        // Nested group processing
         $tasks->groupBy('user.id')->each(function ($userTasks) {
             $userName = $userTasks->first()->user->name;
 

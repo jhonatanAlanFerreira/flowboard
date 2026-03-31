@@ -283,6 +283,24 @@ docker exec -it dev-laravel php artisan test
 docker exec -it dev-laravel php artisan tasks:chunk-missing
 ```
 
+#### For a specific user
+
+```
+docker exec -it dev-laravel php artisan tasks:chunk-missing --user_id=123
+```
+
+#### Preview mode: logs only the number of missing chunks, does not execute the process
+
+```
+docker exec -it dev-laravel php artisan tasks:chunk-missing --preview
+```
+
+or
+
+```
+docker exec -it dev-laravel php artisan tasks:chunk-missing --user_id=123 --preview
+```
+
 ## Access
 
 - Frontend: http://localhost:4200
