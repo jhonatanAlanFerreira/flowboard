@@ -9,7 +9,7 @@ class ChunkService:
         self.class_name = "Chunk"
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
     
-    def create_or_update_chunk(self, chunk_id: int, content: str, tasklist_id: int, workspace_id: int):
+    def create_or_update_chunk(self, chunk_id: int, content: str, tasklist_id: int, workspace_id: int, user_id: int):
         """
         Create a new chunk or update an existing one in Weaviate.
         Stores chunk_id, tasklist_id, workspace_id, and vector embedding.
@@ -18,11 +18,13 @@ class ChunkService:
         chunk_id_str = str(chunk_id)
         tasklist_id_str = str(tasklist_id)
         workspace_id_str = str(workspace_id)
+        user_id_str = str(user_id)
 
         data_object = {
             "chunk_id": chunk_id_str,
             "tasklist_id": tasklist_id_str,
-            "workspace_id": workspace_id_str
+            "workspace_id": workspace_id_str,
+            "user_id": user_id_str
         }
 
         # Check if chunk exists and request _additional.id

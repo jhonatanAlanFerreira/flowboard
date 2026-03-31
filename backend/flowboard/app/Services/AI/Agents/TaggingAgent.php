@@ -51,7 +51,8 @@ class TaggingAgent
             'content' => $chunk->content,
             'chunk_id' => $chunk->id,
             'tasklist_id' => $chunk->tasklist_id,
-            'workspace_id' => $chunk->workspace_id
+            'workspace_id' => $chunk->workspace_id,
+            'user_id' => $chunk->user_id,
         ];
     }
 }

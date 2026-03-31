@@ -21,7 +21,8 @@ def create_weaviate_schema():
         "properties": [
             {"name": "chunk_id", "dataType": ["string"]},       
             {"name": "tasklist_id", "dataType": ["string"]},   
-            {"name": "workspace_id", "dataType": ["string"]}   
+            {"name": "workspace_id", "dataType": ["string"]},  
+            {"name": "user_id", "dataType": ["string"]},  
         ]
     }
 
