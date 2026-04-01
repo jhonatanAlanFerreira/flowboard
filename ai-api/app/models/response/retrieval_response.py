@@ -5,6 +5,7 @@ from typing import List
 class WorkspaceResult(BaseModel):
     workspace_id: str
     score: float
+    chunk_id: str
 
 
 class RetrievalResponse(BaseModel):
