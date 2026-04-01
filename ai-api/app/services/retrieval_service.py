@@ -4,6 +4,7 @@ from app.clients.weaviate_client import get_weaviate_client
 from app.observability.phoenix import get_tracer
 from collections import defaultdict
 import json
+import math
 
 client = get_weaviate_client()
 tracer = get_tracer()
@@ -43,23 +44,45 @@ class RetrievalService:
 
             hits = response.get("data", {}).get("Get", {}).get(self.class_name) or []
 
-            workspace_data = {}
+            workspace_chunks = defaultdict(list)
 
             for hit in hits:
                 wid = hit["workspace_id"]
                 score = float(hit["_additional"]["score"])
                 chunk_id = hit["chunk_id"]
 
-                # keep best chunk per workspace
-                if wid not in workspace_data or score > workspace_data[wid]["score"]:
-                    workspace_data[wid] = {
-                        "workspace_id": wid,
-                        "score": score,
-                        "chunk_id": chunk_id
-                    }
+                workspace_chunks[wid].append({
+                    "score": score,
+                    "chunk_id": chunk_id
+                })
+
+            span.set_attribute(
+            "retrieval.workspace_match_count",
+            json.dumps({wid: len(chunks) for wid, chunks in workspace_chunks.items()})
+)
+
+            workspace_data = {}
+
+            for wid, chunks in workspace_chunks.items():
+                scores = [c["score"] for c in chunks]
+
+                max_score = max(scores)
+                count = len(scores)
+
+                final_score = max_score + 0.1 * math.log(1 + count)
+
+                # keep best chunk for explainability
+                best_chunk = max(chunks, key=lambda x: x["score"])
+
+                workspace_data[wid] = {
+                    "workspace_id": wid,
+                    "score": final_score,
+                    "max_score": max_score,
+                    "match_count": count,
+                    "chunk_id": best_chunk["chunk_id"]
+                }
 
             results = list(workspace_data.values())
-
             results.sort(key=lambda x: x["score"], reverse=True)
 
             top_results = results[:top_k]
