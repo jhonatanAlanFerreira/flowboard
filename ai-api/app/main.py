@@ -6,6 +6,7 @@ from app.clients.weaviate_schema import create_weaviate_schema
 from app.routes.workspace import router as workspace_router
 from app.routes.tagging import router as tagging_router
 from app.routes.chunk import router as chunking_router
+from app.routes.retrieval import router as retrieval_router
 
 
 @asynccontextmanager
@@ -26,6 +27,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(workspace_router)
 app.include_router(chunking_router)
 app.include_router(tagging_router, prefix="/tagging")
+app.include_router(retrieval_router, prefix="/retrieval")
 
 
 @app.get("/health")

@@ -20,6 +20,7 @@ def create_weaviate_schema():
         "vectorizer": "none",  # We'll provide vectors manually
         "properties": [
             {"name": "chunk_id", "dataType": ["string"]},
+            {"name": "content", "dataType": ["string"]},
             {"name": "tasklist_id", "dataType": ["string"], "indexFilterable": True},
             {"name": "workspace_id", "dataType": ["string"], "indexFilterable": True},
             {"name": "user_id", "dataType": ["string"], "indexFilterable": True},

@@ -24,7 +24,8 @@ class ChunkService:
             "chunk_id": chunk_id_str,
             "tasklist_id": tasklist_id_str,
             "workspace_id": workspace_id_str,
-            "user_id": user_id_str
+            "user_id": user_id_str,
+            "content": content
         }
 
         # Check if chunk exists and request _additional.id
