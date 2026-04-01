@@ -16,6 +16,7 @@ class RetrievalService:
 
     def search(self, query: str, user_id: int, limit: int = 20) -> List[Dict]:
         user_id_string = str(user_id)
+        query_vector = self.model.encode(query).tolist()
 
         with tracer.start_as_current_span("service.retrieval") as span:
             span.set_attribute("input.query", query)
@@ -29,6 +30,7 @@ class RetrievalService:
                     .get(self.class_name, ["workspace_id", "content"])
                     .with_hybrid(
                         query=query,
+                        vector=query_vector,
                         alpha=0.8
                     )
                     .with_where({
