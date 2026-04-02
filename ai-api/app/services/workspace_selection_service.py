@@ -1,5 +1,7 @@
 from typing import List, Dict
+from app.observability.phoenix import get_tracer
 
+tracer = get_tracer()
 
 class WorkspaceSelectionService:
 
@@ -13,19 +15,42 @@ class WorkspaceSelectionService:
         self.relative_threshold = relative_threshold
         self.limit = limit
 
-
     def select(self, candidates: List[Dict]) -> List[Dict]:
-        if not candidates:
-            return []
+        with tracer.start_as_current_span("service.selection.select") as span:
+            if not candidates:
+                span.set_attribute("selection.input_count", 0)
+                return []
 
-        best = max(c["score"] for c in candidates)
+            input_count = len(candidates)
+            best = max(c["score"] for c in candidates)
+            
+            span.set_attributes({
+                "selection.input_count": input_count,
+                "selection.best_score": best,
+                "selection.thresholds.min_similarity": self.min_similarity,
+                "selection.thresholds.relative": self.relative_threshold
+            })
 
-        filtered = self._filter_min_similarity(candidates)
-        filtered = self._filter_relative_to_best(filtered, best)
+            # Filter 1: Absolute Similarity
+            filtered = self._filter_min_similarity(candidates)
+            count_after_min = len(filtered)
+            
+            # Filter 2: Relative to best
+            filtered = self._filter_relative_to_best(filtered, best)
+            count_after_relative = len(filtered)
 
-        rescored = self._rescore(filtered, best)
+            # Process and Sort
+            rescored = self._rescore(filtered, best)
+            results = self._sort_and_limit(rescored)
 
-        return self._sort_and_limit(rescored)
+            # Metadata for debugging filter "aggressiveness"
+            span.set_attributes({
+                "selection.count_after_min": count_after_min,
+                "selection.count_after_relative": count_after_relative,
+                "selection.output_count": len(results)
+            })
+
+            return results
 
     def _filter_min_similarity(self, candidates: List[Dict]) -> List[Dict]:
         return [

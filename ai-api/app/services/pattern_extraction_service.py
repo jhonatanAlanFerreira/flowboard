@@ -1,7 +1,9 @@
 import math
 import re
 from typing import List, Dict
+from app.observability.phoenix import get_tracer
 
+tracer = get_tracer()
 
 class PatternExtractionService:
     def __init__(self, similarity_threshold: float = 0.5):
@@ -13,27 +15,41 @@ class PatternExtractionService:
         top_k_tags: int = 3,
         min_score: float = 0
     ) -> List[Dict]:
-        results = []
-
-        for list_data in lists_data:
-            list_id = list_data["tasklist_id"]
-
-            chunks = self._filter_chunks(list_data["chunks"], min_score)
-            if not chunks:
-                continue
-
-            tag_items = self._extract_tag_items(chunks)
-            tag_groups = self._group_tags(tag_items)
-
-            ranked_groups = self._rank_tag_groups(tag_groups, chunks)
-            selected = self._select_diverse_tags(ranked_groups, top_k_tags)
-
-            results.append({
-                "tasklist_id": list_id,
-                "patterns": self._format_patterns(selected)
+        with tracer.start_as_current_span("service.patterns.extract") as span:
+            span.set_attributes({
+                "patterns.input_lists_count": len(lists_data),
+                "patterns.config.top_k": top_k_tags,
+                "patterns.config.min_score": min_score
             })
+            
+            results = []
+            total_raw_tags = 0
 
-        return results
+            for list_data in lists_data:
+                list_id = list_data["tasklist_id"]
+
+                chunks = self._filter_chunks(list_data["chunks"], min_score)
+                if not chunks:
+                    continue
+
+                tag_items = self._extract_tag_items(chunks)
+                total_raw_tags += len(tag_items)
+                
+                tag_groups = self._group_tags(tag_items)
+                ranked_groups = self._rank_tag_groups(tag_groups, chunks)
+                selected = self._select_diverse_tags(ranked_groups, top_k_tags)
+
+                results.append({
+                    "tasklist_id": list_id,
+                    "patterns": self._format_patterns(selected)
+                })
+
+            span.set_attributes({
+                "patterns.total_raw_tags_found": total_raw_tags,
+                "patterns.output_lists_count": len(results)
+            })
+            
+            return results
 
 
     def _filter_chunks(self, chunks: List[Dict], min_score: float) -> List[Dict]:
