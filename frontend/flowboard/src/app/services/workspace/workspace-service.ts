@@ -131,7 +131,7 @@ export class WorkspaceService {
 
   checkAiEndpoint() {
     return this.http.get(
-      `${this.config.apiBaseUrl}/api/me/ai/workspaces/health`,
+      `${this.config.apiBaseUrl}/api/me/ai/health`,
     );
   }
 

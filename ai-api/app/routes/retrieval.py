@@ -2,15 +2,18 @@ from fastapi import APIRouter
 from app.models.request.retrieval_request import RetrievalRequest
 from app.models.response.retrieval_response import RetrievalResponse
 from app.services.retrieval_service import RetrievalService
+from app.services.pattern_extraction_service import PatternExtractionService
+from typing import List, Dict
 
 router = APIRouter()
-service = RetrievalService()
+retrieval_service = RetrievalService()
+pattern_extraction_service = PatternExtractionService()
 
 
 @router.post(
-    "/",
-    response_model=RetrievalResponse,
-    summary="Retrieve relevant workspaces using semantic + keyword search"
+    "/lists",
+    summary="Retrieve relevant workspaces using semantic + keyword search",
+    response_model=RetrievalResponse
 )
 def retrieve_workspaces(request: RetrievalRequest):
     """
@@ -21,7 +24,18 @@ def retrieve_workspaces(request: RetrievalRequest):
     query = request.query.strip()
     user_id = request.user_id
 
-    results = service.search(query=query, user_id=user_id)
+    workspace = retrieval_service.get_relevant_workspaces(query=query, user_id=user_id)
+    
+    lists = retrieval_service.get_relevant_lists(workspace_ids=[ws['workspace_id'] for ws in workspace], query=query)
+
+    return {"lists": lists}
+
+
+@router.post("/patterns/extract")
+def extract_patterns(lists: List[Dict]):
+    results = pattern_extraction_service.extract_patterns_from_lists(
+        lists_data=lists
+    )
 
     return {
         "results": results

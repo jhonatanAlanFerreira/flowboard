@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AI\AIChunkController;
+use App\Http\Controllers\Api\AI\AIRetrievalController;
 use App\Http\Controllers\Api\AI\AIWorkspaceController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\TaskController;
@@ -46,10 +47,14 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
     Route::delete('tasklist/{tasklistId}', [TasklistController::class, "delete"]);
     Route::delete('task/{taskId}', [TaskController::class, "delete"]);
 
-    Route::prefix('ai/workspaces')->group(function () {
-        Route::post('/', [AIWorkspaceController::class, 'generate']);
-        Route::get('/latest', [AIWorkspaceController::class, 'latest']);
+    Route::prefix('ai')->group(function () {
         Route::get('/health', [AIWorkspaceController::class, 'checkAiEndpoint']);
+        Route::post('/retrieval', [AIRetrievalController::class, 'retrieve']);
+
+        Route::prefix('workspaces')->group(function () {
+            Route::post('/', [AIWorkspaceController::class, 'generate']);
+            Route::get('/latest', [AIWorkspaceController::class, 'latest']);
+        });
     });
 });
 
