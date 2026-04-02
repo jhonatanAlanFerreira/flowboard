@@ -3,7 +3,9 @@ from app.models.request.retrieval_request import RetrievalRequest
 from app.models.response.retrieval_response import RetrievalResponse
 from app.services.retrieval_service import RetrievalService
 from app.services.pattern_extraction_service import PatternExtractionService
-from typing import List, Dict
+from typing import List
+from app.models.request.patterns_extract_request import TaskListInput 
+from app.models.response.patterns_extract_reponse import ExtractPatternsResponse
 
 router = APIRouter()
 retrieval_service = RetrievalService()
@@ -31,10 +33,10 @@ def retrieve_workspaces(request: RetrievalRequest):
     return {"lists": lists}
 
 
-@router.post("/patterns/extract")
-def extract_patterns(lists: List[Dict]):
+@router.post("/patterns/extract", response_model=ExtractPatternsResponse)
+def extract_patterns(lists: List[TaskListInput]):
     results = pattern_extraction_service.extract_patterns_from_lists(
-        lists_data=lists
+        lists_data=[l.model_dump() for l in lists]
     )
 
     return {
