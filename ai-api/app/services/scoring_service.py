@@ -51,7 +51,7 @@ class ScoringService:
         return ranked_lists
     
 
-    def _compute_features(self, scores: list[float]) -> dict:
+    def _compute_features(self, scores: list[float], top_k: int = 3) -> dict:
         if not scores:
             return {
                 "relevance": 0,
@@ -62,8 +62,8 @@ class ScoringService:
         scores_sorted = sorted(scores, reverse=True)
 
         # Relevance (top 3)
-        top_k = scores_sorted[:3]
-        relevance = sum(top_k) / len(top_k)
+        top_k_scores = scores_sorted[:top_k]
+        relevance = sum(top_k_scores) / len(top_k_scores)
 
         # Volume
         relevant_chunks = [s for s in scores if s >= 0.7]

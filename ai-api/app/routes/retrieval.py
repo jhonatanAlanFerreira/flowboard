@@ -26,7 +26,7 @@ def retrieve_workspaces(request: RetrievalRequest):
 
     workspace = retrieval_service.get_relevant_workspaces(query=query, user_id=user_id)
     
-    lists = retrieval_service.get_relevant_lists(workspace_ids=[ws['workspace_id'] for ws in workspace], query=query)
+    lists = retrieval_service.get_relevant_lists_for_workspaces(workspace_ids=[ws['workspace_id'] for ws in workspace], query=query)
 
     return {"lists": lists}
 

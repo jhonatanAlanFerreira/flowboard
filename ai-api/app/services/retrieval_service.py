@@ -28,7 +28,7 @@ class RetrievalService:
             span.set_attribute("input.user_id", user_id_string)
             span.set_attribute("input.top_k", top_k)
 
-            # 🔹 Retrieval
+            # Retrieval
             response = (
                 self.client.query
                 .get(self.class_name, ["workspace_id", "content", "chunk_id"])
@@ -44,7 +44,7 @@ class RetrievalService:
 
             hits = response.get("data", {}).get("Get", {}).get(self.class_name) or []
 
-            # 🔹 Group chunks by workspace
+            # Group chunks by workspace
             workspace_chunks = defaultdict(list)
             for hit in hits:
                 wid = hit["workspace_id"]
@@ -75,7 +75,7 @@ class RetrievalService:
         
 
 
-    def get_relevant_lists(self, workspace_ids: list[str], query: str):
+    def get_relevant_lists_for_workspaces(self, workspace_ids: list[str], query: str):
         query_vector = self.model.encode(query).tolist()
 
         response = (
