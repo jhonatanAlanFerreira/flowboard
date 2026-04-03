@@ -13,6 +13,10 @@ scoring_workflow_service = ScoringWorkflowService()
 selection_workflow_service = WorkspaceSelectionWorkflowService()
 
 
+def normalize_text(value: str) -> str:
+    return str(value).strip().lower()
+
+
 class RetrievalWorkflowService:
     def __init__(self):
         self.client = client
@@ -21,7 +25,8 @@ class RetrievalWorkflowService:
 
     def get_relevant_workspaces(self, query: str, user_id: int, top_k: int = 50) -> List[Dict]:
         user_id_string = str(user_id)
-        query_vector = self.model.encode(query).tolist()
+        query_norm = normalize_text(query)
+        query_vector = self.model.encode(query_norm).tolist()
 
         with tracer.start_as_current_span("service.retrieval") as span:
             span.set_attribute("input.query", query)
@@ -32,7 +37,7 @@ class RetrievalWorkflowService:
             response = (
                 self.client.query
                 .get(self.class_name, ["workspace_id", "content", "chunk_id"])
-                .with_hybrid(query=query, vector=query_vector, alpha=0.5)
+                .with_hybrid(query=query_norm, vector=query_vector, alpha=0.5)
                 .with_where({
                     "operator": "And",
                     "operands": [
