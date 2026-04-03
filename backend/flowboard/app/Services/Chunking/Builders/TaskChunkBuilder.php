@@ -30,12 +30,10 @@ class TaskChunkBuilder
      */
     protected function buildContent(Task $task): string
     {
-        $workspace = $task->tasklist->workspace->name ?? '';
         $list = $task->tasklist->name ?? '';
 
         return trim(
-            "Workspace: {$workspace}\n" .
-                "List: {$list}\n" .
+            "List: {$list}\n" .
                 "Task: {$task->description}"
         );
     }
