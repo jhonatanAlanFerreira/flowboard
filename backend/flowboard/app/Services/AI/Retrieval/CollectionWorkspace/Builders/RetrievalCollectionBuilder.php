@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\AI\Retrieval\Builders;
+namespace App\Services\AI\Retrieval\CollectionWorkspace\Builders;
 
 use App\Models\RagChunk;
 use App\Services\AI\Retrieval\DTO\TaskListDTO;
 
-class RetrievalBuilder
+class RetrievalCollectionBuilder
 {
     /**
      * @param TaskListDTO[] $tasklists

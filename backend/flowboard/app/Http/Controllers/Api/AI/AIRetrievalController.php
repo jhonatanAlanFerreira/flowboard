@@ -2,24 +2,28 @@
 
 namespace App\Http\Controllers\Api\AI;
 
+use App\Enums\WorkspaceType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AIRetrievalController\RetrieveRequest;
-use App\Services\AI\Retrieval\Builders\RetrievalBuilder;
-use App\Services\AI\Retrieval\RetrievalService;
+use App\Services\AI\Retrieval\CollectionWorkspace\Builders\RetrievalCollectionBuilder;
+use App\Services\AI\Retrieval\CollectionWorkspace\RetrievalCollectionService;
 
 class AIRetrievalController extends Controller
 {
     public function __construct(
-        private RetrievalService $retrievalService,
-        private RetrievalBuilder $retrievalBuilder
+        private RetrievalCollectionService $retrievalService,
+        private RetrievalCollectionBuilder $retrievalBuilder
     ) {}
 
     public function retrieve(RetrieveRequest $request)
     {
         $user = $request->user();
+        $type = WorkspaceType::from($request->validated('type'));
 
-        $listsRes = $this->retrievalService->retrieveLists($request->input('prompt'), $user->id);
-
-        return $this->retrievalBuilder->hydrateChunks($listsRes);
+        if ($type === WorkspaceType::COLLECTION) {
+            $listsRes = $this->retrievalService->retrieveLists($request->input('prompt'), $user->id);
+            $listsRes = $this->retrievalBuilder->hydrateChunks($listsRes);
+            return $this->retrievalService->extractPatternsFromCollectionWorkflow($listsRes);
+        }
     }
 }

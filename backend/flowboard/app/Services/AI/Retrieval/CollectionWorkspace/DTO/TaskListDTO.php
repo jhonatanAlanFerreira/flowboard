@@ -1,6 +1,6 @@
 <?php 
 
-namespace App\Services\AI\Retrieval\DTO;
+namespace App\Services\AI\Retrieval\CollectionWorkspace\DTO;
 
 class TaskListDTO
 {
