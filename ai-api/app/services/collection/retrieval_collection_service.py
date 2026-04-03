@@ -32,7 +32,7 @@ class RetrievalCollectionService:
             response = (
                 self.client.query
                 .get(self.class_name, ["workspace_id", "content", "chunk_id"])
-                .with_hybrid(query=query, vector=query_vector, alpha=0.6)
+                .with_hybrid(query=query, vector=query_vector, alpha=0.5)
                 .with_where({
                     "operator": "And",
                     "operands": [

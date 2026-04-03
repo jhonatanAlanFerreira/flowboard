@@ -7,7 +7,7 @@ class WorkspaceSelectionCollectionService:
 
     def __init__(
         self,
-        min_similarity: float = 0.7,
+        min_similarity: float = 0.8,
         relative_threshold: float = 0.8,
         limit: int = 5
     ):
