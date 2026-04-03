@@ -1,25 +1,39 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { MessageService } from 'primeng/api';
+import { provideRouter } from '@angular/router';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('App', () => {
+  let component: App;
+  let fixture: ComponentFixture<App>;
+  let messageService: MessageService;
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [provideRouter([]), MessageService],
     }).compileComponents();
+
+    fixture = TestBed.createComponent(App);
+    component = fixture.componentInstance;
+
+    messageService = fixture.debugElement.injector.get(MessageService);
+
+    fixture.detectChanges();
   });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
+  it('should have a toast component in the view', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain(
-      'Hello, flowboard',
-    );
+    expect(compiled.querySelector('p-toast')).not.toBeNull();
+  });
+
+  it('should provide the MessageService', () => {
+    expect(messageService).toBeDefined();
+    expect(typeof messageService.add).toBe('function');
   });
 });
