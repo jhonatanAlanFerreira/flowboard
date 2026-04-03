@@ -6,6 +6,7 @@ from app.models.request.patterns_extract_request import TaskListInput
 from app.models.response.patterns_extract_reponse import ExtractPatternsResponse
 from app.services.collection.retrieval_collection_service import RetrievalCollectionService
 from app.services.collection.pattern_extraction_collection_service import PatternExtractionCollectionService
+from app.models.request.retrieval_request import WorkspaceType
 
 router = APIRouter()
 retrieval_collection_service = RetrievalCollectionService()
@@ -24,11 +25,9 @@ def retrieve_workspaces(request: RetrievalRequest):
     """
 
     query = request.query.strip()
-    type = request.type.strip()
     user_id = request.user_id
 
-
-    if type == "collection":
+    if request.type == WorkspaceType.collection:
         workspace = retrieval_collection_service.get_relevant_workspaces(query, user_id)
         lists = retrieval_collection_service.get_relevant_lists_for_workspaces(workspace_ids=[ws['workspace_id'] for ws in workspace], query=query)
         return {"lists": lists}
