@@ -3,17 +3,17 @@ from sentence_transformers import SentenceTransformer
 from app.clients.weaviate_client import get_weaviate_client
 from app.observability.phoenix import get_tracer
 from collections import defaultdict
-from app.services.scoring_service import ScoringService
-from app.services.workspace_selection_service import WorkspaceSelectionService
+from app.services.collection.scoring_collection_service import ScoringCollectionService
+from app.services.collection.workspace_selection_collection_service import WorkspaceSelectionCollectionService
 import json
 
 client = get_weaviate_client()
 tracer = get_tracer()
-scoring_service = ScoringService()
-selection_service = WorkspaceSelectionService()
+scoring_collection_service = ScoringCollectionService()
+selection_collection_service = WorkspaceSelectionCollectionService()
 
 
-class RetrievalService:
+class RetrievalCollectionService:
     def __init__(self):
         self.client = client
         self.class_name = "Chunk"
@@ -34,9 +34,19 @@ class RetrievalService:
                 .get(self.class_name, ["workspace_id", "content", "chunk_id"])
                 .with_hybrid(query=query, vector=query_vector, alpha=0.6)
                 .with_where({
-                    "path": ["user_id"],
-                    "operator": "Equal",
-                    "valueString": user_id_string
+                    "operator": "And",
+                    "operands": [
+                        {
+                            "path": ["user_id"],
+                            "operator": "Equal",
+                            "valueString": user_id_string
+                        },
+                        {
+                            "path": ["type"],
+                            "operator": "Equal",
+                            "valueString": "task"
+                        }
+                    ]
                 })
                 .with_additional(["score"])
                 .do()
@@ -61,10 +71,10 @@ class RetrievalService:
             )
 
             # Ranking
-            ranked_results = scoring_service.rank_workspaces(workspace_chunks)
+            ranked_results = scoring_collection_service.rank_workspaces(workspace_chunks)
 
             # Selection / filtering
-            selected_results = selection_service.select(ranked_results)
+            selected_results = selection_collection_service.select(ranked_results)
 
             # Limit top_k
             top_results = selected_results[:top_k]
@@ -82,9 +92,19 @@ class RetrievalService:
             self.client.query
             .get("Chunk", ["tasklist_id", "chunk_id"])
             .with_where({
-                "path": ["workspace_id"],
-                "operator": "ContainsAny",
-                "valueTextArray": workspace_ids
+                "operator": "And",
+                "operands": [
+                    {
+                        "path": ["workspace_id"],
+                        "operator": "ContainsAny",
+                        "valueTextArray": workspace_ids
+                    },
+                    {
+                        "path": ["type"],
+                        "operator": "Equal",
+                        "valueString": "task"
+                    }
+                ]
             })
             .with_hybrid(query=query, vector=query_vector, alpha=0.8)
             .with_additional(["score"])
@@ -110,4 +130,4 @@ class RetrievalService:
                 "score": score
             })
 
-        return scoring_service.rank_lists(lists)
+        return scoring_collection_service.rank_lists(lists)

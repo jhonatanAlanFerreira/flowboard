@@ -1,15 +1,15 @@
 from fastapi import APIRouter
 from app.models.request.retrieval_request import RetrievalRequest
 from app.models.response.retrieval_response import RetrievalResponse
-from app.services.retrieval_service import RetrievalService
-from app.services.pattern_extraction_service import PatternExtractionService
 from typing import List
 from app.models.request.patterns_extract_request import TaskListInput 
 from app.models.response.patterns_extract_reponse import ExtractPatternsResponse
+from app.services.collection.retrieval_collection_service import RetrievalCollectionService
+from app.services.collection.pattern_extraction_collection_service import PatternExtractionCollectionService
 
 router = APIRouter()
-retrieval_service = RetrievalService()
-pattern_extraction_service = PatternExtractionService()
+retrieval_collection_service = RetrievalCollectionService()
+pattern_extraction_collection_service = PatternExtractionCollectionService()
 
 
 @router.post(
@@ -24,18 +24,19 @@ def retrieve_workspaces(request: RetrievalRequest):
     """
 
     query = request.query.strip()
+    type = request.type.strip()
     user_id = request.user_id
 
-    workspace = retrieval_service.get_relevant_workspaces(query=query, user_id=user_id)
-    
-    lists = retrieval_service.get_relevant_lists_for_workspaces(workspace_ids=[ws['workspace_id'] for ws in workspace], query=query)
 
-    return {"lists": lists}
+    if type == "collection":
+        workspace = retrieval_collection_service.get_relevant_workspaces(query, user_id)
+        lists = retrieval_collection_service.get_relevant_lists_for_workspaces(workspace_ids=[ws['workspace_id'] for ws in workspace], query=query)
+        return {"lists": lists}
 
 
-@router.post("/patterns/extract", response_model=ExtractPatternsResponse)
+@router.post("/patterns/extract/collection", response_model=ExtractPatternsResponse)
 def extract_patterns(lists: List[TaskListInput]):
-    results = pattern_extraction_service.extract_patterns_from_lists(
+    results = pattern_extraction_collection_service.extract_patterns_from_lists(
         lists_data=[l.model_dump() for l in lists]
     )
 

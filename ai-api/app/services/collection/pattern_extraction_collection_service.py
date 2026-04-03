@@ -5,7 +5,7 @@ from app.observability.phoenix import get_tracer
 
 tracer = get_tracer()
 
-class PatternExtractionService:
+class PatternExtractionCollectionService:
     def __init__(self, similarity_threshold: float = 0.5):
         self.similarity_threshold = similarity_threshold
 

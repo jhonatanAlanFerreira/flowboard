@@ -14,6 +14,7 @@ class RetrievalService
         $response = Http::ai()->post("/retrieval/lists", [
             'query' => $query,
             'user_id' => $userId,
+            'type' => 'collection'
         ]);
 
         $data = $response->json();
