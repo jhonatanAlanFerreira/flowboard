@@ -30,8 +30,8 @@ class ListChunkBuilder
         $workspace = $tasklist->workspace->name ?? '';
 
         return trim(
-            "Workspace: {$workspace}\n" .
-                "Name: {$tasklist->name}\n"
+            "{$workspace}:\n" .
+                "{$tasklist->name}\n"
         );
     }
 }

@@ -33,8 +33,8 @@ class TaskChunkBuilder
         $list = $task->tasklist->name ?? '';
 
         return trim(
-            "List: {$list}\n" .
-                "Task: {$task->description}"
+            "{$list}:\n" .
+                "{$task->description}"
         );
     }
 
