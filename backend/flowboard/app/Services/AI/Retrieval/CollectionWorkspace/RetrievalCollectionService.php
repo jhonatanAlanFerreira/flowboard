@@ -2,7 +2,6 @@
 
 namespace App\Services\AI\Retrieval\CollectionWorkspace;
 
-use App\Enums\WorkspaceType;
 use App\Services\AI\Retrieval\CollectionWorkspace\DTO\ChunkDTO;
 use App\Services\AI\Retrieval\CollectionWorkspace\DTO\TaskListDTO;
 use Illuminate\Support\Facades\Http;
@@ -15,10 +14,9 @@ class RetrievalCollectionService
         try {
             $response = Http::ai()
                 ->timeout(10)
-                ->post("/retrieval/workspaces-lists", [
+                ->post("/retrieval/collection/workspaces-lists", [
                     'query' => $query,
                     'user_id' => $userId,
-                    'type' => WorkspaceType::COLLECTION->value,
                 ]);
 
             if (!$response->successful()) {

@@ -7,11 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AIRetrievalController\RetrieveRequest;
 use App\Services\AI\Retrieval\CollectionWorkspace\Builders\RetrievalCollectionBuilder;
 use App\Services\AI\Retrieval\CollectionWorkspace\RetrievalCollectionService;
+use App\Services\AI\Retrieval\WorkflowWorkspace\RetrievalWorkflowService;
 
 class AIRetrievalController extends Controller
 {
     public function __construct(
-        private RetrievalCollectionService $retrievalService,
+        private RetrievalCollectionService $retrievalCollectionService,
+        private RetrievalWorkflowService $retrievalWorkflowService,
         private RetrievalCollectionBuilder $retrievalBuilder
     ) {}
 
@@ -21,9 +23,14 @@ class AIRetrievalController extends Controller
         $type = WorkspaceType::from($request->validated('type'));
 
         if ($type === WorkspaceType::COLLECTION) {
-            $listsRes = $this->retrievalService->retrieveLists($request->input('prompt'), $user->id);
+            $listsRes = $this->retrievalCollectionService->retrieveLists($request->input('prompt'), $user->id);
             $listsRes = $this->retrievalBuilder->hydrateChunks($listsRes);
-            return $this->retrievalService->extractPatternsFromCollectionWorkflow($listsRes);
+            return $this->retrievalCollectionService->extractPatternsFromCollectionWorkflow($listsRes);
+        }
+
+        if ($type === WorkspaceType::WORKFLOW) {
+            $res = $this->retrievalWorkflowService->retrieveLists($request->input('prompt'), $user->id);
+            return $res;
         }
     }
 }

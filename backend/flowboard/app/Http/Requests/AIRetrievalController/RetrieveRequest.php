@@ -15,7 +15,7 @@ class RetrieveRequest extends FormRequest
     {
         return [
             'prompt' => ['string', 'required'],
-            'type' => ['string', 'required', 'in:collection, workflow']
+            'type' => ['string', 'required', 'in:collection,workflow']
         ];
     }
 }

@@ -15,5 +15,5 @@ class TaskListResult(BaseModel):
     volume_norm: float
     chunks: List[ChunkResult]
 
-class RetrievalResponse(BaseModel):
+class RetrievalCollectionResponse(BaseModel):
     lists: List[TaskListResult]
