@@ -23,7 +23,7 @@ class RetrievalWorkflowService:
         self.class_name = "Chunk"
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    def get_relevant_workspaces(self, query: str, user_id: int, top_k: int = 50) -> List[Dict]:
+    def get_relevant_workspaces(self, query: str, user_id: int, top_k: int = 5) -> List[Dict]:
         user_id_string = str(user_id)
         query_norm = normalize_text(query)
         query_vector = self.model.encode(query_norm).tolist()

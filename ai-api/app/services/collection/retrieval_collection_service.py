@@ -90,7 +90,7 @@ class RetrievalCollectionService:
         
 
 
-    def get_relevant_lists_for_workspaces(self, workspace_ids: list[str], query: str):
+    def get_relevant_lists_for_workspaces(self, workspace_ids: list[str], query: str, top_k: int = 5) -> List[Dict]:
         query_norm = normalize_text(query)
         query_vector = self.model.encode(query_norm).tolist()
 
@@ -136,4 +136,4 @@ class RetrievalCollectionService:
                 "score": score
             })
 
-        return scoring_collection_service.rank_lists(lists)
+        return scoring_collection_service.rank_lists(lists)[:top_k]
