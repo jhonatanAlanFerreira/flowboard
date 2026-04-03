@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\AI;
+namespace App\Jobs\AI\Task;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

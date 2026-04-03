@@ -24,6 +24,7 @@ def create_weaviate_schema():
             {"name": "tasklist_id", "dataType": ["string"], "indexFilterable": True},
             {"name": "workspace_id", "dataType": ["string"], "indexFilterable": True},
             {"name": "user_id", "dataType": ["string"], "indexFilterable": True},
+            {"name": "type", "dataType": ["string"], "indexFilterable": True},
         ]
     }
 

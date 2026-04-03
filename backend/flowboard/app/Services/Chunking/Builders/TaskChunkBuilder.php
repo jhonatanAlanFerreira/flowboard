@@ -15,6 +15,7 @@ class TaskChunkBuilder
 
         return [
             'user_id' => $task->user_id,
+            'type' => 'task',
             'workspace_id' => $task->tasklist->workspace_id,
             'tasklist_id' => $task->tasklist_id,
             'task_id' => $task->id,

@@ -48,7 +48,7 @@ def generate_tags_task(chunk_id: int, text: str, content: str, tasklist_id: int,
         )
 
         #Insert new tags into Weaviate Tag class
-        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id, user_id)
+        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id, user_id, "taks")
 
         span.set_attribute("output.chunking", json.dumps(chunking_res))
         

@@ -7,10 +7,10 @@ use App\Events\Task\TaskCreated;
 use App\Events\Task\TaskDeleted;
 use App\Events\Task\TaskUpdated;
 use App\Events\Workspace\WorkspaceDeleted;
-use App\Jobs\AI\DeleteTaskChunkJob;
-use App\Jobs\AI\DeleteTaskChunksFromListJob;
-use App\Jobs\AI\DeleteTaskChunksFromWorkspaceJob;
-use App\Jobs\AI\GenerateTaskChunkJob;
+use App\Jobs\AI\Task\DeleteTaskChunkJob;
+use App\Jobs\AI\Task\DeleteTaskChunksFromListJob;
+use App\Jobs\AI\Task\DeleteTaskChunksFromWorkspaceJob;
+use App\Jobs\AI\Task\GenerateTaskChunkJob;
 
 class HandleTaskAIProcessing
 {
