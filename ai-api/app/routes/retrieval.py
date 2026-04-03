@@ -14,7 +14,7 @@ pattern_extraction_collection_service = PatternExtractionCollectionService()
 
 
 @router.post(
-    "/lists",
+    "/workspaces-lists",
     summary="Retrieve relevant workspaces using semantic + keyword search",
     response_model=RetrievalResponse
 )

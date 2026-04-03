@@ -11,7 +11,7 @@ class RetrievalService
 {
     public function retrieveLists(string $query, int $userId): array
     {
-        $response = Http::ai()->post("/retrieval/lists", [
+        $response = Http::ai()->post("/retrieval/workspaces-lists", [
             'query' => $query,
             'user_id' => $userId,
             'type' => 'collection'
