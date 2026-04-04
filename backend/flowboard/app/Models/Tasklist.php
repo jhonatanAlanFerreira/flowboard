@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Tasklist extends Model
 {
@@ -37,5 +38,12 @@ class Tasklist extends Model
     public function scopeOwnedBy($query, User $user)
     {
         return $query->where('user_id', $user->id);
+    }
+
+
+    public function chunk(): HasOne
+    {
+        return $this->hasOne(RagChunk::class)
+            ->where('type', 'list');
     }
 }

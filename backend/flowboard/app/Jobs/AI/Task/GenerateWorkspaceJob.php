@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\AI;
+namespace App\Jobs\AI\Task;
 
 use App\Models\AIJob;
 use App\Services\AI\Agents\WorkspaceGeneratorAgent;

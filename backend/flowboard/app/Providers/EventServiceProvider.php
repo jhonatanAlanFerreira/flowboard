@@ -2,11 +2,14 @@
 
 namespace App\Providers;
 
+use App\Events\List\TasklistCreated;
 use App\Events\List\TasklistDeleted;
+use App\Events\List\TasklistUpdated;
 use App\Events\Task\TaskCreated;
 use App\Events\Task\TaskDeleted;
 use App\Events\Task\TaskUpdated;
 use App\Events\Workspace\WorkspaceDeleted;
+use App\Listeners\AI\HandleListAIProcessing;
 use App\Listeners\AI\HandleTaskAIProcessing;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -38,7 +41,14 @@ class EventServiceProvider extends ServiceProvider
         ],
         TasklistDeleted::class => [
             HandleTaskAIProcessing::class
-        ]
+        ],
+
+        TasklistCreated::class => [
+            HandleListAIProcessing::class
+        ],
+        TasklistUpdated::class => [
+            HandleListAIProcessing::class
+        ],
     ];
 
     /**

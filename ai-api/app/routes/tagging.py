@@ -20,13 +20,15 @@ def generate_tags(request: TaggingRequest):
     chunk_id = request.chunk_id
     tasklist_id = request.tasklist_id
     workspace_id = request.workspace_id
+    user_id = request.user_id
 
     generate_tags_task.delay(
         chunk_id,
         text,
         content,
         tasklist_id,
-        workspace_id
+        workspace_id,
+        user_id
     )
 
     return {"status": "queued"}

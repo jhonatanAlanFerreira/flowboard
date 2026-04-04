@@ -8,12 +8,6 @@ use Illuminate\Support\Facades\Log;
 
 class WorkspaceGeneratorAgent
 {
-    protected string $endpoint;
-
-    public function __construct()
-    {
-        $this->endpoint = config('services.ai.endpoint') . '/generate-workspace';
-    }
 
     /**
      * Generate workspace from prompt using Python API
@@ -22,8 +16,9 @@ class WorkspaceGeneratorAgent
     {
 
         try {
-            $response = Http::timeout(10)
-                ->post($this->endpoint, $this->buildPayload($job));
+            $response = Http::ai()
+                ->timeout(10)
+                ->post('/generate-workspace', $this->buildPayload($job));
 
             if ($response->successful()) {
                 return $response->json();

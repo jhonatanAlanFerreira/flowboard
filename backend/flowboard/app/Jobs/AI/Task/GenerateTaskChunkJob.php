@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\AI;
+namespace App\Jobs\AI\Task;
 
 use App\Models\Task;
 use App\Services\AI\Agents\TaggingAgent;
@@ -30,10 +30,7 @@ class GenerateTaskChunkJob implements ShouldQueue
 
         $chunkData = $taskChunkBuilder->build($this->task);
 
-        $chunk = $chunkService->upsertTaskChunk(
-            taskId: $this->task->id,
-            data: $chunkData
-        );
+        $chunk = $chunkService->upsertChunk($chunkData);
 
         $taggingAgent->generateTags($chunk);
     }

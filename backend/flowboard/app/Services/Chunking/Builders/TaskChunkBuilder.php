@@ -15,6 +15,7 @@ class TaskChunkBuilder
 
         return [
             'user_id' => $task->user_id,
+            'type' => 'task',
             'workspace_id' => $task->tasklist->workspace_id,
             'tasklist_id' => $task->tasklist_id,
             'task_id' => $task->id,
@@ -29,13 +30,11 @@ class TaskChunkBuilder
      */
     protected function buildContent(Task $task): string
     {
-        $workspace = $task->tasklist->workspace->name ?? '';
         $list = $task->tasklist->name ?? '';
 
         return trim(
-            "Workspace: {$workspace}\n" .
-                "List: {$list}\n" .
-                "Task: {$task->description}"
+            "{$list}:\n" .
+                "{$task->description}"
         );
     }
 

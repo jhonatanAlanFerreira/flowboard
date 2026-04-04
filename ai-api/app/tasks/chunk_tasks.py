@@ -15,7 +15,7 @@ tag_agent = TaggingAgent()
 backend_client = BackendClient()
 
 @celery.task
-def generate_tags_task(chunk_id: int, text: str, content: str, tasklist_id: int, workspace_id: int):
+def generate_tags_task(chunk_id: int, text: str, content: str, tasklist_id: int, workspace_id: int, user_id: int):
     with tracer.start_as_current_span("tagging") as span:
         
         # Fetch known tags semantically related to the text
@@ -26,6 +26,7 @@ def generate_tags_task(chunk_id: int, text: str, content: str, tasklist_id: int,
         span.set_attribute("chunk.workspace_id", workspace_id)
         span.set_attribute("input.text", text)
         span.set_attribute("input.known_tags", known_tags)
+        span.set_attribute("input.user_id", user_id)
 
         # Generate tags using LLM
         data = tag_agent.generate_tags(text, known_tags)
@@ -47,7 +48,7 @@ def generate_tags_task(chunk_id: int, text: str, content: str, tasklist_id: int,
         )
 
         #Insert new tags into Weaviate Tag class
-        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id)
+        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id, user_id, "task")
 
         span.set_attribute("output.chunking", json.dumps(chunking_res))
         

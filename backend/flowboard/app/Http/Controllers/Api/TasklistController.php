@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\List\TasklistCreated;
 use App\Events\List\TasklistDeleted;
+use App\Events\List\TasklistUpdated;
 use App\Events\Task\TaskCreated;
 use App\Events\Task\TaskUpdated;
 use App\Http\Controllers\Controller;
@@ -31,12 +33,16 @@ class TasklistController extends Controller
 
         $nextOrder = ($workspace->tasklists()->max('order') ?? 0) + 1;
 
-        return Tasklist::create([
+        $tasklist = Tasklist::create([
             'name' => $request->name,
             'workspace_id' => $workspace->id,
             'order' => $nextOrder,
             'user_id' => $request->user()->id
         ]);
+
+        event(new TasklistCreated($tasklist));
+
+        return $tasklist;
     }
 
     public function update(UpdateTasklistRequest $request, $tasklistId)
@@ -45,6 +51,8 @@ class TasklistController extends Controller
             ->findOrFail($tasklistId);
 
         $tasklist->update($request->validated());
+
+        event(new TasklistUpdated($tasklist));
 
         return $tasklist;
     }
@@ -83,6 +91,8 @@ class TasklistController extends Controller
 
             event(new TaskCreated($task));
         }
+
+        event(new TasklistCreated($newTasklist));
 
         return response()->json($newTasklist->load('tasks'), 201);
     }

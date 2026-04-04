@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from app.services.chunk_service import ChunkService
+from app.models.request.list_chunk_request import ListChunkPayload
 
 router = APIRouter()
 chunk_service = ChunkService()
@@ -38,3 +39,22 @@ async def delete_chunks_by_workspace(workspace_id: int):
         return {"status": "ok", "message": f"Deleted {deleted_count} chunks for workspace {workspace_id}"}
     else:
         raise HTTPException(status_code=404, detail=f"No chunks found for workspace {workspace_id}")
+    
+@router.post("/chunks/list", summary="Create chunks for a list")
+async def create_list_chunks(request: ListChunkPayload):
+    """
+    Creates RAG chunks for a list.
+    """
+    content = request.content.strip()
+    chunk_id = request.chunk_id
+    tasklist_id = request.tasklist_id
+    workspace_id = request.workspace_id
+    user_id = request.user_id
+
+    try:
+        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id, user_id, "list")
+
+        return {"status": "ok", "message": f"Chunk {chunking_res['id']} deleted"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

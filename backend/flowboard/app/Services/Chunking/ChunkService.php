@@ -9,27 +9,30 @@ use Illuminate\Support\Facades\Log;
 
 class ChunkService
 {
-    protected string $endpoint;
 
-    public function __construct()
+    public function upsertChunk(array $data): RagChunk
     {
-        $this->endpoint = config('services.ai.endpoint') . '/chunks';
-    }
+        $conditions = [
+            'type' => $data['type'],
+        ];
 
+        if ($data['type'] === 'task') {
+            $conditions['task_id'] = $data['task_id'];
+        } else {
+            $conditions['tasklist_id'] = $data['tasklist_id'];
+        }
 
-    public function upsertTaskChunk(int $taskId, array $data): RagChunk
-    {
         return RagChunk::updateOrCreate(
-            [
-                'task_id' => $taskId,
-            ],
+            $conditions,
             [
                 'user_id' => $data['user_id'],
                 'workspace_id' => $data['workspace_id'],
-                'tasklist_id' => $data['tasklist_id'],
+                'tasklist_id' => $data['tasklist_id'] ?? null,
+                'task_id' => $data['task_id'] ?? null,
                 'content' => $data['content'],
-                'task_description' => $data['task_description'],
+                'task_description' => $data['task_description'] ?? null,
                 'metadata' => $data['metadata'] ?? [],
+                'type' => $data['type']
             ]
         );
     }
@@ -38,8 +41,9 @@ class ChunkService
     public function deleteTaskChunk(int $chunkId): void
     {
         try {
-            $response = Http::timeout(10)
-                ->delete($this->endpoint . "/" . $chunkId);
+            $response = Http::ai()
+                ->timeout(10)
+                ->delete("/chunks/" . $chunkId);
 
             if (!$response->successful()) {
                 Log::warning('Deleting failed', [
@@ -57,8 +61,9 @@ class ChunkService
     public function deleteTaskChunksFromList(int $tasklistId): void
     {
         try {
-            $response = Http::timeout(10)
-                ->delete($this->endpoint . "/tasklist/" . $tasklistId);
+            $response = Http::ai()
+                ->timeout(10)
+                ->delete("/chunks/tasklist/" . $tasklistId);
 
             if (!$response->successful()) {
                 Log::warning('Deleting failed', [
@@ -76,8 +81,9 @@ class ChunkService
     public function deleteTaskChunksFromWorkspace(int $workspaceId): void
     {
         try {
-            $response = Http::timeout(10)
-                ->delete($this->endpoint . "/workspace/" . $workspaceId);
+            $response = Http::ai()
+                ->timeout(10)
+                ->delete("/chunks/workspace/" . $workspaceId);
 
             if (!$response->successful()) {
                 Log::warning('Deleting failed', [
@@ -88,6 +94,39 @@ class ChunkService
         } catch (\Throwable $e) {
             Log::error('Deleting exception', [
                 'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function createListChunks(RagChunk $chunk): void
+    {
+        $payload = [
+            'chunk_id' => $chunk->id,
+            'tasklist_id' => $chunk->tasklist_id,
+            'content' => $chunk->content,
+            'workspace_id' => $chunk->workspace_id,
+            'user_id' => $chunk->user_id,
+        ];
+
+        try {
+            $response = Http::ai()
+                ->timeout(10)
+                ->post('/chunks/list', $payload);
+
+            $chunk->markEmbedded();
+            $chunk->save();
+
+            if (!$response->successful()) {
+                Log::warning('Creating list chunks failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'payload' => $payload,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Creating list chunks exception', [
+                'message' => $e->getMessage(),
+                'payload' => $payload,
             ]);
         }
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\AI;
+namespace App\Jobs\AI\Task;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,21 +10,21 @@ use Illuminate\Queue\SerializesModels;
 
 use App\Services\Chunking\ChunkService;
 
-class DeleteTaskChunksFromWorkspaceJob implements ShouldQueue
+class DeleteTaskChunkJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
     public int $timeout = 30;
 
-    public function __construct(public int $workspaceId) {}
+    public function __construct(public int $chunkId) {}
 
     public function handle(
         ChunkService $chunkService,
     ): void {
 
-        $chunkService->deleteTaskChunksFromWorkspace(
-            $this->workspaceId
+        $chunkService->deleteTaskChunk(
+            $this->chunkId
         );
     }
 }

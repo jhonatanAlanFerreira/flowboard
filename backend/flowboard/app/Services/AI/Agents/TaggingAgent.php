@@ -8,12 +8,6 @@ use Illuminate\Support\Facades\Log;
 
 class TaggingAgent
 {
-    protected string $endpoint;
-
-    public function __construct()
-    {
-        $this->endpoint = config('services.ai.endpoint') . '/tagging';
-    }
 
     /**
      * Generate tags from text using Python API
@@ -21,8 +15,8 @@ class TaggingAgent
     public function generateTags(RagChunk $chunk): array
     {
         try {
-            $response = Http::timeout(10)
-                ->post($this->endpoint, $this->buildPayload($chunk));
+            $response = Http::ai()->timeout(10)
+                ->post('/tagging', $this->buildPayload($chunk));
 
             if (!$response->successful()) {
                 Log::warning('TaggingAgent failed', [
@@ -51,7 +45,8 @@ class TaggingAgent
             'content' => $chunk->content,
             'chunk_id' => $chunk->id,
             'tasklist_id' => $chunk->tasklist_id,
-            'workspace_id' => $chunk->workspace_id
+            'workspace_id' => $chunk->workspace_id,
+            'user_id' => $chunk->user_id,
         ];
     }
 }

@@ -17,6 +17,7 @@ class RagChunk extends Model
         'task_description',
         'metadata',
         'has_embedding',
+        'type'
     ];
 
     protected $casts = [

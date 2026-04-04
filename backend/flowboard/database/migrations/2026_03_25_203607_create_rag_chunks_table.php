@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('rag_chunks', function (Blueprint $table) {
             $table->id();
+            $table->enum('type', ['task', 'list']);
 
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('workspace_id')->constrained()->cascadeOnDelete();
 
             $table->foreignId('tasklist_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('task_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('task_id')->nullable()->constrained()->cascadeOnDelete();
 
             $table->text('content');
-            $table->text('task_description');
+            $table->text('task_description')->nullable();
 
             $table->json('metadata')->nullable();
 

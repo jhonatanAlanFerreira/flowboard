@@ -1,8 +1,7 @@
 from pydantic import BaseModel
 
 
-class TaggingRequest(BaseModel):
-    text: str
+class ListChunkPayload(BaseModel):
     content: str
     chunk_id: int
     tasklist_id: int 
