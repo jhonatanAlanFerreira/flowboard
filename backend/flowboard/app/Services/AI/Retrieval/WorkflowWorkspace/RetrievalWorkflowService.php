@@ -2,10 +2,9 @@
 
 namespace App\Services\AI\Retrieval\WorkflowWorkspace;
 
-use App\Services\AI\Retrieval\CollectionWorkspace\DTO\ChunkDTO;
-use App\Services\AI\Retrieval\CollectionWorkspace\DTO\TaskListDTO;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Services\AI\Retrieval\WorkflowWorkspace\DTO\WorkspaceDTO;
 
 class RetrievalWorkflowService
 {
@@ -14,7 +13,7 @@ class RetrievalWorkflowService
         try {
             $response = Http::ai()
                 ->timeout(10)
-                ->post("/retrieval/workflow/workspaces-lists", [
+                ->post("/retrieval/workflow/workspaces", [
                     'query' => $query,
                     'user_id' => $userId,
                 ]);
@@ -30,25 +29,16 @@ class RetrievalWorkflowService
 
             $data = $response->json();
 
-            return $data;
-
-            // return collect($data['lists'] ?? [])->map(function ($list) {
-            //     return new TaskListDTO(
-            //         tasklist_id: (int) $list['tasklist_id'],
-            //         score: (float) $list['score'],
-            //         relevance: (float) $list['relevance'],
-            //         volume: (int) $list['volume'],
-            //         concentration: (float) $list['concentration'],
-            //         volume_norm: (float) $list['volume_norm'],
-            //         chunks: collect($list['chunks'] ?? [])->map(
-            //             fn($chunk) =>
-            //             new ChunkDTO(
-            //                 chunk_id: (int) $chunk['chunk_id'],
-            //                 score: (float) $chunk['score'],
-            //             )
-            //         )->toArray()
-            //     );
-            // })->toArray();
+            return collect($data['workspaces'] ?? [])->map(function ($data) {
+                return new WorkspaceDTO(
+                    workspace_id: (string) $data['workspace_id'],
+                    score: (float)  $data['score'],
+                    max_score: (float)  $data['max_score'],
+                    match_count: (int)    $data['match_count'],
+                    chunk_id: (string) $data['chunk_id'],
+                    final_score: (float)  $data['final_score'],
+                );
+            })->toArray();
         } catch (\Throwable $e) {
             Log::error('RetrievalWorkflowService::retrieveLists exception', [
                 'message' => $e->getMessage(),
@@ -57,33 +47,4 @@ class RetrievalWorkflowService
             return [];
         }
     }
-
-    // /**
-    //  * @param TaskListDTO[] $tasklists
-    //  */
-    // public function extractPatternsFromCollectionWorkflow($params)
-    // {
-    //     try {
-    //         $response = Http::ai()
-    //             ->timeout(10)
-    //             ->post("/retrieval/patterns/extract/collection", $params);
-
-    //         if (!$response->successful()) {
-    //             Log::warning('RetrievalCollectionService::extractPatterns failed', [
-    //                 'status' => $response->status(),
-    //                 'body' => $response->body(),
-    //             ]);
-
-    //             return [];
-    //         }
-
-    //         return $response->json();
-    //     } catch (\Throwable $e) {
-    //         Log::error('RetrievalCollectionService::extractPatterns exception', [
-    //             'message' => $e->getMessage(),
-    //         ]);
-
-    //         return [];
-    //     }
-    // }
 }

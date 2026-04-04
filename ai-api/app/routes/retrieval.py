@@ -35,7 +35,7 @@ def retrieve_workspaces(request: RetrievalCollectionRequest):
     return {"lists": lists}
 
 @router.post(
-    "/workflow/workspaces-lists",
+    "/workflow/workspaces",
     summary="Retrieve relevant workspaces using semantic + keyword search for workflow workspaces",
     response_model=RetrievalWorkflowResponse
 )

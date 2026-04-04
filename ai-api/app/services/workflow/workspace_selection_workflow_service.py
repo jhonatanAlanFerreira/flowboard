@@ -7,8 +7,8 @@ class WorkspaceSelectionWorkflowService:
 
     def __init__(
         self,
-        min_similarity: float = 0.8,
-        relative_threshold: float = 0.8,
+        min_similarity: float = 0.3,
+        relative_threshold: float = 0.6,
         limit: int = 5
     ):
         self.min_similarity = min_similarity

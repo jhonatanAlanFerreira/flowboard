@@ -3,12 +3,14 @@
 namespace App\Services\AI\Retrieval\CollectionWorkspace\Builders;
 
 use App\Models\RagChunk;
+use App\Models\Tasklist;
+use App\Models\Workspace;
 use App\Services\AI\Retrieval\DTO\TaskListDTO;
 
 class RetrievalCollectionBuilder
 {
     /**
-     * @param TaskListDTO[] $tasklists
+     * @param TaskListDTO[]
      * @return TaskListDTO[]
      */
     public function hydrateChunks(array $tasklists): array
@@ -33,5 +35,30 @@ class RetrievalCollectionBuilder
         }
 
         return $tasklists;
+    }
+
+
+    /**
+     * @param TaskListDTO[] $taskLists
+     */
+    public function buildGenerationContext(array $taskLists): array
+    {
+        $taskListIds = collect($taskLists)->pluck('tasklist_id')->unique();
+
+        $workspaceIds = Tasklist::whereIn('id', $taskListIds)
+            ->pluck('workspace_id')
+            ->unique();
+
+        $workspaces = Workspace::with(['tasklists.tasks'])
+            ->whereIn('id', $workspaceIds)
+            ->get();
+
+        $allTasklists = $workspaces->flatMap->tasklists;
+
+        return [
+            'lists' => $taskLists,
+            'average_tasks_per_list' => round($allTasklists->avg(fn($list) => $list->tasks->count())),
+            'average_lists_per_workspace' => round($workspaces->avg(fn($workspace) => $workspace->tasklists->count()))
+        ];
     }
 }
