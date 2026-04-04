@@ -16,6 +16,7 @@ class AIJob extends Model
         'status',
         'prompt',
         'workspace_id',
+        'type'
     ];
 
     protected $casts = [
