@@ -233,7 +233,7 @@ This will start the following services:
 - **weaviate** – vector database for semantic search / RAG  
 - **phoenix** – observability and tracing for LLM workflows  
 
-⏳ Wait for Laravel to be ready
+ Wait for Laravel to be ready
 
 Before generating the keys, check the container logs:
 
@@ -241,7 +241,7 @@ Before generating the keys, check the container logs:
 docker logs -f dev-laravel
 ```
 
-✅ You should wait until you see something like:
+ You should wait until you see something like:
 
 ```
 Starting Laravel development server: http://0.0.0.0:8000
@@ -273,6 +273,10 @@ docker exec -it dev-laravel php artisan migrate
 
 ```
 docker exec -it dev-laravel php artisan test
+```
+
+```
+docker exec -it dev-angular ng test
 ```
 
 ## Commands
