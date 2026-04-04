@@ -4,7 +4,7 @@ from app.observability.phoenix import get_tracer
 
 tracer = get_tracer()
 
-class ScoringWorkflowService:
+class WorkflowScoringService:
 
     def rank_workspaces(self, workspace_chunks: Dict) -> List[Dict]:
         with tracer.start_as_current_span("service.scoring.workspaces") as span:

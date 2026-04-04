@@ -3,7 +3,7 @@ from app.observability.phoenix import get_tracer
 
 tracer = get_tracer()
 
-class WorkspaceSelectionWorkflowService:
+class WorkflowWorkspaceSelectionService:
 
     def __init__(
         self,
