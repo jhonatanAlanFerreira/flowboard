@@ -9,7 +9,7 @@ class WorkspaceData
 
     public function __construct(array $data)
     {
-        $this->name = $data['workflow']['name'];
-        $this->lists = $data['workflow']['lists'];
+        $this->name = $data['workspace']['name'];
+        $this->lists = $data['workspace']['lists'];
     }
 }

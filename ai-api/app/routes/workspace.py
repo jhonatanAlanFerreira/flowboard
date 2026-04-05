@@ -1,7 +1,6 @@
 from fastapi import APIRouter
-from app.models.response.workspace_response import WorkflowResponse
 from app.models.request.collection_workspace_request import CollectionWorkspaceRequest
-from app.tasks.generate_workflow_task import generate_workflow_task
+from app.tasks.generate_collection_workspace_task import generate_collection_workspace_task
 
 router = APIRouter()
 
@@ -11,7 +10,7 @@ router = APIRouter()
     summary="Generate a workspace using AI",
     status_code=202
 )
-def generate_workspace(request: CollectionWorkspaceRequest):
+def generate_collection_workspace(request: CollectionWorkspaceRequest):
     """
     Queues an AI job to generate a full workspace structure
     (task lists and tasks) based on the provided prompt.
@@ -22,6 +21,6 @@ def generate_workspace(request: CollectionWorkspaceRequest):
     prompt = request.prompt.strip()
     job_id = request.job_id
 
-    # generate_workflow_task.delay(prompt, job_id)
+    generate_collection_workspace_task.delay(prompt, job_id)
 
     return {"status": "queued"}

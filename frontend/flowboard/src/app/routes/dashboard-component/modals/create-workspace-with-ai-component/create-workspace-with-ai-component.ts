@@ -79,7 +79,10 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
     if (!this.user) return;
 
     this.workspaceService
-      .createByAI({ prompt: this.descriptionControl.value })
+      .createByAI({
+        prompt: this.descriptionControl.value,
+        type: 'collection_workspace',
+      })
       .subscribe({
         next: () => {
           this.onCreate.emit();

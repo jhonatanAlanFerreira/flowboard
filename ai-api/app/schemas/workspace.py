@@ -11,11 +11,11 @@ class TaskList(BaseModel):
     tasks: List[Task]
 
 
-class Workflow(BaseModel):
+class Workspace(BaseModel):
     name: str
     lists: List[TaskList]
 
 
 class AIWorkspacePayload(BaseModel):
     job_id: int
-    workflow: Workflow
+    workspace: Workspace

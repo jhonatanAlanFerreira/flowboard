@@ -29,7 +29,10 @@ export class WorkspaceService {
     );
   }
 
-  createByAI(data: { prompt: string }) {
+  createByAI(data: {
+    prompt: string;
+    type: 'collection_workspace' | 'workflow_workspace';
+  }) {
     return this.http.post(
       `${this.config.apiBaseUrl}/api/me/ai/workspaces`,
       data,
@@ -130,9 +133,7 @@ export class WorkspaceService {
   }
 
   checkAiEndpoint() {
-    return this.http.get(
-      `${this.config.apiBaseUrl}/api/me/ai/health`,
-    );
+    return this.http.get(`${this.config.apiBaseUrl}/api/me/ai/health`);
   }
 
   exportWorkspace(workspace: Workspace) {

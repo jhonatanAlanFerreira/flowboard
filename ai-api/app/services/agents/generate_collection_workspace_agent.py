@@ -1,7 +1,7 @@
 from app.llm import get_llm
-from app.grammars.workflow import WORKFLOW_JSON_GRAMMAR
+from app.grammars.collection_workspace import WORKSPACE_JSON_GRAMMAR
 
-class GenerateWorkflowAgent:
+class GenerateCollectionWorkspaceAgent:
     
   def __init__(self):
     self.llm = get_llm()
@@ -26,7 +26,7 @@ class GenerateWorkflowAgent:
   JSON SCHEMA (must match exactly):
 
   {
-    "workflow": {
+    "workspace": {
       "name": string,
       "lists": [
         {
@@ -42,7 +42,7 @@ class GenerateWorkflowAgent:
   If there is not enough information, return EXACTLY:
 
   {
-    "workflow": null,
+    "workspace": null,
     "error": "missing_information"
   }
   """
@@ -62,7 +62,7 @@ class GenerateWorkflowAgent:
           full_prompt,
           temperature=0.2,
           max_tokens=1200,
-          grammar=WORKFLOW_JSON_GRAMMAR
+          grammar=WORKSPACE_JSON_GRAMMAR
       )
 
       return result["choices"][0]["text"].strip()
