@@ -6,7 +6,7 @@ use App\Data\WorkspaceData;
 use App\Http\Requests\AIWorkspaceController\GenerateAIWorkspaceRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AIWorkspaceController\StoreWorkspaceFromAIRequest;
-use App\Jobs\AI\Task\GenerateWorkspaceJob;
+use App\Jobs\AI\GenerateWorkspaceJob;
 use App\Models\AIJob;
 use App\Models\Workspace;
 use App\Services\Workspace\WorkspaceService;

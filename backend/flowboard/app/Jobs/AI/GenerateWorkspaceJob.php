@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\AI\Task;
+namespace App\Jobs\AI;
 
 use App\Enums\AIJobsType;
 use App\Models\AIJob;

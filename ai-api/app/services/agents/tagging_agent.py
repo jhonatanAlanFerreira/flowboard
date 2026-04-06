@@ -1,6 +1,8 @@
-from app.llm import get_llm
+from app.clients.local_llm import get_local_json_completion
+from app.clients.groq import get_groq_json_completion
 from typing import List, Dict
 from app.observability.phoenix import get_tracer
+from app.config import settings
 import json
 
 tracer = get_tracer()
@@ -11,8 +13,6 @@ class TaggingAgent:
     Returns structured tags:
     - tags: list of tags
     """
-    def __init__(self):
-        self.llm = get_llm()
 
     def generate_tags(
     self, text: str, known_tags: List[str] = None) -> Dict[str, List[str]]:
@@ -53,40 +53,31 @@ class TaggingAgent:
 
             span.set_attribute("llm.prompt", full_prompt)
 
-            with tracer.start_as_current_span("llm.call") as llm_span:
-                llm_span.set_attribute("llm.model", "local-llm")
-
-                result = self.llm(
+            if settings.tagging_agent.provider == "groq":
+                tags = get_groq_json_completion(
                     full_prompt,
-                    max_tokens=80,
-                    temperature=0.3
-                )
+                    settings.tagging_agent.model_name,
+                    settings.tagging_agent.max_tokens,
+                    settings.tagging_agent.temperature,
+                    ).get('tags')
+            else:
+                tags = get_local_json_completion(
+                    full_prompt, 
+                    settings.tagging_agent.max_tokens,
+                    settings.tagging_agent.temperature,
+                ).get('tags')
 
-                raw_output = result["choices"][0]["text"].strip()
+            try:
+                span.set_attribute("output.tags", tags)
 
-                llm_span.set_attribute("llm.raw_output", raw_output)
+                return {
+                    "tags": tags
+                }
 
-            with tracer.start_as_current_span("parse.response") as parse_span:
-                try:
-                    data = json.loads(raw_output)
+            except (json.JSONDecodeError, ValueError) as e:
+                span.set_attribute("parse.success", False)
+                span.set_attribute("parse.error", str(e))
 
-                    if not isinstance(data, dict):
-                        raise ValueError("Invalid format")
-
-                    tags = data.get("tags", [])
-
-                    parse_span.set_attribute("parse.success", True)
-                    parse_span.set_attribute("output.tags", tags)
-
-                    return {
-                        "tags": tags
-                    }
-
-                except (json.JSONDecodeError, ValueError) as e:
-                    parse_span.set_attribute("parse.success", False)
-                    parse_span.set_attribute("parse.error", str(e))
-                    parse_span.set_attribute("llm.bad_output", raw_output)
-
-                    return {
-                        "tags": [],
-                    }
+                return {
+                    "tags": [],
+                }

@@ -10,17 +10,16 @@ generator_agent = GenerateCollectionWorkspaceAgent()
 backend_client = BackendClient()
 
 @celery.task
-def generate_collection_workspace_task(user_prompt: str, job_id: str):
+def generate_collection_workspace_task(user_prompt: str, job_id: str, workspace_patterns: dict):
     with tracer.start_as_current_span("collection_workspace_generation") as span:
 
         span.set_attribute("job.id", job_id)
         span.set_attribute("input.prompt", user_prompt)
+        span.set_attribute("input.workspace_patterns", json.dumps(workspace_patterns))
 
         try:
             # Generate workflow via LLM
-            workspace_data = generator_agent.generate_workspace_llm(user_prompt)
-
-            span.set_attribute("raw.llm_output", workspace_data)
+            workspace_data = generator_agent.generate_workspace_llm(user_prompt, workspace_patterns)
 
             if isinstance(workspace_data, str):
                 workspace_data = json.loads(workspace_data)
