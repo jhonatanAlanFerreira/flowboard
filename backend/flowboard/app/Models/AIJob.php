@@ -16,12 +16,14 @@ class AIJob extends Model
         'status',
         'prompt',
         'workspace_id',
-        'type'
+        'type',
+        'metadata',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'metadata' => 'array',
     ];
 
     public function user()

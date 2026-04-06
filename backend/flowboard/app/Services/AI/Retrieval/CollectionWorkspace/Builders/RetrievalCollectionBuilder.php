@@ -2,6 +2,7 @@
 
 namespace App\Services\AI\Retrieval\CollectionWorkspace\Builders;
 
+use App\Models\AIJob;
 use App\Models\RagChunk;
 use App\Models\Tasklist;
 use App\Models\Workspace;
@@ -40,7 +41,7 @@ class RetrievalCollectionBuilder
     /**
      * @param TaskListDTO[] $taskLists
      */
-    public function buildGenerationContext(array $taskLists): array
+    public function buildGenerationContext(array $taskLists, ?AIJob $aiJob = null): array
     {
         $taskListIds = collect($taskLists)->pluck('tasklist_id');
 
@@ -57,10 +58,18 @@ class RetrievalCollectionBuilder
 
         $allWorkspaces = $listsWithData->pluck('workspace')->unique('id');
 
+        if ($aiJob) {
+            $aiJob->update([
+                'metadata' => [
+                    'source_workspace_ids' => $allWorkspaces->pluck('id')->all(),
+                ]
+            ]);
+        }
+
         return [
             'lists' => $mappedLists,
             'average_tasks_per_list' => round($listsWithData->avg(fn($l) => $l->tasks->count())),
-            'average_lists_per_workspace' => round($allWorkspaces->avg(fn($w) => $w->tasklists->count()))
+            'average_lists_per_workspace' => round($allWorkspaces->avg(fn($w) => $w->tasklists->count())),
         ];
     }
 }

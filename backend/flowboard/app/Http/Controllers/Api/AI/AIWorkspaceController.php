@@ -58,9 +58,12 @@ class AIWorkspaceController extends Controller
 
         $workspace = Workspace::find($job->workspace_id);
 
+        $sourceWorkspaceNames = Workspace::whereIn('id', $job->metadata['source_workspace_ids'] ?? [])->pluck('name')->toArray();
+
         return response()->json([
             'status' => 'done',
-            'workspace' => $workspace
+            'workspace' => $workspace,
+            'source_workspace_names' => $sourceWorkspaceNames,
         ]);
     }
 

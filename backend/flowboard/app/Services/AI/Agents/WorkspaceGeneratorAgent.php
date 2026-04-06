@@ -21,6 +21,7 @@ class WorkspaceGeneratorAgent
             $job->prompt,
             WorkspaceType::COLLECTION,
             $job->user,
+            $job
         );
 
         $payload = $this->buildCollectionWorkspacePayload($data, $job);

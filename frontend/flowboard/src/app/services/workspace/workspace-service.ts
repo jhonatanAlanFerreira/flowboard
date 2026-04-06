@@ -8,7 +8,10 @@ import { Workspace } from '../../models';
 export class WorkspaceService {
   private pollingInterval?: any;
 
-  private doneWorkspaceSubject = new BehaviorSubject<Workspace | null>(null);
+  private doneWorkspaceSubject = new BehaviorSubject<{
+    workspace: Workspace;
+    source_workspace_names: string[];
+  } | null>(null);
   doneWorkspace$ = this.doneWorkspaceSubject.asObservable();
 
   constructor(
@@ -63,6 +66,7 @@ export class WorkspaceService {
     return this.http.get<{
       status: 'empty' | 'pending' | 'processing' | 'done' | 'failed';
       workspace: null | Workspace;
+      source_workspace_names: string[];
     }>(`${this.config.apiBaseUrl}/api/me/ai/workspaces/latest`, {
       headers: { 'x-skip-status': 'true' },
     });
@@ -92,7 +96,10 @@ export class WorkspaceService {
         next: (res) => {
           if (res.status === 'done') {
             this.cleanupPolling(userId);
-            this.doneWorkspaceSubject.next(res.workspace!);
+            this.doneWorkspaceSubject.next({
+              workspace: res.workspace!,
+              source_workspace_names: res.source_workspace_names!,
+            });
             return;
           }
 

@@ -6,7 +6,6 @@ router = APIRouter()
 
 @router.post(
     "/generate-workspace/collection",
-    # response_model=WorkflowResponse,
     summary="Generate a workspace using AI",
     status_code=202
 )
