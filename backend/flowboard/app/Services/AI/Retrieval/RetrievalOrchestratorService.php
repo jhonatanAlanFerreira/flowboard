@@ -32,7 +32,8 @@ class RetrievalOrchestratorService
 
         if ($type === WorkspaceType::WORKFLOW) {
             $res = $this->retrievalWorkflowService->retrieveLists($prompt, $user->id);
-            return $this->retrievalWorkflowBuilder->getListsFromWorkspaces($res);
+            $lists = $this->retrievalWorkflowBuilder->getListsFromWorkspaces($res);
+            return $this->retrievalWorkflowBuilder->buildGenerationContext($lists, $aiJob);
         }
     }
 }

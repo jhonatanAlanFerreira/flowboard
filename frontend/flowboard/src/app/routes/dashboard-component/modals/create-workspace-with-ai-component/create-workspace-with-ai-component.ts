@@ -37,6 +37,7 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
   generatedWorkspace: Workspace | null = null;
   sourceWorkspaceNames: string[] = [];
   descriptionControl = new FormControl();
+  workspaceType = new FormControl(false);
 
   workspaceDoneModal = signal(false);
   visible = input(false);
@@ -83,7 +84,9 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
     this.workspaceService
       .createByAI({
         prompt: this.descriptionControl.value,
-        type: 'collection_workspace',
+        type: this.workspaceType.value
+          ? 'workflow_workspace'
+          : 'collection_workspace',
       })
       .subscribe({
         next: () => {

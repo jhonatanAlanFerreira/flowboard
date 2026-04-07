@@ -1,32 +1,82 @@
-<p-drawer [(visible)]="visible" header="Account">
-  <div class="flex flex-col gap-4 p-4">
-    <button
-      (click)="createWorkspaceWithAi()"
-      class="flex cursor-pointer items-center gap-3 rounded-lg p-3 text-gray-200 transition hover:scale-105 hover:bg-zinc-800"
-    >
-      <i class="pi pi-lightbulb text-lg"></i>
-      <span>Create Workspace using AI</span>
-    </button>
+<p-drawer [(visible)]="visible" header="Menu" styleClass="dark-sidebar">
+  <div class="flex h-full flex-col justify-between p-4">
+    <div class="flex flex-col gap-2">
+      <span
+        class="mb-1 ml-3 text-[10px] font-bold tracking-widest text-zinc-500 uppercase"
+        >AI Assistant</span
+      >
 
-    <p-divider class="m-0!"></p-divider>
+      <button
+        (click)="createWorkspaceWithAi(); visible = false"
+        class="group flex cursor-pointer items-center gap-3 rounded-xl p-3 text-zinc-100 transition-all hover:bg-indigo-500/10 hover:text-indigo-400"
+      >
+        <div
+          class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-400 transition-all group-hover:bg-indigo-500 group-hover:text-white"
+        >
+          <i class="pi pi-sparkles text-sm"></i>
+        </div>
+        <div class="flex flex-col items-start">
+          <span class="text-sm font-medium">Create with AI</span>
+          <span
+            class="text-left text-[10px] text-zinc-500 group-hover:text-indigo-300/70"
+            >Generate full boards from a prompt</span
+          >
+        </div>
+      </button>
 
-    <button
-      (click)="createWorkspace()"
-      class="flex cursor-pointer items-center gap-3 rounded-lg p-3 text-gray-200 transition hover:scale-105 hover:bg-zinc-800"
-    >
-      <i class="pi pi-folder-plus text-lg"></i>
-      <span class="font-medium">Create new Workspace</span>
-    </button>
+      <button
+        class="group mb-4 flex cursor-pointer items-center gap-3 rounded-xl p-3 text-zinc-100 transition-all hover:bg-purple-500/10 hover:text-purple-400"
+      >
+        <div
+          class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 transition-all group-hover:bg-purple-500 group-hover:text-white"
+        >
+          <i class="pi pi-database text-sm"></i>
+        </div>
+        <div class="flex flex-col items-start text-left">
+          <span class="text-sm font-medium">Analyze Workspace Data</span>
+          <span class="text-[10px] text-zinc-500 group-hover:text-purple-300/70"
+            >Ask questions about tasks & progress</span
+          >
+        </div>
+      </button>
 
-    <p-divider class="m-0!"></p-divider>
+      <span
+        class="mb-1 ml-3 text-[10px] font-bold tracking-widest text-zinc-500 uppercase"
+        >Management</span
+      >
 
-    <button
-      (click)="logout();"
-      class="flex cursor-pointer items-center gap-3 rounded-lg p-3 text-red-500 transition hover:scale-105 hover:bg-zinc-800 hover:text-red-400"
-    >
-      <i class="pi pi-sign-out text-lg"></i>
-      <span class="font-medium">Logout</span>
-    </button>
+      <button
+        (click)="createWorkspace(); visible = false"
+        class="group flex cursor-pointer items-center gap-3 rounded-xl p-3 text-zinc-300 transition-all hover:bg-zinc-800 hover:text-white"
+      >
+        <div
+          class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-800 text-zinc-500 transition-all group-hover:bg-zinc-700 group-hover:text-zinc-100"
+        >
+          <i class="pi pi-folder-plus text-sm"></i>
+        </div>
+        <div class="flex flex-col items-start text-left">
+          <span class="text-sm font-medium">Manual Workspace</span>
+          <span class="text-[10px] text-zinc-500 group-hover:text-zinc-400"
+            >Create a blank board from scratch</span
+          >
+        </div>
+      </button>
+    </div>
+
+    <div class="pb-4">
+      <p-divider class="mb-4! border-zinc-800"></p-divider>
+      <button
+        (click)="logout(); visible = false"
+        class="group flex w-full cursor-pointer items-center gap-3 rounded-xl p-3 text-zinc-500 transition-all hover:bg-red-500/10 hover:text-red-400"
+      >
+        <div
+          class="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-zinc-600 transition-all group-hover:bg-red-500 group-hover:text-white"
+        >
+          <i class="pi pi-sign-out text-sm"></i>
+        </div>
+        <span class="text-sm font-medium">Sign Out</span>
+      </button>
+    </div>
   </div>
 </p-drawer>
 
