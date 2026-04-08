@@ -13,7 +13,6 @@ class BackendClient:
 
     def post_workspace(self, payload: AIWorkspacePayload):
         url = f"{self.base_url}/api/internal/ai/workspaces"
-        print(f"DEBUG: Calling URL -> {url}")
 
         response = requests.post(
             url,
