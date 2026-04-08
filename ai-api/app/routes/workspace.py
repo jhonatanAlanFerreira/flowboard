@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from app.models.request.collection_workspace_request import CollectionWorkspaceRequest
 from app.tasks.generate_collection_workspace_task import generate_collection_workspace_task
+from app.tasks.generate_workflow_workspace_task import generate_workflow_workspace_task
 from app.models.request.workflow_workspace_request import WorkflowWorkspaceRequest
 
 router = APIRouter()
@@ -51,5 +52,7 @@ def generate_workflow_workspace(request: WorkflowWorkspaceRequest):
     "lists": request.lists,
     "average_lists_per_workspace": request.average_lists_per_workspace
     }
+    
+    generate_workflow_workspace_task.delay(prompt, job_id, workspace_patterns)
 
     return {"status": "queued"}

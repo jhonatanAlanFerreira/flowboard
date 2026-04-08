@@ -32,5 +32,17 @@ class Settings(BaseSettings):
         max_tokens=2048,
         temperature=0.1
     )
+    
+    workflow_workspace_agent: LLMConfig = GroqLLMConfig(
+        model_name="llama-3.3-70b-versatile", 
+        max_tokens=2048,
+        temperature=0.1
+    )
+
+
+    workflow_refiner_agent: LLMConfig = LocalLLMConfig(
+        max_tokens=400,
+        temperature=0.0 
+    )
 
 settings = Settings()

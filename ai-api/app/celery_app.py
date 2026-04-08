@@ -29,7 +29,8 @@ celery.conf.update(
 
 celery.conf.task_routes = {
     "app.tasks.chunk_tasks.*": {"queue": "tagging"},
-    "app.tasks.generate_workflow_task.*": {"queue": "workflow"},
+    "app.tasks.generate_collection_workspace_task.*": {"queue": "collection_workspace"},
+    "app.tasks.generate_workflow_workspace_task.*": {"queue": "workflow_workspace"},
 }
 
 celery.autodiscover_tasks(["app.tasks"])

@@ -6,10 +6,14 @@ from app.schemas.chunk import UpdateTagsPayload
 class BackendClient:
     def __init__(self):
         self.base_url = os.getenv("BACKEND_URL")
-        self.headers = {"X-AI-SECRET": os.getenv("AI_API_SECRET")}
+        self.headers = {
+        "X-AI-SECRET": os.getenv("AI_API_SECRET"),
+        "Accept": "application/json" 
+    }
 
     def post_workspace(self, payload: AIWorkspacePayload):
         url = f"{self.base_url}/api/internal/ai/workspaces"
+        print(f"DEBUG: Calling URL -> {url}")
 
         response = requests.post(
             url,

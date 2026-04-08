@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class Task(BaseModel):
@@ -8,7 +8,7 @@ class Task(BaseModel):
 
 class TaskList(BaseModel):
     name: str
-    tasks: List[Task]
+    tasks: Optional[List[Task]]
 
 
 class Workspace(BaseModel):

@@ -26,6 +26,7 @@ class GenerateWorkspaceJob implements ShouldQueue
                     break;
                 case AIJobsType::WORKFLOW_WORKSPACE->value:
                     $workspaceGeneratorAgent->generateWorkflowWorkspace($this->job);
+                    break;
                 default:
                     throw new \Exception("Unsupported workspace type: {$this->job->type}");
             }

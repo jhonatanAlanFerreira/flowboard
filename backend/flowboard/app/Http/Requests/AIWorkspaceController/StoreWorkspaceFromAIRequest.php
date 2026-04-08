@@ -19,7 +19,7 @@ class StoreWorkspaceFromAIRequest extends FormRequest
             'workspace.name' => ['required', 'string', 'max:255'],
             'workspace.lists' => ['required', 'array', 'min:1'],
             'workspace.lists.*.name' => ['required', 'string', 'max:255'],
-            'workspace.lists.*.tasks' => ['required', 'array', 'min:1'],
+            'workspace.lists.*.tasks' => ['array'],
             'workspace.lists.*.tasks.*.description' => ['required', 'string', 'max:1000'],
         ];
     }
