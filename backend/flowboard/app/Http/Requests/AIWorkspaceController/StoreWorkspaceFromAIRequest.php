@@ -15,6 +15,7 @@ class StoreWorkspaceFromAIRequest extends FormRequest
     {
         return [
             'job_id' => ['required', 'integer'],
+            'source_workspace_ids' => ['nullable', 'array'],
             'workspace' => ['required', 'array'],
             'workspace.name' => ['required', 'string', 'max:255'],
             'workspace.lists' => ['required', 'array', 'min:1'],

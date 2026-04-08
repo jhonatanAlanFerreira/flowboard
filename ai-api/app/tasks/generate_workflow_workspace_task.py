@@ -5,6 +5,7 @@ from app.services.agents.generate_workflow_workspace_agent import GenerateWorkfl
 from app.schemas.workspace import AIWorkspacePayload
 from app.services.agents.refine_workflow_lists import WorkflowRefinerAgent
 import json
+from typing import List
 
 tracer = get_tracer()
 generator_agent = GenerateWorkflowWorkspaceAgent()
@@ -21,11 +22,11 @@ def generate_workflow_workspace_task(user_prompt: str, job_id: str, workspace_pa
 
         try:
             # Select only relevant lists
-            selectedLists = workflow_refiner_agent.refine_workflow_lists(user_prompt, workspace_patterns.get('lists'))
-            workspace_patterns['lists'] = selectedLists
-
+            selectedWorkflowLists = workflow_refiner_agent.filter_workflow_workspaces(workspace_patterns.get('workflowLists'))
+            
             # Generate workflow via LLM
-            workspace_data = generator_agent.generate_workspace_llm(user_prompt, workspace_patterns)
+            workspace_data = generator_agent.generate_workspace_llm(user_prompt, selectedWorkflowLists)
+            source_workspace_ids: List[int] = [int(ws['workspace_id']) for ws in selectedWorkflowLists]
             
             if isinstance(workspace_data, str):
                 workspace_data = json.loads(workspace_data)
@@ -43,7 +44,8 @@ def generate_workflow_workspace_task(user_prompt: str, job_id: str, workspace_pa
             # Build payload
             payload = AIWorkspacePayload(
                 job_id=job_id,
-                workspace=workspace
+                workspace=workspace,
+                source_workspace_ids=source_workspace_ids
             )
 
             # Send to backend

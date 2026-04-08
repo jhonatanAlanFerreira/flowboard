@@ -114,7 +114,7 @@ class WorkspaceGeneratorAgent
 
         return [
             'job_id' => $job->id,
-            'lists' => $data['lists'],
+            'workflowLists' => $data['workflowLists'],
             'prompt' => $job->prompt,
             'average_lists_per_workspace' => $data['average_lists_per_workspace'],
         ];

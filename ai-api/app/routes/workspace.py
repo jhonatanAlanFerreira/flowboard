@@ -49,7 +49,7 @@ def generate_workflow_workspace(request: WorkflowWorkspaceRequest):
     job_id = request.job_id
 
     workspace_patterns = {
-    "lists": request.lists,
+    "workflowLists": [ws.model_dump() for ws in request.workflowLists],
     "average_lists_per_workspace": request.average_lists_per_workspace
     }
     

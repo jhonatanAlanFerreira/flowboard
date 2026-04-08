@@ -2,7 +2,6 @@
 
 namespace App\Services\AI\Retrieval\WorkflowWorkspace\Builders;
 
-use App\Models\AIJob;
 use App\Models\Workspace;
 use App\Services\AI\Retrieval\WorkflowWorkspace\DTO\WorkspaceDTO;
 
@@ -21,10 +20,8 @@ class RetrievalWorkflowBuilder
         }, $data);
     }
 
-    public function buildGenerationContext(array $workflowLists, ?AIJob $aiJob = null): array
+    public function buildGenerationContext(array $workflowLists): array
     {
-        $workspaceIds = array_column($workflowLists, 'workspace_id');
-
         $allListNames = [];
         foreach ($workflowLists as $item) {
             $allListNames = array_merge($allListNames, $item['lists']);
@@ -34,16 +31,8 @@ class RetrievalWorkflowBuilder
         $totalLists = count($allListNames);
         $average = $totalWorkspaces > 0 ? $totalLists / $totalWorkspaces : 0;
 
-        if ($aiJob) {
-            $aiJob->update([
-                'metadata' => [
-                    'source_workspace_ids' => $workspaceIds
-                ]
-            ]);
-        }
-
         return [
-            'lists' => array_values(array_unique($allListNames)),
+            'workflowLists' => $workflowLists,
             'average_lists_per_workspace' => round($average),
         ];
     }

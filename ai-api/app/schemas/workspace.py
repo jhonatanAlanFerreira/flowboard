@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 
@@ -8,7 +8,7 @@ class Task(BaseModel):
 
 class TaskList(BaseModel):
     name: str
-    tasks: Optional[List[Task]]
+    tasks: Optional[List[Task]] = Field(default_factory=list)
 
 
 class Workspace(BaseModel):
@@ -19,3 +19,4 @@ class Workspace(BaseModel):
 class AIWorkspacePayload(BaseModel):
     job_id: int
     workspace: Workspace
+    source_workspace_ids: Optional[List[int]] = None

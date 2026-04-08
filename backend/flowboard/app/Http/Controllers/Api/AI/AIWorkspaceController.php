@@ -104,10 +104,20 @@ class AIWorkspaceController extends Controller
 
         $workspace = $this->workspaceService->persistWorkspace($workspaceData, $userId);
 
-        $job->update([
+        $sourceWorkspaceIds = $request->source_workspace_ids;
+
+        $jobParamsToUpdate = [
             'status' => 'done',
             'workspace_id' => $workspace->id,
-        ]);
+        ];
+
+        if ($sourceWorkspaceIds) {
+            $jobParamsToUpdate['metadata'] = [
+                'source_workspace_ids' => $sourceWorkspaceIds,
+            ];
+        }
+
+        $job->update($jobParamsToUpdate);
 
         return response()->noContent();
     }

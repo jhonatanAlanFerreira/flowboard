@@ -40,7 +40,8 @@ class Settings(BaseSettings):
     )
 
 
-    workflow_refiner_agent: LLMConfig = LocalLLMConfig(
+    workflow_refiner_agent: LLMConfig = GroqLLMConfig(
+        model_name="llama-3.3-70b-versatile",
         max_tokens=400,
         temperature=0.0 
     )
