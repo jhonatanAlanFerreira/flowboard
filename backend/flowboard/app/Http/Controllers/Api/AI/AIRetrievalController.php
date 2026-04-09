@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\AI;
 
 use App\Enums\WorkspaceType;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AIRetrievalController\RetrieveRequest;
+use App\Http\Requests\AIRetrievalController\RetrievalRequest;
 use App\Services\AI\Retrieval\RetrievalOrchestratorService;
 
 class AIRetrievalController extends Controller
@@ -15,7 +15,7 @@ class AIRetrievalController extends Controller
     ) {}
 
 
-    public function retrieve(RetrieveRequest $request)
+    public function retrieve(RetrievalRequest $request)
     {
         $user = $request->user();
         $type = WorkspaceType::from($request->validated('type'));
