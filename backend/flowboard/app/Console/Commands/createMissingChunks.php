@@ -4,14 +4,16 @@ namespace App\Console\Commands;
 
 use App\Events\List\TasklistUpdated;
 use App\Events\Task\TaskUpdated;
+use App\Events\Workspace\WorkspaceUpdated;
 use Illuminate\Console\Command;
 use App\Models\Task;
 use App\Models\Tasklist;
+use App\Models\Workspace;
 
 class CreateMissingChunks extends Command
 {
     protected $signature = 'tasks:chunk-missing {--user_id=} {--preview}';
-    protected $description = 'Generate missing chunks for tasks and tasklists';
+    protected $description = 'Generate missing chunks for tasks, tasklists, and workspaces';
 
     public function handle()
     {
@@ -21,9 +23,9 @@ class CreateMissingChunks extends Command
         $taskQuery = Task::query()
             ->where(function ($q) {
                 $q->whereDoesntHave('chunk')
-                  ->orWhereHas('chunk', function ($query) {
-                      $query->withoutEmbedding();
-                  });
+                    ->orWhereHas('chunk', function ($query) {
+                        $query->withoutEmbedding();
+                    });
             })
             ->with(['user', 'tasklist.workspace']);
 
@@ -37,9 +39,9 @@ class CreateMissingChunks extends Command
         $tasklistsQuery = Tasklist::query()
             ->where(function ($q) {
                 $q->whereDoesntHave('chunk')
-                  ->orWhereHas('chunk', function ($query) {
-                      $query->withoutEmbedding();
-                  });
+                    ->orWhereHas('chunk', function ($query) {
+                        $query->withoutEmbedding();
+                    });
             })
             ->with(['user', 'workspace']);
 
@@ -49,16 +51,37 @@ class CreateMissingChunks extends Command
 
         $tasklists = $tasklistsQuery->get();
 
-        $userCount = $tasks->pluck('user.id')->unique()->count();
+        $workspacesQuery = Workspace::query()
+            ->where(function ($q) {
+                $q->whereDoesntHave('chunk')
+                    ->orWhereHas('chunk', function ($query) {
+                        $query->withoutEmbedding();
+                    });
+            })
+            ->with(['user']);
+
+        if ($userId) {
+            $workspacesQuery->where('user_id', $userId);
+        }
+
+        $workspaces = $workspacesQuery->get();
+
+        $userCount = collect([
+            $tasks->pluck('user.id'),
+            $tasklists->pluck('user.id'),
+            $workspaces->pluck('user.id'),
+        ])->flatten()->unique()->count();
         $workspaceCount = $tasks->pluck('tasklist.workspace.id')->unique()->count();
         $taskCount = $tasks->count();
         $tasklistCount = $tasklists->count();
+        $workspaceChunkCount = $workspaces->count();
 
         $summary = [
             'users' => "$userCount user(s) with chunk issues",
             'workspaces' => "$workspaceCount workspace(s) affected",
             'tasks' => "total of $taskCount tasks with missing chunks",
             'tasklists' => "total of $tasklistCount tasklists with missing chunks",
+            'workspace_chunks' => "total of $workspaceChunkCount workspaces with missing chunks",
         ];
 
         $this->info(json_encode($summary, JSON_PRETTY_PRINT));
@@ -69,13 +92,12 @@ class CreateMissingChunks extends Command
             return;
         }
 
-
         $tasks->groupBy('user.id')->each(function ($userTasks) {
 
             $userName = $userTasks->first()->user->name;
             $this->info("Processing User: {$userName}");
 
-            $userTasks->groupBy(fn ($t) => $t->tasklist->workspace->id)
+            $userTasks->groupBy(fn($t) => $t->tasklist->workspace->id)
                 ->each(function ($workspaceTasks) {
 
                     $workspace = $workspaceTasks->first()->tasklist->workspace;
@@ -121,9 +143,25 @@ class CreateMissingChunks extends Command
             });
         });
 
+        $this->line("");
+        $this->info("Processing Workspaces (workspace chunks)");
+
+        $workspaces->groupBy('user.id')->each(function ($userWorkspaces) {
+
+            $userName = $userWorkspaces->first()->user->name;
+            $this->info("Processing User: {$userName}");
+
+            foreach ($userWorkspaces as $workspace) {
+                $this->line("");
+                $this->info("  Workspace: {$workspace->name}");
+
+                event(new WorkspaceUpdated($workspace));
+            }
+        });
+
         $this->info('');
         $this->info('Missing chunks processed.');
-        $this->info('Task chunks and list chunks will be generated via AI API.');
+        $this->info('Task, list, and workspace chunks will be generated via AI API.');
         $this->info('Track progress in Phoenix UI.');
     }
 }
