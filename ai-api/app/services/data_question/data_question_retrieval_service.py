@@ -77,9 +77,7 @@ class DataQuestionRetrievalService:
 
             span.set_attribute("output.retrieved_count", len(unique_hits))
 
-            scored_hits = self._apply_placeholder_scoring(unique_hits, query)
-            
-            return scored_hits
+            return unique_hits
 
     def _execute_search(
         self, 
@@ -143,9 +141,3 @@ class DataQuestionRetrievalService:
             })
             
         return results
-
-    def _apply_placeholder_scoring(self, chunks: List[Dict], query: str) -> List[Dict]:
-        """
-        Placeholder for the scoring layer.
-        """
-        return chunks
