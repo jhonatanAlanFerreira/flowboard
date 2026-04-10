@@ -40,6 +40,9 @@ class DataQuestionRetrievalService:
             span.set_attribute("input.confidence", confidence)
 
             all_hits = []
+            
+            # Keep track of targeted chunk IDs specifically
+            targeted_chunk_ids = set()
 
             # SCENARIO A: Agent predicted a Workspace with reasonable confidence
             if workspace_id and confidence >= 0.5:
@@ -49,6 +52,10 @@ class DataQuestionRetrievalService:
                     limit=20, workspace_id=str(workspace_id)
                 )
                 all_hits.extend(targeted_hits)
+                
+                # Fill the set with IDs from the targeted search
+                for hit in targeted_hits:
+                    targeted_chunk_ids.add(hit.get("chunk_id"))
 
                 # Global Backup (Limit 10)
                 global_hits = self._execute_search(
@@ -66,16 +73,45 @@ class DataQuestionRetrievalService:
                 )
                 all_hits.extend(global_hits)
 
-            # Deduplicate by chunk_id to prevent overlaps between targeted and global
             seen_chunk_ids = set()
             unique_hits = []
+            
             for hit in all_hits:
                 c_id = hit.get("chunk_id")
-                if c_id not in seen_chunk_ids:
-                    seen_chunk_ids.add(c_id)
-                    unique_hits.append(hit)
+                
+                # If we've already added this chunk to our unique list
+                if c_id in seen_chunk_ids:
+                    # If this chunk is appearing again, it means it was in both searches!
+                    # We find it in our unique list and set the flag to True
+                    for u_hit in unique_hits:
+                        if u_hit.get("chunk_id") == c_id:
+                            u_hit["found_in_both"] = True
+                            break
+                    continue
+                
+                # If it's a brand new chunk ID we haven't processed yet:
+                seen_chunk_ids.add(c_id)
+                
+                # Default flag state is False
+                hit["found_in_both"] = False
+                
+                unique_hits.append(hit)
+
+            # Secondary check for Scenario A: 
+            # If a chunk was found during Global but originated in the Targeted set
+            for u_hit in unique_hits:
+                c_id = u_hit.get("chunk_id")
+                # If it's not marked yet but belongs to both sets
+                if not u_hit["found_in_both"] and c_id in targeted_chunk_ids:
+                    # Verify if it was also returned in the global batch
+                    count = sum(1 for h in all_hits if h.get("chunk_id") == c_id)
+                    if count > 1:
+                        u_hit["found_in_both"] = True
 
             span.set_attribute("output.retrieved_count", len(unique_hits))
+            
+            top_10_descriptions = [hit.get("content") for hit in unique_hits[:10]]
+            span.set_attribute("output.top_10_tasks", json.dumps(top_10_descriptions))
 
             return unique_hits
 
@@ -90,7 +126,6 @@ class DataQuestionRetrievalService:
         """
         Helper method to run a hybrid search against Weaviate v3 with optional WS filter.
         """
-        # Base filters: must belong to the user and must be of type 'task'
         operands = [
             {
                 "path": ["user_id"],
@@ -104,7 +139,6 @@ class DataQuestionRetrievalService:
             }
         ]
 
-        # Inject the targeted workspace filter if provided
         if workspace_id:
             operands.append({
                 "path": ["workspace_id"],
@@ -129,7 +163,6 @@ class DataQuestionRetrievalService:
 
         hits = response.get("data", {}).get("Get", {}).get(self.class_name) or []
         
-        # Format output
         results = []
         for hit in hits:
             results.append({

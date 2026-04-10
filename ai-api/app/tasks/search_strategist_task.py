@@ -31,7 +31,7 @@ def search_strategist_task(prompt: str, user_id: int):
 
             span.set_attribute("agent.output_prediction", json.dumps(prediction_result))
 
-            data_question_retrieval_service.retrieve_chunks_for_question(prompt, user_id, prediction_result)
+            chunks = data_question_retrieval_service.retrieve_chunks_for_question(prompt, user_id, prediction_result)
              
         except Exception as e:
             span.set_attribute("error", True)
