@@ -3,12 +3,14 @@ from app.clients.backend_client import BackendClient
 from app.observability.phoenix import get_tracer
 from app.services.workspace_chunk_service import WorkspaceService
 from app.services.agents.workspace_predictor_agent import WorkspacePredictorAgent
+from app.services.data_question.data_question_retrieval_service import DataQuestionRetrievalService
 import json
 
 tracer = get_tracer()
 backend_client = BackendClient()
 workspace_service = WorkspaceService()
 workspace_predictor_agent = WorkspacePredictorAgent()
+data_question_retrieval_service = DataQuestionRetrievalService()
 
 @celery.task
 def search_strategist_task(prompt: str, user_id: int):
@@ -22,19 +24,15 @@ def search_strategist_task(prompt: str, user_id: int):
             
             span.set_attribute("service.workspaces_source", json.dumps(user_workspaces))
 
-            agent_output = workspace_predictor_agent.predict_workspace_intent(
+            prediction_result = workspace_predictor_agent.predict_workspace_intent(
                 prompt, 
                 user_workspaces
             )
 
-            span.set_attribute("agent.output_prediction", json.dumps(agent_output))
+            span.set_attribute("agent.output_prediction", json.dumps(prediction_result))
 
-            return {
-                "status": "ok",
-                "predicted_workspace": agent_output,
-                "prompt": prompt
-            }
-
+            data_question_retrieval_service.retrieve_chunks_for_question(prompt, user_id, prediction_result)
+             
         except Exception as e:
             span.set_attribute("error", True)
             span.set_attribute("error.message", str(e))
