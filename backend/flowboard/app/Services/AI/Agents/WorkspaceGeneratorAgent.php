@@ -12,9 +12,6 @@ class WorkspaceGeneratorAgent
 {
     public function __construct(private RetrievalOrchestratorService $retrievalOrchestratorService) {}
 
-    /**
-     * Generate collection workspace from prompt using Python API
-     */
     public function generateCollectionWorkspace(AIJob $job): array
     {
         $data = $this->retrievalOrchestratorService->orchestrate(
@@ -69,9 +66,6 @@ class WorkspaceGeneratorAgent
     }
 
 
-    /**
-     * Generate workflow workspace from prompt using Python API
-     */
     public function generateWorkflowWorkspace(AIJob $job): array
     {
         $data = $this->retrievalOrchestratorService->orchestrate(

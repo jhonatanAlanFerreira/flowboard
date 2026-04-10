@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api\AI;
 
 use App\Data\WorkspaceData;
+use App\Enums\AIJobsType;
 use App\Http\Requests\AIWorkspaceController\GenerateAIWorkspaceRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AIWorkspaceController\DataQuestionRequest;
 use App\Http\Requests\AIWorkspaceController\StoreWorkspaceFromAIRequest;
 use App\Jobs\AI\GenerateWorkspaceJob;
+use App\Jobs\AI\ProcessUserQuestionJob;
 use App\Models\AIJob;
 use App\Models\Workspace;
 use App\Services\Workspace\WorkspaceService;
@@ -32,6 +35,22 @@ class AIWorkspaceController extends Controller
         ]);
 
         GenerateWorkspaceJob::dispatch($job);
+
+        return response()->json([
+            'status' => 'accepted'
+        ], 202);
+    }
+
+    public function dataQuestion(DataQuestionRequest $request)
+    {
+        $job = AIJob::create([
+            'user_id' => $request->user()->id,
+            'status' => 'pending',
+            'prompt' => $request->prompt,
+            'type' => AIJobsType::USER_QUESTION->value
+        ]);
+
+        ProcessUserQuestionJob::dispatch($job);
 
         return response()->json([
             'status' => 'accepted'

@@ -90,3 +90,43 @@ class WorkspaceService:
             self.client.data_object.delete(class_name=self.class_name, uuid=weaviate_uuid)
             return True
         return False
+
+    def get_workspace_candidates(self, user_id: int, user_prompt: str, limit: int = 10):
+        """
+        Performs a hybrid search on Workspace names to find the top candidates.
+        Restricts results to the specific user executing the query.
+        """
+        user_id_str = str(user_id)
+        prompt_norm = normalize_text(user_prompt)
+        
+        vector = self.model.encode(prompt_norm).tolist()
+
+        query = (
+            self.client.query
+            .get(self.class_name, ["workspace_id", "name"])
+            .with_hybrid(
+                query=prompt_norm,    
+                vector=vector,         
+                alpha=0.5              
+            )
+            .with_where({
+                "path": ["user_id"],
+                "operator": "Equal",
+                "valueText": user_id_str
+            })
+            .with_limit(limit)
+            .with_additional(["score"]) 
+            .do()
+        )
+
+        hits = query.get("data", {}).get("Get", {}).get(self.class_name, [])
+        
+        candidates = []
+        for hit in hits:
+            candidates.append({
+                "workspace_id": hit.get("workspace_id"),
+                "name": hit.get("name"),
+                "search_score": hit.get("_additional", {}).get("score")
+            })
+
+        return candidates

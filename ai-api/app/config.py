@@ -45,5 +45,10 @@ class Settings(BaseSettings):
         max_tokens=400,
         temperature=0.0 
     )
+    
+    workspace_predictor_agent: LLMConfig = LocalLLMConfig(
+        max_tokens=300,
+        temperature=0.0
+    )
 
 settings = Settings()
