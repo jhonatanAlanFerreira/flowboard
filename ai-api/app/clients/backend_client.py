@@ -48,3 +48,24 @@ class BackendClient:
 
         response.raise_for_status()
         return response
+    
+    def complete_data_question(self, ai_job_id: str, markdown_answer: str, citations: List[str]):
+        """
+        Sends the final generated answer and source citations back to Laravel.
+        """
+        ai_job_id_str = str(ai_job_id)
+        url = f"{self.base_url}/api/internal/ai/data-question-complete/{ai_job_id_str}"
+
+        payload = {
+            "markdown_answer": markdown_answer,
+            "citations": citations 
+        }
+
+        response = requests.put(
+            url,
+            json=payload,
+            headers=self.headers
+        )
+
+        response.raise_for_status()
+        return response

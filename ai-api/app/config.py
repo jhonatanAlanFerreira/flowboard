@@ -50,5 +50,17 @@ class Settings(BaseSettings):
         max_tokens=300,
         temperature=0.0
     )
+    
+    data_question_reranker_agent: LLMConfig = GroqLLMConfig(
+        model_name="llama-3.3-70b-versatile",
+        max_tokens=400,
+        temperature=0.0 
+    )
+    
+    data_question_generator_agent: LLMConfig = GroqLLMConfig(
+        model_name="llama-3.3-70b-versatile",
+        max_tokens=400,
+        temperature=0.0 
+    )
 
 settings = Settings()
