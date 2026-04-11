@@ -2,6 +2,8 @@ import requests
 import os
 from app.schemas.workspace import AIWorkspacePayload
 from app.schemas.chunk import UpdateTagsPayload
+from app.schemas.data_question import RetrievedChunk
+from typing import List
 
 class BackendClient:
     def __init__(self):
@@ -29,6 +31,18 @@ class BackendClient:
         response = requests.put(
             url,
             json=payload.model_dump(),
+            headers=self.headers
+        )
+
+        response.raise_for_status()
+        return response
+    
+    def hydrate_data_question_retrieval(self, payload: List[RetrievedChunk]):
+        url = f"{self.base_url}/api/internal/ai/data-question-hydrate"
+
+        response = requests.put(
+            url,
+            json=[chunk.model_dump() for chunk in payload],
             headers=self.headers
         )
 
