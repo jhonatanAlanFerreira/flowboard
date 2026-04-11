@@ -98,9 +98,6 @@ class DataQuestionRetrievalService:
 
                 span.set_attribute("output.retrieved_count", len(unique_hits))
                 
-                top_10_descriptions = [hit.content for hit in unique_hits[:10]]
-                span.set_attribute("output.top_10_tasks", json.dumps(top_10_descriptions))
-
                 return unique_hits
 
     def _execute_search(
