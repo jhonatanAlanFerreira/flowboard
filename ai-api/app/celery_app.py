@@ -31,7 +31,8 @@ celery.conf.task_routes = {
     "app.tasks.chunk_tasks.*": {"queue": "tagging"},
     "app.tasks.generate_collection_workspace_task.*": {"queue": "collection_workspace"},
     "app.tasks.generate_workflow_workspace_task.*": {"queue": "workflow_workspace"},
-    "app.tasks.search_strategist_task.*": {"queue": "search_strategist"}
+    "app.tasks.search_strategist_task.*": {"queue": "search_strategist"},
+    "app.tasks.rank_and_generate_task.*": {"queue": "generate_answer"}
 }
 
 celery.autodiscover_tasks(["app.tasks"])

@@ -64,5 +64,5 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
 Route::middleware('ai')->prefix('internal/ai')->group(function () {
     Route::post('/workspaces', [AIWorkspaceController::class, 'storeFromAI']);
     Route::put('/chunk/{chunkId}/tags', [AIChunkController::class, 'updateChunkTags']);
-    Route::put('/data-question-hydrate', [AIDataQuestionController::class, 'hydrateDataQuestionRetrieval']);
+    Route::put('/data-question-hydrate/{jobId}', [AIDataQuestionController::class, 'hydrateDataQuestionRetrieval']);
 });

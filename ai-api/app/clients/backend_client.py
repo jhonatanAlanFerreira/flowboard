@@ -37,8 +37,8 @@ class BackendClient:
         response.raise_for_status()
         return response
     
-    def hydrate_data_question_retrieval(self, payload: List[RetrievedChunk]):
-        url = f"{self.base_url}/api/internal/ai/data-question-hydrate"
+    def hydrate_data_question_retrieval(self, payload: List[RetrievedChunk], ai_job_id: int):
+        url = f"{self.base_url}/api/internal/ai/data-question-hydrate/{ai_job_id}"
 
         response = requests.put(
             url,

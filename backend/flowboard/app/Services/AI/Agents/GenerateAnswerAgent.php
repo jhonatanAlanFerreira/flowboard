@@ -6,21 +6,21 @@ use App\Models\AIJob;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class SearchStrategistAgent
+class GenerateAnswerAgent
 {
 
-    public function extractSearchIntent(AIJob $job): array
+    public function generateAnswer($chunks, int $jobId): array
     {
         try {
             $response = Http::ai()->timeout(10)
-                ->post('/search_strategist', [
-                    'user_id' => $job->user_id,
-                    'prompt' => $job->prompt,
-                    'ai_job_id' => $job->id
+                ->post('/search_strategist/process-answer', [
+                    "ai_job_id" => $jobId,
+                    "prompt" => AIJob::find($jobId)->prompt,
+                    "chunks" => $chunks
                 ]);
 
             if (!$response->successful()) {
-                Log::warning('Search failed', [
+                Log::warning('Generate answer failed', [
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
@@ -30,7 +30,7 @@ class SearchStrategistAgent
 
             return $response->json();
         } catch (\Throwable $e) {
-            Log::error('Search exception', [
+            Log::error('Generate answer exception', [
                 'message' => $e->getMessage(),
             ]);
 

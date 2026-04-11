@@ -13,7 +13,7 @@ workspace_predictor_agent = WorkspacePredictorAgent()
 data_question_retrieval_service = DataQuestionRetrievalService()
 
 @celery.task
-def search_strategist_task(prompt: str, user_id: int):
+def search_strategist_task(prompt: str, user_id: int, ai_job_id: int):
     with tracer.start_as_current_span("search_strategist") as span:
         
         span.set_attribute("input.prompt", prompt)
@@ -33,7 +33,9 @@ def search_strategist_task(prompt: str, user_id: int):
 
             chunks = data_question_retrieval_service.retrieve_chunks_for_question(prompt, user_id, prediction_result)
             
-            backend_client.hydrate_data_question_retrieval(chunks)
+            span.set_attribute("agent.output_prediction", json.dumps(prediction_result))
+            
+            backend_client.hydrate_data_question_retrieval(chunks, ai_job_id)
              
         except Exception as e:
             span.set_attribute("error", True)
