@@ -1,10 +1,14 @@
-from typing import List, Dict
 import math
+from typing import List, Dict
+from app.config import settings
 from app.observability.phoenix import get_tracer
 
 tracer = get_tracer()
 
 class CollectionScoringService:
+
+    def __init__(self, config=None):
+        self.config = config or settings.collection_scoring
 
     def rank_workspaces(self, workspace_chunks: Dict) -> List[Dict]:
         with tracer.start_as_current_span("service.scoring.workspaces") as span:
@@ -17,7 +21,7 @@ class CollectionScoringService:
                 max_score = max(scores)
                 count = len(scores)
 
-                final_score = max_score + 0.1 * math.log(1 + count)
+                final_score = max_score + self.config.workspace_log_weight * math.log(1 + count)
 
                 # keep best chunk for explainability
                 best_chunk = max(chunks, key=lambda x: x["score"])
@@ -68,18 +72,20 @@ class CollectionScoringService:
             return ranked_lists
     
 
-    def _compute_features(self, scores: list[float], top_k: int = 3) -> dict:
+    def _compute_features(self, scores: list[float], top_k: int = None) -> dict:
         if not scores:
             return {"relevance": 0, "volume": 0, "concentration": 0, "volume_norm": 0}
 
+        top_k = top_k if top_k is not None else self.config.feature_top_k
+
         scores_sorted = sorted(scores, reverse=True)
 
-        # Relevance (top 3)
+        # Relevance (top k)
         top_k_scores = scores_sorted[:top_k]
-        relevance = sum(top_k_scores) / len(top_k_scores)
+        relevance = sum(top_k_scores) / len(top_k_scores) if top_k_scores else 0
 
-        # Volume
-        relevant_chunks = [s for s in scores if s >= 0.7]
+        # Volume (extracted hardcoded 0.7 threshold)
+        relevant_chunks = [s for s in scores if s >= self.config.relevance_threshold]
         volume = len(relevant_chunks)
 
         # Concentration
@@ -94,9 +100,9 @@ class CollectionScoringService:
 
     def _compute_score(self, features: dict) -> float:
         return (
-            features["relevance"] * 0.6 +
-            features["volume_norm"] * 0.25 +
-            features["concentration"] * 0.15
+            features["relevance"] * self.config.relevance_weight +
+            features["volume_norm"] * self.config.volume_norm_weight +
+            features["concentration"] * self.config.concentration_weight
         )
 
     def _sort_chunks(self, chunks: list[dict]) -> list[dict]:

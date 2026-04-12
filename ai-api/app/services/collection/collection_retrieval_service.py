@@ -1,11 +1,12 @@
+import json
+from collections import defaultdict
 from typing import List, Dict
 from sentence_transformers import SentenceTransformer
 from app.clients.weaviate_client import get_weaviate_client
+from app.config import settings
 from app.observability.phoenix import get_tracer
-from collections import defaultdict
 from app.services.collection.collection_scoring_service import CollectionScoringService
 from app.services.collection.collection_workspace_selection_service import CollectionWorkspaceSelectionService
-import json
 
 client = get_weaviate_client()
 tracer = get_tracer()
@@ -18,15 +19,19 @@ def normalize_text(value: str) -> str:
 
 
 class CollectionRetrievalService:
-    def __init__(self):
+    def __init__(self, config=None):
+        self.config = config or settings.collection_retrieval
+        
         self.client = client
-        self.class_name = "Chunk"
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.class_name = self.config.class_name
+        self.model = SentenceTransformer(self.config.model_name)
 
-    def get_relevant_workspaces(self, query: str, user_id: int, top_k: int = 50) -> List[Dict]:
+    def get_relevant_workspaces(self, query: str, user_id: int, top_k: int = None) -> List[Dict]:
         user_id_string = str(user_id)
         query_norm = normalize_text(query)
         query_vector = self.model.encode(query_norm).tolist()
+        
+        top_k = top_k if top_k is not None else self.config.workspace_retrieval_top_k
 
         with tracer.start_as_current_span("service.retrieval") as span:
             span.set_attribute("input.query", query)
@@ -37,7 +42,11 @@ class CollectionRetrievalService:
             response = (
                 self.client.query
                 .get(self.class_name, ["workspace_id", "content", "chunk_id"])
-                .with_hybrid(query=query_norm, vector=query_vector, alpha=0.5)
+                .with_hybrid(
+                    query=query_norm, 
+                    vector=query_vector, 
+                    alpha=self.config.workspace_hybrid_alpha
+                )
                 .with_where({
                     "operator": "And",
                     "operands": [
@@ -90,13 +99,15 @@ class CollectionRetrievalService:
         
 
 
-    def get_relevant_lists_for_workspaces(self, workspace_ids: list[str], query: str, top_k: int = 5) -> List[Dict]:
+    def get_relevant_lists_for_workspaces(self, workspace_ids: list[str], query: str, top_k: int = None) -> List[Dict]:
         query_norm = normalize_text(query)
         query_vector = self.model.encode(query_norm).tolist()
+        
+        top_k = top_k if top_k is not None else self.config.list_retrieval_top_k
 
         response = (
             self.client.query
-            .get("Chunk", ["tasklist_id", "chunk_id"])
+            .get(self.class_name, ["tasklist_id", "chunk_id"])
             .with_where({
                 "operator": "And",
                 "operands": [
@@ -112,17 +123,20 @@ class CollectionRetrievalService:
                     }
                 ]
             })
-            .with_hybrid(query=query_norm, vector=query_vector, alpha=0.8)
+            .with_hybrid(
+                query=query_norm, 
+                vector=query_vector, 
+                alpha=self.config.list_hybrid_alpha
+            )
             .with_additional(["score"])
             .do()
         )
 
-        hits = response.get("data", {}).get("Get", {}).get("Chunk", [])
+        hits = response.get("data", {}).get("Get", {}).get(self.class_name, [])
 
         if not hits:
             return []
 
-        # grouping ONLY
         lists = defaultdict(lambda: {"scores": [], "chunks": []})
 
         for hit in hits:
