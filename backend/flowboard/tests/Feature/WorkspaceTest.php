@@ -163,7 +163,7 @@ class WorkspaceTest extends TestCase
         $user = User::factory()->create();
 
         $jsonPayload = [
-            "workflow" => [
+            "workspace" => [
                 "name" => "Fishing",
                 "lists" => [
                     [
@@ -269,7 +269,7 @@ class WorkspaceTest extends TestCase
 
         $jsonPayload = [
             "job_id" => 1,
-            "workflow" => [
+            "workspace" => [
                 "name" => "Fishing",
                 "lists" => [
                     [

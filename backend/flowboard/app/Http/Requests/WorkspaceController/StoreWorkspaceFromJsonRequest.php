@@ -14,12 +14,12 @@ class StoreWorkspaceFromJsonRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'workflow' => ['required', 'array'],
-            'workflow.name' => ['required', 'string', 'max:255'],
-            'workflow.lists' => ['required', 'array', 'min:1'],
-            'workflow.lists.*.name' => ['required', 'string', 'max:255'],
-            'workflow.lists.*.tasks' => ['required', 'array', 'min:1'],
-            'workflow.lists.*.tasks.*.description' => ['required', 'string', 'max:1000'],
+            'workspace' => ['required', 'array'],
+            'workspace.name' => ['required', 'string', 'max:255'],
+            'workspace.lists' => ['required', 'array', 'min:1'],
+            'workspace.lists.*.name' => ['required', 'string', 'max:255'],
+            'workspace.lists.*.tasks' => ['required', 'array', 'min:1'],
+            'workspace.lists.*.tasks.*.description' => ['required', 'string', 'max:1000'],
         ];
     }
 }
