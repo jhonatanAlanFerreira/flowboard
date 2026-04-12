@@ -46,7 +46,8 @@ class Settings(BaseSettings):
         temperature=0.0 
     )
     
-    workspace_predictor_agent: LLMConfig = LocalLLMConfig(
+    workspace_predictor_agent: LLMConfig = GroqLLMConfig(
+        model_name="llama-3.3-70b-versatile",
         max_tokens=300,
         temperature=0.0
     )

@@ -21,10 +21,10 @@ class GenerateWorkspaceJob implements ShouldQueue
     {
         try {
             switch ($this->job->type) {
-                case AIJobsType::COLLECTION_WORKSPACE->value:
+                case AIJobsType::COLLECTION_WORKSPACE:
                     $workspaceGeneratorAgent->generateCollectionWorkspace($this->job);
                     break;
-                case AIJobsType::WORKFLOW_WORKSPACE->value:
+                case AIJobsType::WORKFLOW_WORKSPACE:
                     $workspaceGeneratorAgent->generateWorkflowWorkspace($this->job);
                     break;
                 default:

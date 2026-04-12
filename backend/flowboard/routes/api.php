@@ -57,7 +57,10 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
             Route::get('/latest', [AIWorkspaceController::class, 'latest']);
         });
 
-        Route::post('/data-question', [AIWorkspaceController::class, 'dataQuestion']);
+        Route::prefix('data-question')->group(function () {
+            Route::post('/', [AIDataQuestionController::class, 'dataQuestion']);
+            Route::get('/latest', [AIDataQuestionController::class, 'latest']);
+        });
     });
 });
 

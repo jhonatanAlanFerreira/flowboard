@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\AIWorkspaceController;
+namespace App\Http\Requests\AIDataQuestionController;
 
 use Illuminate\Foundation\Http\FormRequest;
 

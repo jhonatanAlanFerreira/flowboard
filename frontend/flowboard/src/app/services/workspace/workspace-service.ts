@@ -8,7 +8,10 @@ import { Workspace } from '../../models';
 export class WorkspaceService {
   private pollingInterval?: any;
 
-  private doneWorkspaceSubject = new BehaviorSubject<any | null>(null);
+  private doneWorkspaceSubject = new BehaviorSubject<{
+    workspace: Workspace;
+    source_workspace_names: string[];
+  } | null>(null);
   doneWorkspace$ = this.doneWorkspaceSubject.asObservable();
 
   constructor(
@@ -60,12 +63,13 @@ export class WorkspaceService {
   }
 
   getLatestStatus() {
-    return this.http.get<any>(
-      `${this.config.apiBaseUrl}/api/me/ai/workspaces/latest`,
-      {
-        headers: { 'x-skip-status': 'true' },
-      },
-    );
+    return this.http.get<{
+      status: 'empty' | 'pending' | 'processing' | 'done' | 'failed';
+      workspace: null | Workspace;
+      source_workspace_names: string[];
+    }>(`${this.config.apiBaseUrl}/api/me/ai/workspaces/latest`, {
+      headers: { 'x-skip-status': 'true' },
+    });
   }
 
   private pendingKey(userId: number) {
@@ -95,8 +99,6 @@ export class WorkspaceService {
             this.doneWorkspaceSubject.next({
               workspace: res.workspace!,
               source_workspace_names: res.source_workspace_names!,
-              answer: res.answer,
-              source_tasks: res.source_tasks,
             });
             return;
           }

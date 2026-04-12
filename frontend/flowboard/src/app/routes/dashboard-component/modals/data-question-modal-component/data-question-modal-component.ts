@@ -14,9 +14,8 @@ import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { Subject, takeUntil } from 'rxjs';
 import { LoginService } from '../../../../services/login/login-service';
-import { WorkspaceService } from '../../../../services/workspace/workspace-service';
 import { User } from '../../../../models';
-import { AiProcessingService } from '../../../../services/ai-processing-service';
+import { DataQuestionService } from '../../../../services/data-question/data-question-service';
 
 @Component({
   selector: 'app-data-question-modal-component',
@@ -35,20 +34,26 @@ export class DataQuestionModalComponent implements OnInit, OnDestroy {
 
   questionControl = new FormControl();
   isAnswerReadyModal = signal(false);
-  markdownAnswer = signal("");
-  sourceTasks = signal<any[]>([]);
+  markdownAnswer = signal('');
+  sourceTasks = signal<
+    {
+      chunk_id: number;
+      workspace_name: string;
+      done: boolean;
+      description: string;
+    }[]
+  >([]);
 
   user: User | null = null;
 
   constructor(
-    private workspaceService: WorkspaceService,
     private messageService: MessageService,
+    private dataQuestionService: DataQuestionService,
     private loginService: LoginService,
-    private aiProcessingService: AiProcessingService,
   ) {}
 
   ngOnInit(): void {
-    this.workspaceService.doneWorkspace$
+    this.dataQuestionService.doneAskAi$
       .pipe(takeUntil(this.destroy$))
       .subscribe((res) => {
         if (!res) return;
@@ -68,7 +73,7 @@ export class DataQuestionModalComponent implements OnInit, OnDestroy {
         if (!user) return;
 
         if (this.isProcessing) {
-          this.workspaceService.startPolling(this.onPullingFailed, user.id);
+          this.dataQuestionService.startPolling(this.onPullingFailed, user.id);
         }
       });
   }
@@ -81,7 +86,7 @@ export class DataQuestionModalComponent implements OnInit, OnDestroy {
   ask() {
     if (!this.user) return;
 
-    this.aiProcessingService
+    this.dataQuestionService
       .askAI({
         prompt: this.questionControl.value,
       })
@@ -89,8 +94,8 @@ export class DataQuestionModalComponent implements OnInit, OnDestroy {
         next: () => {
           this.onCreate.emit();
 
-          this.workspaceService.setPendingWorkspace(this.user!.id);
-          this.workspaceService.startPolling(
+          this.dataQuestionService.setPendingAskAi(this.user!.id);
+          this.dataQuestionService.startPolling(
             this.onPullingFailed,
             this.user!.id,
           );
@@ -134,7 +139,7 @@ export class DataQuestionModalComponent implements OnInit, OnDestroy {
 
   get isProcessing() {
     return this.user
-      ? this.workspaceService.hasPendingWorkspace(this.user.id)
+      ? this.dataQuestionService.hasPendingAskAi(this.user.id)
       : false;
   }
 }

@@ -156,6 +156,7 @@
 
 <app-data-question-modal-component
   [visible]="isAskAIModalOpen()"
+  (onCreate)="isAskAIModalOpen.set(false)"
   (onCancel)="onAskAIModalCancel()"
 >
 </app-data-question-modal-component>
