@@ -8,9 +8,8 @@ describe('SendListToWorkspaceModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SendListToWorkspaceModalComponent]
-    })
-    .compileComponents();
+      imports: [SendListToWorkspaceModalComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SendListToWorkspaceModalComponent);
     component = fixture.componentInstance;

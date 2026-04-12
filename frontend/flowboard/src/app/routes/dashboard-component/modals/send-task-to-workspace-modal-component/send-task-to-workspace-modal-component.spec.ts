@@ -8,9 +8,8 @@ describe('SendTaskToWorkspaceModalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SendTaskToWorkspaceModalComponent]
-    })
-    .compileComponents();
+      imports: [SendTaskToWorkspaceModalComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SendTaskToWorkspaceModalComponent);
     component = fixture.componentInstance;

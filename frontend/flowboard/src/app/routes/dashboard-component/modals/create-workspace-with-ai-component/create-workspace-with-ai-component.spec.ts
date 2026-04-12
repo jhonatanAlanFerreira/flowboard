@@ -44,13 +44,13 @@ describe('DashboardComponent', () => {
         { provide: MessageService, useValue: messageServiceMock },
       ],
     })
-    .overrideComponent(DashboardComponent, {
-      set: {
-        template: '',       
-        imports: [],        
-      },
-    })
-    .compileComponents();
+      .overrideComponent(DashboardComponent, {
+        set: {
+          template: '',
+          imports: [],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
@@ -78,7 +78,7 @@ describe('DashboardComponent', () => {
     component.applySearch();
 
     const task = component.tasklists()[0].tasks![0];
-    expect(task.matchesSearch).toBe(true); 
+    expect(task.matchesSearch).toBe(true);
   });
 
   it('should open AI modal when endpoint is available', () => {

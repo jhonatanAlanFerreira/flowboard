@@ -48,7 +48,7 @@ export class RegisterComponent {
             'Cannot connect to the server. Check your internet connection.';
         } else if (err.status === 422) {
           detail = err.error.message;
-          console.log(err)
+          console.log(err);
         }
 
         this.messageService.add({
