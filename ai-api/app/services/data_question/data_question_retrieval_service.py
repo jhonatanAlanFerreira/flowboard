@@ -2,6 +2,7 @@ import json
 from typing import Dict, List
 from sentence_transformers import SentenceTransformer
 from app.clients.weaviate_client import get_weaviate_client
+from app.config import settings
 from app.observability.phoenix import get_tracer
 from app.schemas.data_question import RetrievedChunk
 
@@ -12,10 +13,12 @@ def normalize_text(value: str) -> str:
     return str(value).strip().lower()
 
 class DataQuestionRetrievalService:
-    def __init__(self):
+    def __init__(self, config=None):
+        self.config = config or settings.data_question_retrieval
+        
         self.client = client
-        self.class_name = "Chunk"
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.class_name = self.config.class_name
+        self.model = SentenceTransformer(self.config.model_name)
 
     def retrieve_chunks_for_question(
             self, 
@@ -43,10 +46,11 @@ class DataQuestionRetrievalService:
                 all_hits = []
                 targeted_chunk_ids = set()
 
-                if workspace_id and confidence >= 0.5:
+                if workspace_id and confidence >= self.config.confidence_threshold:
                     targeted_hits = self._execute_search(
                         query_norm, query_vector, user_id_string, 
-                        limit=20, workspace_id=str(workspace_id)
+                        limit=self.config.targeted_search_limit, 
+                        workspace_id=str(workspace_id)
                     )
                     all_hits.extend(targeted_hits)
                     
@@ -55,13 +59,15 @@ class DataQuestionRetrievalService:
 
                     global_hits = self._execute_search(
                         query_norm, query_vector, user_id_string, 
-                        limit=10, workspace_id=None
+                        limit=self.config.global_fallback_limit, 
+                        workspace_id=None
                     )
                     all_hits.extend(global_hits)
                 else:
                     global_hits = self._execute_search(
                         query_norm, query_vector, user_id_string, 
-                        limit=50, workspace_id=None
+                        limit=self.config.pure_global_limit, 
+                        workspace_id=None
                     )
                     all_hits.extend(global_hits)
 
@@ -139,7 +145,11 @@ class DataQuestionRetrievalService:
         response = (
             self.client.query
             .get(self.class_name, ["chunk_id", "workspace_id", "tasklist_id", "content"])
-            .with_hybrid(query=query_norm, vector=query_vector, alpha=0.7)
+            .with_hybrid(
+                query=query_norm, 
+                vector=query_vector, 
+                alpha=self.config.hybrid_alpha
+            )
             .with_where(where_clause)
             .with_additional(["score"])
             .with_limit(limit)

@@ -1,6 +1,7 @@
+from datetime import datetime, timezone
 import json
 from typing import Dict, List
-from datetime import datetime, timezone
+from app.config import settings
 from app.observability.phoenix import get_tracer
 
 tracer = get_tracer()
@@ -11,10 +12,15 @@ class DataQuestionScoringService:
     recency, completion status, and search overlap.
     """
 
-    def score_and_rank_chunks(self, query: str, chunks: List[Dict], limit: int = 15) -> List[Dict]:
+    def __init__(self, config=None):
+        self.config = config or settings.data_question_scoring
+
+    def score_and_rank_chunks(self, query: str, chunks: List[Dict], limit: int = None) -> List[Dict]:
         """
         Calculates a priority score for each chunk and returns the top K items.
         """
+        limit = limit if limit is not None else self.config.default_limit
+
         with tracer.start_as_current_span("service.scoring") as span:
             span.set_attribute("input.query", query)
             span.set_attribute("input.initial_count", len(chunks))
@@ -25,11 +31,14 @@ class DataQuestionScoringService:
             for chunk in chunks:
                 base_score = float(chunk.get("search_score", 0.0))
                 
-                # If users ask "What have I completed?", this logic can be inverted.
-                status_weight = 0.2 if not chunk.get("done", False) else -0.5
+                # Extracted hardcoded 0.2 and -0.5 weights
+                status_weight = (
+                    self.config.not_done_weight if not chunk.get("done", False) 
+                    else self.config.done_weight
+                )
                 
                 # Double Retrieval Boost (Found in both targeted and global search)
-                both_weight = 0.3 if chunk.get("found_in_both", False) else 0.0
+                both_weight = self.config.double_retrieval_boost if chunk.get("found_in_both", False) else 0.0
                 
                 # Recency Boosting (Decay math)
                 recency_weight = 0.0
@@ -41,12 +50,12 @@ class DataQuestionScoringService:
                         created_date = datetime.fromisoformat(created_at_str.replace('Z', '+00:00'))
                         days_old = (now - created_date).days
                         
-                        # Apply a bonus if the task was created in the last 30 days
-                        if days_old <= 7:
-                            recency_weight = 0.3
-                        elif days_old <= 30:
-                            recency_weight = 0.15
-                    except Exception as e:
+                        # Apply a bonus extracted from the configuration thresholds
+                        if days_old <= self.config.recent_days_threshold:
+                            recency_weight = self.config.recent_days_boost
+                        elif days_old <= self.config.mid_days_threshold:
+                            recency_weight = self.config.mid_days_boost
+                    except Exception:
                         # Fail silently and skip recency if the date format breaks
                         pass
 

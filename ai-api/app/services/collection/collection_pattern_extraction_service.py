@@ -1,20 +1,27 @@
 import math
 import re
 from typing import List, Dict
+from app.config import settings
 from app.observability.phoenix import get_tracer
 
 tracer = get_tracer()
 
 class CollectionPatternExtractionService:
-    def __init__(self, similarity_threshold: float = 0.5):
-        self.similarity_threshold = similarity_threshold
+    def __init__(self, config=None):
+        self.config = config or settings.collection_pattern_extraction
+        
+        self.similarity_threshold = self.config.similarity_threshold
 
     def extract_patterns_from_lists(
         self,
         lists_data: List[Dict],
-        top_k_tags: int = 3,
-        min_score: float = 0
+        top_k_tags: int = None,
+        min_score: float = None
     ) -> List[Dict]:
+        
+        top_k_tags = top_k_tags if top_k_tags is not None else self.config.top_k_tags
+        min_score = min_score if min_score is not None else self.config.min_score
+        
         with tracer.start_as_current_span("service.patterns.extract") as span:
             span.set_attributes({
                 "patterns.input_lists_count": len(lists_data),
@@ -141,8 +148,9 @@ class CollectionPatternExtractionService:
     def _compute_tag_features(self, items: List[Dict], chunks: List[Dict]) -> Dict:
         scores = [i["score"] for i in items]
 
-        top_scores = sorted(scores, reverse=True)[:3]
-        relevance = sum(top_scores) / len(top_scores)
+        limit = self.config.top_scores_limit
+        top_scores = sorted(scores, reverse=True)[:limit]
+        relevance = sum(top_scores) / len(top_scores) if top_scores else 0
 
         frequency = len(items)
         coverage = frequency / len(chunks) if chunks else 0
@@ -156,9 +164,9 @@ class CollectionPatternExtractionService:
 
     def _compute_tag_score(self, f: Dict) -> float:
         return (
-            f["relevance"] * 0.6 +
-            f["freq_norm"] * 0.25 +
-            f["coverage"] * 0.15
+            f["relevance"] * self.config.relevance_weight +
+            f["freq_norm"] * self.config.freq_norm_weight +
+            f["coverage"] * self.config.coverage_weight
         )
 
 
@@ -172,7 +180,6 @@ class CollectionPatternExtractionService:
         """
         Token-overlap similarity (more robust than simple overlap >= 1)
         """
-
         if tag1 in tag2 or tag2 in tag1:
             return True
 

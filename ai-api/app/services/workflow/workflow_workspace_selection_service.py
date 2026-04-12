@@ -1,4 +1,5 @@
 from typing import List, Dict
+from app.config import settings
 from app.observability.phoenix import get_tracer
 
 tracer = get_tracer()
@@ -7,13 +8,16 @@ class WorkflowWorkspaceSelectionService:
 
     def __init__(
         self,
-        min_similarity: float = 0.3,
-        relative_threshold: float = 0.6,
-        limit: int = 5
+        min_similarity: float = None,
+        relative_threshold: float = None,
+        limit: int = None,
+        config = None
     ):
-        self.min_similarity = min_similarity
-        self.relative_threshold = relative_threshold
-        self.limit = limit
+        self.config = config or settings.workflow_workspace_selection
+        
+        self.min_similarity = min_similarity if min_similarity is not None else self.config.min_similarity
+        self.relative_threshold = relative_threshold if relative_threshold is not None else self.config.relative_threshold
+        self.limit = limit if limit is not None else self.config.limit
 
     def select(self, candidates: List[Dict]) -> List[Dict]:
         with tracer.start_as_current_span("service.selection.select") as span:
@@ -92,15 +96,13 @@ class WorkflowWorkspaceSelectionService:
         structure = self._structure_score(c)
 
         return (
-            sim * 0.6 +
-            recency * 0.15 +
-            structure * 0.25
+            sim * self.config.similarity_weight +
+            recency * self.config.recency_weight +
+            structure * self.config.structure_weight
         )
 
     def _recency_score(self, c: Dict) -> float:
-        # TODO: plug real data later
-        return 0.5
+        return self.config.default_recency_score
 
     def _structure_score(self, c: Dict) -> float:
-        # TODO: e.g. number of lists, tasks, density
-        return 0.5
+        return self.config.default_structure_score
