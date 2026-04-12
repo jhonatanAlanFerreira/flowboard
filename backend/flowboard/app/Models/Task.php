@@ -42,6 +42,8 @@ class Task extends Model
             Tasklist::class,
             'id',
             'id',
+            'tasklist_id',
+            'workspace_id'
         );
     }
 
