@@ -14,7 +14,7 @@ import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { Subject, takeUntil } from 'rxjs';
 import { LoginService } from '../../../../services/login/login-service';
-import { User } from '../../../../models';
+import { Task, Tasklist, User, Workspace } from '../../../../models';
 import { DataQuestionService } from '../../../../services/data-question/data-question-service';
 
 @Component({
@@ -27,6 +27,10 @@ export class DataQuestionModalComponent implements OnInit, OnDestroy {
   @Output() onCancel = new EventEmitter();
   @Output() onCreate = new EventEmitter();
   @Output() onSave = new EventEmitter();
+  @Output() onTaskClicked = new EventEmitter<{
+    workspace: Workspace;
+    taskDescription: string;
+  }>();
 
   visible = input(false);
 
@@ -35,14 +39,7 @@ export class DataQuestionModalComponent implements OnInit, OnDestroy {
   questionControl = new FormControl();
   isAnswerReadyModal = signal(false);
   markdownAnswer = signal('');
-  sourceTasks = signal<
-    {
-      chunk_id: number;
-      workspace_name: string;
-      done: boolean;
-      description: string;
-    }[]
-  >([]);
+  sourceTasks = signal<Task[]>([]);
 
   user: User | null = null;
 
@@ -136,6 +133,14 @@ export class DataQuestionModalComponent implements OnInit, OnDestroy {
       closable: true,
     });
   };
+
+  taskClicked(task: Task) {
+    this.isAnswerReadyModal.set(false);
+    this.onTaskClicked.emit({
+      workspace: task.tasklist!.workspace!,
+      taskDescription: task.description,
+    });
+  }
 
   get isProcessing() {
     return this.user

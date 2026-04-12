@@ -8,6 +8,7 @@ export interface Task {
   description: string;
   order: number;
   done: boolean;
+  tasklist?: Tasklist;
   tasklist_id: number;
   matchesSearch: boolean;
 }
@@ -17,6 +18,7 @@ export interface Tasklist {
   order: number;
   name: string;
   tasks?: Task[];
+  workspace?: Workspace;
   hasMatchingTasks: boolean;
 }
 

@@ -158,6 +158,7 @@
   [visible]="isAskAIModalOpen()"
   (onCreate)="isAskAIModalOpen.set(false)"
   (onCancel)="onAskAIModalCancel()"
+  (onTaskClicked)="onTaskClicked($event)"
 >
 </app-data-question-modal-component>
 

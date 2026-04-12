@@ -599,4 +599,19 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
+
+  onTaskClicked({
+    workspace,
+    taskDescription,
+  }: {
+    workspace: Workspace;
+    taskDescription: string;
+  }) {
+    this.isAskAIModalOpen.set(false);
+    this.searchControl.setValue(taskDescription);
+
+    this.listWorkspaces().subscribe(() => {
+      this.workspaceControl.setValue(workspace);
+    });
+  }
 }
