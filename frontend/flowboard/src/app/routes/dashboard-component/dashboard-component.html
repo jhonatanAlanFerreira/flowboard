@@ -7,6 +7,7 @@
           class="ml-2"
           (onCreateWorkspace)="onAddWorkspace()"
           (onAiCreateWorkspace)="onAiAddWorkspace()"
+          (onAskAI)="onAskAI()"
         ></app-side-menu-component>
         @if (!isWorkspaceDeletingModalOpen) {
         <app-dropdown-component
@@ -152,6 +153,12 @@
   (onCancel)="onAiCreateWorkspaceModalCancel()"
   (onWorkspaceClick)="onAiWorkspaceCreated($event)"
 ></app-create-workspace-with-ai-component>
+
+<app-data-question-modal-component
+  [visible]="isAskAIModalOpen()"
+  (onCancel)="onAskAIModalCancel()"
+>
+</app-data-question-modal-component>
 
 <app-send-list-to-workspace-modal-component
   [visible]="isSendListToWorkspaceModalOpen.opened"

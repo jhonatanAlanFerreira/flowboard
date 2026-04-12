@@ -14,6 +14,7 @@ import { LoginService } from '../../../../services/login/login-service';
 export class SideMenuComponent {
   @Output() onCreateWorkspace = new EventEmitter();
   @Output() onAiCreateWorkspace = new EventEmitter();
+  @Output() onAskAI = new EventEmitter();
 
   visible = false;
 
@@ -35,5 +36,10 @@ export class SideMenuComponent {
   createWorkspaceWithAi() {
     this.visible = false;
     this.onAiCreateWorkspace.emit();
+  }
+
+  askAI() {
+    this.visible = false;
+    this.onAskAI.emit();
   }
 }

@@ -30,6 +30,7 @@ import { CreateWorkspaceWithAiComponent } from './modals/create-workspace-with-a
 import { MenuItem, MessageService } from 'primeng/api';
 import { SendListToWorkspaceModalComponent } from './modals/send-list-to-workspace-modal-component/send-list-to-workspace-modal-component';
 import { SendTaskToWorkspaceModalComponent } from './modals/send-task-to-workspace-modal-component/send-task-to-workspace-modal-component';
+import { DataQuestionModalComponent } from './modals/data-question-modal-component/data-question-modal-component';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -55,6 +56,7 @@ import { SendTaskToWorkspaceModalComponent } from './modals/send-task-to-workspa
     CreateWorkspaceWithAiComponent,
     SendListToWorkspaceModalComponent,
     SendTaskToWorkspaceModalComponent,
+    DataQuestionModalComponent,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
@@ -67,6 +69,7 @@ export class DashboardComponent implements OnInit {
 
   isWorkspaceDeletingModalOpen = false;
   isCreateWorkspaceWithAiModalOpen = signal(false);
+  isAskAIModalOpen = signal(false);
 
   isSendListToWorkspaceModalOpen: {
     opened: boolean;
@@ -555,6 +558,17 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  onAskAI() {
+    this.workspaceService.checkAiEndpoint().subscribe({
+      next: (res) => {
+        if (!!res) {
+          this.isAskAIModalOpen.set(true);
+        } else this.showAIError();
+      },
+      error: () => this.showAIError(),
+    });
+  }
+
   showAIError() {
     this.messageService.add({
       severity: 'error',
@@ -566,6 +580,10 @@ export class DashboardComponent implements OnInit {
 
   onAiCreateWorkspaceModalCancel() {
     this.isCreateWorkspaceWithAiModalOpen.set(false);
+  }
+
+  onAskAIModalCancel() {
+    this.isAskAIModalOpen.set(false);
   }
 
   onAiWorkspaceCreated({

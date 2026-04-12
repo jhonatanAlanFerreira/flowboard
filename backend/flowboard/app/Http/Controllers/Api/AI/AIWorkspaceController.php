@@ -11,6 +11,8 @@ use App\Http\Requests\AIWorkspaceController\StoreWorkspaceFromAIRequest;
 use App\Jobs\AI\GenerateWorkspaceJob;
 use App\Jobs\AI\ProcessUserQuestionJob;
 use App\Models\AIJob;
+use App\Models\RagChunk;
+use App\Models\Task;
 use App\Models\Workspace;
 use App\Services\Workspace\WorkspaceService;
 use Illuminate\Http\JsonResponse;
@@ -73,6 +75,25 @@ class AIWorkspaceController extends Controller
 
         if ($job->isFailed()) {
             return response()->json(['status' => 'failed']);
+        }
+
+        if ($job->type == AIJobsType::USER_QUESTION->value) {
+            $answer = $job->metadata['answer'];
+            $chunkIDs = $job->metadata['source_chunk_ids'];
+
+            $chunks = RagChunk::whereIn('id', $chunkIDs)->get();
+            $taskIDs = $chunks->pluck('task_id')->filter()->unique()->toArray();
+
+            $tasks = Task::with('workspace')
+                ->whereIn('id', $taskIDs)
+                ->get()
+                ->values();
+
+            return response()->json([
+                'status' => 'done',
+                'answer' => $answer,
+                'source_tasks' => $tasks,
+            ]);
         }
 
         $workspace = Workspace::find($job->workspace_id);
