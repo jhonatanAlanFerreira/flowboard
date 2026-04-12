@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Task extends Model
 {
@@ -32,6 +33,16 @@ class Task extends Model
     public function chunk(): HasOne
     {
         return $this->hasOne(RagChunk::class);
+    }
+
+    public function workspace(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Workspace::class,
+            Tasklist::class,
+            'id',
+            'id',
+        );
     }
 
     public function scopeOwnedBy($query, User $user)
