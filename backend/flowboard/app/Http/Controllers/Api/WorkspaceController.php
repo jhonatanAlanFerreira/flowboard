@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Data\WorkspaceData;
+use App\Events\Workspace\WorkspaceCreated;
 use App\Events\Workspace\WorkspaceDeleted;
+use App\Events\Workspace\WorkspaceUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Tasklist;
 use App\Models\Workspace;
@@ -43,16 +45,22 @@ class WorkspaceController extends Controller
 
     public function store(StoreWorkspaceRequest $request)
     {
-        return Workspace::create([
+        $workspace = Workspace::create([
             'name' => $request->validated()['name'],
             'user_id' => $request->user()->id,
         ]);
+
+        event(new WorkspaceCreated($workspace));
+
+        return $workspace;
     }
 
     public function update(UpdateWorkspaceRequest $request, $workspaceId)
     {
         $workspace = $request->user()->workspaces()->findOrFail($workspaceId);
         $workspace->update($request->validated());
+
+        event(new WorkspaceUpdated($workspace));
 
         return $workspace;
     }

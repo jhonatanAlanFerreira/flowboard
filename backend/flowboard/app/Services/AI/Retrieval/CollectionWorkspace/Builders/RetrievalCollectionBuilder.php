@@ -2,16 +2,16 @@
 
 namespace App\Services\AI\Retrieval\CollectionWorkspace\Builders;
 
+use App\Models\AIJob;
 use App\Models\RagChunk;
 use App\Models\Tasklist;
 use App\Models\Workspace;
-use App\Services\AI\Retrieval\DTO\TaskListDTO;
+use App\Services\AI\Retrieval\CollectionWorkspace\DTO\TaskListDTO;
 
 class RetrievalCollectionBuilder
 {
     /**
      * @param TaskListDTO[]
-     * @return TaskListDTO[]
      */
     public function hydrateChunks(array $tasklists): array
     {
@@ -41,24 +41,35 @@ class RetrievalCollectionBuilder
     /**
      * @param TaskListDTO[] $taskLists
      */
-    public function buildGenerationContext(array $taskLists): array
+    public function buildGenerationContext(array $taskLists, ?AIJob $aiJob = null): array
     {
-        $taskListIds = collect($taskLists)->pluck('tasklist_id')->unique();
+        $taskListIds = collect($taskLists)->pluck('tasklist_id');
 
-        $workspaceIds = Tasklist::whereIn('id', $taskListIds)
-            ->pluck('workspace_id')
-            ->unique();
-
-        $workspaces = Workspace::with(['tasklists.tasks'])
-            ->whereIn('id', $workspaceIds)
+        // Fetch tasklists with workspace and tasks in fewer queries
+        $listsWithData = Tasklist::with(['workspace', 'tasks'])
+            ->whereIn('id', $taskListIds)
             ->get();
 
-        $allTasklists = $workspaces->flatMap->tasklists;
+        // Map names to input array
+        $mappedLists = collect($taskLists)->map(function ($list) use ($listsWithData) {
+            $list['name'] = $listsWithData->firstWhere('id', $list['tasklist_id'])->name;
+            return $list;
+        })->all();
+
+        $allWorkspaces = $listsWithData->pluck('workspace')->unique('id');
+
+        if ($aiJob) {
+            $aiJob->update([
+                'metadata' => [
+                    'source_workspace_ids' => $allWorkspaces->pluck('id')->all(),
+                ]
+            ]);
+        }
 
         return [
-            'lists' => $taskLists,
-            'average_tasks_per_list' => round($allTasklists->avg(fn($list) => $list->tasks->count())),
-            'average_lists_per_workspace' => round($workspaces->avg(fn($workspace) => $workspace->tasklists->count()))
+            'lists' => $mappedLists,
+            'average_tasks_per_list' => round($listsWithData->avg(fn($l) => $l->tasks->count())),
+            'average_lists_per_workspace' => round($allWorkspaces->avg(fn($w) => $w->tasklists->count())),
         ];
     }
 }

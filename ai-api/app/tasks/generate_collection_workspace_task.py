@@ -1,48 +1,47 @@
-from app.services.agents.generate_workflow_agent import GenerateWorkflowAgent
 from app.celery_app import celery
 from app.clients.backend_client import BackendClient
 from app.schemas.workspace import AIWorkspacePayload
+from app.services.agents.generate_collection_workspace_agent import GenerateCollectionWorkspaceAgent
 from app.observability.phoenix import get_tracer
 import json
 
 tracer = get_tracer()
-generator_agent = GenerateWorkflowAgent()
+generator_agent = GenerateCollectionWorkspaceAgent()
 backend_client = BackendClient()
 
 @celery.task
-def generate_workflow_task(user_prompt: str, job_id: str):
-    with tracer.start_as_current_span("workflow_generation") as span:
+def generate_collection_workspace_task(user_prompt: str, job_id: str, workspace_patterns: dict):
+    with tracer.start_as_current_span("collection_workspace_generation") as span:
 
         span.set_attribute("job.id", job_id)
         span.set_attribute("input.prompt", user_prompt)
+        span.set_attribute("input.workspace_patterns", json.dumps(workspace_patterns))
 
         try:
             # Generate workflow via LLM
-            workspace_data = generator_agent.generate_workspace_llm(user_prompt)
-
-            span.set_attribute("raw.llm_output", workspace_data)
+            workspace_data = generator_agent.generate_workspace_llm(user_prompt, workspace_patterns)
 
             if isinstance(workspace_data, str):
                 workspace_data = json.loads(workspace_data)
 
-            workflow = workspace_data.get("workflow")
+            workspace = workspace_data.get("workspace")
 
-            span.set_attribute("output.workflow_present", workflow is not None)
+            span.set_attribute("output.workspace_present", workspace is not None)
 
-            if workflow:
-                span.set_attribute("output.workflow.name", workflow.get("name"))
+            if workspace:
+                span.set_attribute("output.workspace.name", workspace.get("name"))
 
-                lists = workflow.get("lists", [])
-                span.set_attribute("output.workflow.lists_count", len(lists))
+                lists = workspace.get("lists", [])
+                span.set_attribute("output.workspace.lists_count", len(lists))
 
                 # Count total tasks
                 total_tasks = sum(len(l.get("tasks", [])) for l in lists)
-                span.set_attribute("output.workflow.tasks_count", total_tasks)
+                span.set_attribute("output.workspace.tasks_count", total_tasks)
 
             # Build payload
             payload = AIWorkspacePayload(
                 job_id=job_id,
-                workflow=workflow
+                workspace=workspace
             )
 
             # Send to backend

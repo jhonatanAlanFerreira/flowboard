@@ -18,8 +18,10 @@ class ChunkService
 
         if ($data['type'] === 'task') {
             $conditions['task_id'] = $data['task_id'];
-        } else {
+        } else if ($data['type'] === 'list') {
             $conditions['tasklist_id'] = $data['tasklist_id'];
+        } else {
+            $conditions['workspace_id'] = $data['workspace_id'];
         }
 
         return RagChunk::updateOrCreate(
@@ -125,6 +127,38 @@ class ChunkService
             }
         } catch (\Throwable $e) {
             Log::error('Creating list chunks exception', [
+                'message' => $e->getMessage(),
+                'payload' => $payload,
+            ]);
+        }
+    }
+
+    public function createWorkspaceChunks(RagChunk $chunk): void
+    {
+        $payload = [
+            'chunk_id' => $chunk->id,
+            'name' => $chunk->content,
+            'workspace_id' => $chunk->workspace_id,
+            'user_id' => $chunk->user_id,
+        ];
+
+        try {
+            $response = Http::ai()
+                ->timeout(10)
+                ->post('/chunks/workspaces', $payload);
+
+            $chunk->markEmbedded();
+            $chunk->save();
+
+            if (!$response->successful()) {
+                Log::warning('Creating workspace chunks failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'payload' => $payload,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Creating workspace chunks exception', [
                 'message' => $e->getMessage(),
                 'payload' => $payload,
             ]);

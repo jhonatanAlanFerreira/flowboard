@@ -8,9 +8,12 @@ use App\Events\List\TasklistUpdated;
 use App\Events\Task\TaskCreated;
 use App\Events\Task\TaskDeleted;
 use App\Events\Task\TaskUpdated;
+use App\Events\Workspace\WorkspaceCreated;
 use App\Events\Workspace\WorkspaceDeleted;
+use App\Events\Workspace\WorkspaceUpdated;
 use App\Listeners\AI\HandleListAIProcessing;
 use App\Listeners\AI\HandleTaskAIProcessing;
+use App\Listeners\AI\HandleWorkspaceAIProcessing;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -49,6 +52,12 @@ class EventServiceProvider extends ServiceProvider
         TasklistUpdated::class => [
             HandleListAIProcessing::class
         ],
+        WorkspaceCreated::class => [
+            HandleWorkspaceAIProcessing::class
+        ],
+        WorkspaceUpdated::class => [
+            HandleWorkspaceAIProcessing::class
+        ]
     ];
 
     /**

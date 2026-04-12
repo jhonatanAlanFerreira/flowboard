@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Log;
 class TaggingAgent
 {
 
-    /**
-     * Generate tags from text using Python API
-     */
     public function generateTags(RagChunk $chunk): array
     {
         try {

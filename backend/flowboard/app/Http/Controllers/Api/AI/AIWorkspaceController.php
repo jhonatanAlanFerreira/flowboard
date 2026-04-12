@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\AI;
 
 use App\Data\WorkspaceData;
+use App\Enums\AIJobsType;
 use App\Http\Requests\AIWorkspaceController\GenerateAIWorkspaceRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AIWorkspaceController\StoreWorkspaceFromAIRequest;
@@ -28,6 +29,7 @@ class AIWorkspaceController extends Controller
             'user_id' => $request->user()->id,
             'status' => 'pending',
             'prompt' => $request->prompt,
+            'type' => $request->type
         ]);
 
         GenerateWorkspaceJob::dispatch($job);
@@ -40,6 +42,7 @@ class AIWorkspaceController extends Controller
     public function latest(): JsonResponse
     {
         $job = AIJob::where('user_id', auth()->id())
+            ->isWorkspaceGeneration()
             ->latest()
             ->first();
 
@@ -57,9 +60,12 @@ class AIWorkspaceController extends Controller
 
         $workspace = Workspace::find($job->workspace_id);
 
+        $sourceWorkspaceNames = Workspace::whereIn('id', $job->metadata['source_workspace_ids'] ?? [])->pluck('name')->toArray();
+
         return response()->json([
             'status' => 'done',
-            'workspace' => $workspace
+            'workspace' => $workspace,
+            'source_workspace_names' => $sourceWorkspaceNames,
         ]);
     }
 
@@ -100,10 +106,20 @@ class AIWorkspaceController extends Controller
 
         $workspace = $this->workspaceService->persistWorkspace($workspaceData, $userId);
 
-        $job->update([
+        $sourceWorkspaceIds = $request->source_workspace_ids;
+
+        $jobParamsToUpdate = [
             'status' => 'done',
             'workspace_id' => $workspace->id,
-        ]);
+        ];
+
+        if ($sourceWorkspaceIds) {
+            $jobParamsToUpdate['metadata'] = [
+                'source_workspace_ids' => $sourceWorkspaceIds,
+            ];
+        }
+
+        $job->update($jobParamsToUpdate);
 
         return response()->noContent();
     }

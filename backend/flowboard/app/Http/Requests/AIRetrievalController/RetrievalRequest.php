@@ -4,7 +4,7 @@ namespace App\Http\Requests\AIRetrievalController;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RetrieveRequest extends FormRequest
+class RetrievalRequest extends FormRequest
 {
     public function authorize(): bool
     {

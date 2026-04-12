@@ -1,11 +1,11 @@
 from llama_cpp import LlamaGrammar
 
-WORKFLOW_JSON_GRAMMAR = LlamaGrammar.from_string(r"""
+WORKSPACE_JSON_GRAMMAR = LlamaGrammar.from_string(r"""
 root ::= res
 
-res ::= "{" ws "\"workflow\"" ws ":" ws workflow "}"
+res ::= "{" ws "\"workspace\"" ws ":" ws workspace "}"
 
-workflow ::= "{" ws "\"name\"" ws ":" ws string "," ws "\"lists\"" ws ":" ws listlist "}"
+workspace ::= "{" ws "\"name\"" ws ":" ws string "," ws "\"lists\"" ws ":" ws listlist "}"
 
 listlist ::= "[" ws "]" | "[" ws list (ws "," ws list)* ws "]"
 

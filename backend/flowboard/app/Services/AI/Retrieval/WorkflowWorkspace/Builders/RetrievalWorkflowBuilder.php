@@ -19,4 +19,21 @@ class RetrievalWorkflowBuilder
             ];
         }, $data);
     }
+
+    public function buildGenerationContext(array $workflowLists): array
+    {
+        $allListNames = [];
+        foreach ($workflowLists as $item) {
+            $allListNames = array_merge($allListNames, $item['lists']);
+        }
+
+        $totalWorkspaces = count($workflowLists);
+        $totalLists = count($allListNames);
+        $average = $totalWorkspaces > 0 ? $totalLists / $totalWorkspaces : 0;
+
+        return [
+            'workflowLists' => $workflowLists,
+            'average_lists_per_workspace' => round($average),
+        ];
+    }
 }

@@ -1,0 +1,120 @@
+<div class="card flex justify-center">
+  <p-dialog
+    header="Ask Assistant"
+    (onHide)="onHide()"
+    [modal]="true"
+    [visible]="visible() && !isProcessing && !isAnswerReadyModal()"
+    [style]="{ width: '32rem' }"
+  >
+    <div class="mb-4 flex flex-col gap-2">
+      <label class="text-lg text-zinc-200">
+        Searching across all active workspaces and lists.
+      </label>
+
+      <textarea
+        rows="6"
+        [formControl]="questionControl"
+        (keydown.enter)="ask()"
+        placeholder="Example: What are the high priority bugs in the Mobile workspace that are still pending?"
+        pInputText
+        class="flex-auto resize-none rounded-lg bg-zinc-900 p-3 text-white"
+        autocomplete="off"
+      ></textarea>
+    </div>
+
+    <div class="flex justify-end gap-4">
+      <p-button
+        class="hover:scale-105!"
+        label="Cancel"
+        [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
+        (click)="onCancel.emit()"
+      />
+
+      <p-button
+        [class.hover:scale-105!]="questionControl.value"
+        label="Ask Question"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        [disabled]="!questionControl.value"
+        (click)="ask()"
+      />
+    </div>
+  </p-dialog>
+</div>
+
+<div class="card flex justify-center">
+  <p-dialog
+    header="The assistant is searching your data."
+    [modal]="true"
+    [closable]="false"
+    [visible]="visible() && isProcessing"
+    [style]="{ width: '28rem' }"
+  >
+    <div class="flex flex-col items-center gap-4 py-4">
+      <i class="pi pi-spin pi-spinner text-2xl text-white"></i>
+      <span class="text-sm text-zinc-400"
+        >Reading through your workspaces...</span
+      >
+    </div>
+    <div class="flex justify-end gap-4">
+      <p-button
+        (onClick)="onCancel.emit()"
+        label="Ok"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        (click)="isAnswerReadyModal.set(false)"
+      />
+    </div>
+  </p-dialog>
+</div>
+
+<div class="card flex justify-center">
+  <p-dialog
+    header="Assistant Response"
+    [modal]="true"
+    [closable]="true"
+    [visible]="isAnswerReadyModal()"
+    [style]="{ width: '36rem' }"
+    (onHide)="onHide()"
+  >
+    <div class="mb-5 text-sm leading-relaxed text-zinc-100">
+      {{ markdownAnswer() }}
+    </div>
+
+    @if (sourceTasks().length) {
+    <div class="border-t border-zinc-800 pt-4">
+      <span class="mb-3 block text-xs font-semibold text-zinc-500 uppercase"
+        >Task Sources Used:</span
+      >
+
+      <div class="flex max-h-52 flex-col gap-3 overflow-y-auto p-2">
+        @for (task of sourceTasks(); track task.id) {
+        <div
+          (click)="taskClicked(task)"
+          class="w-full cursor-pointer rounded-lg border border-zinc-800 bg-zinc-900 p-3 hover:scale-101"
+        >
+          <div class="mb-1 flex items-center justify-between">
+            <span class="text-xs font-semibold text-purple-400 uppercase">
+              {{ task.tasklist!.workspace!.name }}
+            </span>
+            <span
+              class="rounded-full px-2 py-0.5 text-xs"
+              [ngClass]="task.done ? 'bg-green-900/50 text-green-400' : 'bg-yellow-900/50 text-yellow-400'"
+            >
+              {{ task.done ? 'Done' : 'Pending' }}
+            </span>
+          </div>
+          <p class="m-0 text-sm text-zinc-200">{{ task.description }}</p>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <div class="mt-6 flex justify-end gap-4">
+      <p-button
+        label="Ok"
+        [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
+        (click)="isAnswerReadyModal.set(false)"
+      />
+    </div>
+  </p-dialog>
+</div>

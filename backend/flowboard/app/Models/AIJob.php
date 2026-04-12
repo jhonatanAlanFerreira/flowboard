@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\AIJobsType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class AIJob extends Model
 {
@@ -16,11 +18,15 @@ class AIJob extends Model
         'status',
         'prompt',
         'workspace_id',
+        'type',
+        'metadata',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'metadata' => 'array',
+        'type' => AIJobsType::class
     ];
 
     public function user()
@@ -46,5 +52,18 @@ class AIJob extends Model
     public function isFailed(): bool
     {
         return $this->status === 'failed';
+    }
+
+    public function scopeIsWorkspaceGeneration(Builder $query): void
+    {
+        $query->whereIn('type', [
+            AIJobsType::COLLECTION_WORKSPACE,
+            AIJobsType::WORKFLOW_WORKSPACE
+        ]);
+    }
+
+    public function scopeIsDataQuestion($query)
+    {
+        return $query->where('type', AIJobsType::USER_QUESTION);
     }
 }

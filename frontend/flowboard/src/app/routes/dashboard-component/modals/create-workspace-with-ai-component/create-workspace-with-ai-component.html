@@ -20,6 +20,37 @@
         class="flex-auto resize-none rounded-lg bg-zinc-900 p-3 text-white"
         autocomplete="off"
       ></textarea>
+
+      <div
+        class="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 transition-all hover:border-zinc-700"
+      >
+        <div class="relative flex items-center">
+          <input
+            id="workspaceType"
+            type="checkbox"
+            class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-zinc-700 bg-zinc-800 transition-all checked:border-indigo-500 checked:bg-indigo-500"
+            [formControl]="workspaceType"
+          />
+          <svg
+            class="pointer-events-none absolute left-1 hidden h-3.5 w-3.5 text-white peer-checked:block"
+            xmlns="http://w3.org"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+
+        <label for="workspaceType" class="flex cursor-pointer flex-col">
+          <span class="text-sm font-medium text-zinc-100"
+            >Create empty lists to use as a workflow board</span
+          >
+        </label>
+      </div>
     </div>
 
     <div class="flex justify-end gap-4">
@@ -68,9 +99,28 @@
     [visible]="workspaceDoneModal()"
     [style]="{ width: '28rem' }"
   >
-    <div class="flex justify-end gap-4">
+    <div>
+      @if (sourceWorkspaceNames.length) {
+      <div class="surface-ground border-round-sm px-3">
+        <span class="text-500 mb-2 block text-xs font-semibold uppercase"
+          >Generated based on:</span
+        >
+        <ul class="m-0 list-none p-0">
+          @for (name of sourceWorkspaceNames; track name) {
+          <li class="align-items-center mb-1 flex gap-2">
+            <i class="pi pi-bookmark-fill text-primary text-xs"></i>
+            <span class="text-sm font-medium">{{ name }}</span>
+          </li>
+          }
+        </ul>
+      </div>
+      }
+    </div>
+
+    <div class="mt-6 flex justify-end gap-4">
       <p-button
         label="Go to Workspace"
+        icon="pi pi-external-link"
         [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
         (click)="goToWorkspace()"
       />

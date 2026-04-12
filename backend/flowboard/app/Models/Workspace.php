@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Workspace extends Model
 {
@@ -24,5 +25,11 @@ class Workspace extends Model
     public function tasklists(): HasMany
     {
         return $this->hasMany(Tasklist::class)->orderBy('order');
+    }
+
+    public function chunk(): HasOne
+    {
+        return $this->hasOne(RagChunk::class)
+            ->where('type', 'workspace');
     }
 }

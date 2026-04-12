@@ -7,6 +7,7 @@ from app.routes.workspace import router as workspace_router
 from app.routes.tagging import router as tagging_router
 from app.routes.chunk import router as chunking_router
 from app.routes.retrieval import router as retrieval_router
+from app.routes.search_strategist import router as search_strategist
 
 
 @asynccontextmanager
@@ -28,6 +29,7 @@ app.include_router(workspace_router)
 app.include_router(chunking_router)
 app.include_router(tagging_router, prefix="/tagging")
 app.include_router(retrieval_router, prefix="/retrieval")
+app.include_router(search_strategist, prefix="/search_strategist")
 
 
 @app.get("/health")

@@ -1,24 +1,34 @@
-<p-drawer [(visible)]="visible" header="Account">
-  <div class="flex flex-col gap-4 p-4">
-    <button
-      (click)="createWorkspaceWithAi()"
-      class="flex cursor-pointer items-center gap-3 rounded-lg p-3 text-gray-200 transition hover:scale-105 hover:bg-zinc-800"
-    >
-      <i class="pi pi-lightbulb text-lg"></i>
-      <span>Create Workspace using AI</span>
-    </button>
+<p-drawer [(visible)]="visible" header="Menu">
+  <div class="flex h-full flex-col justify-between gap-4 p-4">
+    <div>
+      <button
+        (click)="createWorkspaceWithAi()"
+        class="my-2 flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-gray-200 transition hover:scale-105 hover:bg-zinc-800"
+      >
+        <i class="pi pi-lightbulb text-lg"></i>
+        <span>Create Workspace using AI</span>
+      </button>
 
-    <p-divider class="m-0!"></p-divider>
+      <p-divider class="m-0!"></p-divider>
 
-    <button
-      (click)="createWorkspace()"
-      class="flex cursor-pointer items-center gap-3 rounded-lg p-3 text-gray-200 transition hover:scale-105 hover:bg-zinc-800"
-    >
-      <i class="pi pi-folder-plus text-lg"></i>
-      <span class="font-medium">Create new Workspace</span>
-    </button>
+      <button
+        (click)="askAI()"
+        class="my-2 flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-gray-200 transition hover:scale-105 hover:bg-zinc-800"
+      >
+        <i class="pi pi-lightbulb text-lg"></i>
+        <span>Ask All Boards</span>
+      </button>
 
-    <p-divider class="m-0!"></p-divider>
+      <p-divider class="m-0!"></p-divider>
+
+      <button
+        (click)="createWorkspace()"
+        class="my-2 flex w-full cursor-pointer items-center gap-3 rounded-lg p-3 text-gray-200 transition hover:scale-105 hover:bg-zinc-800"
+      >
+        <i class="pi pi-folder-plus text-lg"></i>
+        <span class="font-medium">Create new Workspace</span>
+      </button>
+    </div>
 
     <button
       (click)="logout();"

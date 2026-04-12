@@ -15,6 +15,7 @@ class GenerateAIWorkspaceRequest extends FormRequest
     {
         return [
             'prompt' => ['required', 'string'],
+            'type' => ['required', 'string', 'in:collection_workspace,workflow_workspace,user_question'],
         ];
     }
 }

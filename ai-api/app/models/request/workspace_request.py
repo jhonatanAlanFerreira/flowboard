@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
-class WorkspaceRequest(BaseModel):
-    prompt: str
-    job_id: int
+class WorkspacePayload(BaseModel):
+    workspace_id: int
+    chunk_id: int
+    name: str
+    user_id: int

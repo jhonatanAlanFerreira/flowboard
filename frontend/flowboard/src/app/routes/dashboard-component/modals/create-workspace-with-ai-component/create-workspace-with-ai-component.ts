@@ -35,7 +35,9 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
 
   user: User | null = null;
   generatedWorkspace: Workspace | null = null;
+  sourceWorkspaceNames: string[] = [];
   descriptionControl = new FormControl();
+  workspaceType = new FormControl(false);
 
   workspaceDoneModal = signal(false);
   visible = input(false);
@@ -49,10 +51,11 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.workspaceService.doneWorkspace$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((workspace) => {
-        if (!workspace) return;
+      .subscribe((res) => {
+        if (!res) return;
 
-        this.generatedWorkspace = workspace;
+        this.generatedWorkspace = res.workspace;
+        this.sourceWorkspaceNames = res.source_workspace_names;
         this.workspaceDoneModal.set(true);
       });
 
@@ -79,7 +82,12 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
     if (!this.user) return;
 
     this.workspaceService
-      .createByAI({ prompt: this.descriptionControl.value })
+      .createByAI({
+        prompt: this.descriptionControl.value,
+        type: this.workspaceType.value
+          ? 'workflow_workspace'
+          : 'collection_workspace',
+      })
       .subscribe({
         next: () => {
           this.onCreate.emit();
