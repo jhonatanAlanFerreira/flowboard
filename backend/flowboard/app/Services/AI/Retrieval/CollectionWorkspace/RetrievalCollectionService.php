@@ -2,8 +2,8 @@
 
 namespace App\Services\AI\Retrieval\CollectionWorkspace;
 
-use App\Services\AI\Retrieval\CollectionWorkspace\DTO\ChunkDTO;
-use App\Services\AI\Retrieval\CollectionWorkspace\DTO\TaskListDTO;
+use App\DTOs\AI\ChunkDTO;
+use App\DTOs\AI\TaskListDTO;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -56,9 +56,6 @@ class RetrievalCollectionService
         }
     }
 
-    /**
-     * @param TaskListDTO[] $tasklists
-     */
     public function extractPatternsFromCollectionWorkflow($params)
     {
         try {

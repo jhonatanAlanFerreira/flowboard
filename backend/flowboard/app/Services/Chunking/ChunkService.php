@@ -2,6 +2,8 @@
 
 namespace App\Services\Chunking;
 
+use App\DTOs\AI\RagChunkDTO;
+use App\Enums\RagChunkType;
 use App\Models\ChunkTag;
 use App\Models\RagChunk;
 use Illuminate\Support\Facades\Http;
@@ -10,31 +12,26 @@ use Illuminate\Support\Facades\Log;
 class ChunkService
 {
 
-    public function upsertChunk(array $data): RagChunk
+    public function upsertChunk(RagChunkDTO $chunkData): RagChunk
     {
-        $conditions = [
-            'type' => $data['type'],
-        ];
 
-        if ($data['type'] === 'task') {
-            $conditions['task_id'] = $data['task_id'];
-        } else if ($data['type'] === 'list') {
-            $conditions['tasklist_id'] = $data['tasklist_id'];
-        } else {
-            $conditions['workspace_id'] = $data['workspace_id'];
-        }
+        $conditions = match ($chunkData->type) {
+            RagChunkType::TASK => ['type' => $chunkData->type->value, 'task_id' => $chunkData->task_id],
+            RagChunkType::LIST => ['type' => $chunkData->type->value, 'tasklist_id' => $chunkData->tasklist_id],
+            default => ['type' => $chunkData->type->value, 'workspace_id' => $chunkData->workspace_id],
+        };
 
         return RagChunk::updateOrCreate(
             $conditions,
             [
-                'user_id' => $data['user_id'],
-                'workspace_id' => $data['workspace_id'],
-                'tasklist_id' => $data['tasklist_id'] ?? null,
-                'task_id' => $data['task_id'] ?? null,
-                'content' => $data['content'],
-                'task_description' => $data['task_description'] ?? null,
-                'metadata' => $data['metadata'] ?? [],
-                'type' => $data['type']
+                'user_id'          => $chunkData->user_id,
+                'workspace_id'     => $chunkData->workspace_id,
+                'tasklist_id'      => $chunkData->tasklist_id,
+                'task_id'          => $chunkData->task_id,
+                'content'          => $chunkData->content,
+                'task_description' => $chunkData->task_description,
+                'metadata'         => $chunkData->metadata,
+                'type'             => $chunkData->type->value,
             ]
         );
     }

@@ -2,6 +2,8 @@
 
 namespace App\Jobs\AI\List;
 
+use App\DTOs\AI\RagChunkDTO;
+use App\Models\RagChunk;
 use App\Models\Tasklist;
 use App\Services\Chunking\ChunkService;
 use Illuminate\Bus\Queueable;
@@ -24,8 +26,11 @@ class GenerateListChunkJob implements ShouldQueue
         ChunkService $chunkService,
         ListChunkBuilder $listChunkBuilder,
     ): void {
+
+        /** @var RagChunkDTO $chunkData */
         $chunkData = $listChunkBuilder->build($this->tasklist);
 
+        /** @var RagChunk $chunk */
         $chunk = $chunkService->upsertChunk($chunkData);
 
         $chunkService->createListChunks($chunk);

@@ -2,6 +2,8 @@
 
 namespace App\Jobs\AI\Workspace;
 
+use App\DTOs\AI\RagChunkDTO;
+use App\Models\RagChunk;
 use App\Models\Workspace;
 use App\Services\Chunking\ChunkService;
 use Illuminate\Bus\Queueable;
@@ -24,8 +26,11 @@ class GenerateWorkspaceChunkJob implements ShouldQueue
         ChunkService $chunkService,
         WorkspaceChunkBuilder $workspaceChunkBuilder,
     ): void {
+
+        /** @var RagChunkDTO $chunkData */
         $chunkData = $workspaceChunkBuilder->build($this->workspace);
 
+        /** @var RagChunk $chunk */
         $chunk = $chunkService->upsertChunk($chunkData);
 
         $chunkService->createWorkspaceChunks($chunk);

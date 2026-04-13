@@ -6,13 +6,10 @@ use App\Models\AIJob;
 use App\Models\RagChunk;
 use App\Models\Tasklist;
 use App\Models\Workspace;
-use App\Services\AI\Retrieval\CollectionWorkspace\DTO\TaskListDTO;
 
 class RetrievalCollectionBuilder
 {
-    /**
-     * @param TaskListDTO[]
-     */
+
     public function hydrateChunks(array $tasklists): array
     {
         $chunkIds = collect($tasklists)
@@ -38,9 +35,6 @@ class RetrievalCollectionBuilder
     }
 
 
-    /**
-     * @param TaskListDTO[] $taskLists
-     */
     public function buildGenerationContext(array $taskLists, ?AIJob $aiJob = null): array
     {
         $taskListIds = collect($taskLists)->pluck('tasklist_id');

@@ -2,14 +2,11 @@
 
 namespace App\Services\AI\Retrieval\WorkflowWorkspace\Builders;
 
+use App\DTOs\AI\WorkspaceDTO;
 use App\Models\Workspace;
-use App\Services\AI\Retrieval\WorkflowWorkspace\DTO\WorkspaceDTO;
 
 class RetrievalWorkflowBuilder
 {
-    /**
-     * @param WorkspaceDTO[]
-     */
     public function getListsFromWorkspaces(array $data): array
     {
         return array_map(function (WorkspaceDTO $item) {
