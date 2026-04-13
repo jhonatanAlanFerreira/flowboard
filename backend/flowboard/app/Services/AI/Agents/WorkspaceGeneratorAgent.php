@@ -2,6 +2,8 @@
 
 namespace App\Services\AI\Agents;
 
+use App\DTOs\AI\CollectionContextDTO;
+use App\DTOs\AI\WorkflowContextDTO;
 use App\Enums\WorkspaceType;
 use App\Models\AIJob;
 use App\Services\AI\Retrieval\RetrievalOrchestratorService;
@@ -14,14 +16,15 @@ class WorkspaceGeneratorAgent
 
     public function generateCollectionWorkspace(AIJob $job): array
     {
-        $data = $this->retrievalOrchestratorService->orchestrate(
+        /** @var CollectionContextDTO $context */
+        $context = $this->retrievalOrchestratorService->orchestrate(
             $job->prompt,
             WorkspaceType::COLLECTION,
             $job->user,
             $job
         );
 
-        $payload = $this->buildCollectionWorkspacePayload($data, $job);
+        $payload = $this->buildCollectionWorkspacePayload($context, $job);
 
         try {
             $response = Http::ai()
@@ -48,34 +51,35 @@ class WorkspaceGeneratorAgent
         throw new \RuntimeException('AI API is not responding');
     }
 
-    private function buildCollectionWorkspacePayload($data, AIJob $job)
+    private function buildCollectionWorkspacePayload(CollectionContextDTO $context, AIJob $job)
     {
 
-        $lists = collect($data['lists'])->map(fn($list) => [
-            'name'  => $list['name'],
-            'tasks' => collect($list['patterns'])->pluck('task')->all(),
+        $lists = collect($context->lists)->map(fn($list) => [
+            'name'  => $list->name,
+            'tasks' => collect($list->patterns)->pluck('task')->all(),
         ])->all();
 
         return [
             'job_id' => $job->id,
             'lists' => $lists,
             'prompt' => $job->prompt,
-            'average_tasks_per_list'      => $data['average_tasks_per_list'],
-            'average_lists_per_workspace' => $data['average_lists_per_workspace'],
+            'average_tasks_per_list'      => $context->average_tasks_per_list,
+            'average_lists_per_workspace' => $context->average_lists_per_workspace,
         ];
     }
 
 
     public function generateWorkflowWorkspace(AIJob $job): array
     {
-        $data = $this->retrievalOrchestratorService->orchestrate(
+        /** @var WorkflowContextDTO $context */
+        $context = $this->retrievalOrchestratorService->orchestrate(
             $job->prompt,
             WorkspaceType::WORKFLOW,
             $job->user,
             $job
         );
 
-        $payload = $this->buildWorkflowWorkspacePayload($data, $job);
+        $payload = $this->buildWorkflowWorkspacePayload($context, $job);
 
         try {
             $response = Http::ai()
@@ -103,14 +107,14 @@ class WorkspaceGeneratorAgent
     }
 
 
-    private function buildWorkflowWorkspacePayload($data, AIJob $job)
+    private function buildWorkflowWorkspacePayload(WorkflowContextDTO $context, AIJob $job)
     {
 
         return [
             'job_id' => $job->id,
-            'workflowLists' => $data['workflowLists'],
+            'workflowLists' => $context->workflowLists,
             'prompt' => $job->prompt,
-            'average_lists_per_workspace' => $data['average_lists_per_workspace'],
+            'average_lists_per_workspace' => $context->average_lists_per_workspace,
         ];
     }
 }
