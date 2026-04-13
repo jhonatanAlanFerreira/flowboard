@@ -3,12 +3,18 @@
 namespace App\Services\AI\Retrieval\CollectionWorkspace;
 
 use App\DTOs\AI\ChunkDTO;
+use App\DTOs\AI\ExtractPatternsResponseDTO;
+use App\DTOs\AI\PatternDTO;
 use App\DTOs\AI\TaskListDTO;
+use App\DTOs\AI\TaskListPatternsDTO;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class RetrievalCollectionService
 {
+    /**
+     * @return TaskListDTO[]
+     */
     public function retrieveLists(string $query, int $userId): array
     {
         try {
@@ -56,12 +62,16 @@ class RetrievalCollectionService
         }
     }
 
-    public function extractPatternsFromCollectionWorkflow($params)
+    /**
+     * @param array<int, TaskListDTO> $workspaceLists
+     * @return ExtractPatternsResponseDTO
+     */
+    public function extractPatternsFromCollectionWorkspace($workspaceLists)
     {
         try {
             $response = Http::ai()
                 ->timeout(10)
-                ->post("/retrieval/patterns/extract/collection", $params);
+                ->post("/retrieval/patterns/extract/collection", $workspaceLists);
 
             if (!$response->successful()) {
                 Log::warning('RetrievalCollectionService::extractPatterns failed', [
@@ -72,7 +82,25 @@ class RetrievalCollectionService
                 return [];
             }
 
-            return $response->json();
+            $data = $response->json();
+
+            $results = array_map(function (array $result) {
+
+                $patterns = array_map(function (array $pattern) {
+                    return new PatternDTO(
+                        tag: (string) $pattern['tag'],
+                        score: (float) $pattern['score'],
+                        task: (string) $pattern['task']
+                    );
+                }, $result['patterns'] ?? []);
+
+                return new TaskListPatternsDTO(
+                    tasklist_id: (int) $result['tasklist_id'],
+                    patterns: $patterns
+                );
+            }, $data['results'] ?? []);
+
+            return new ExtractPatternsResponseDTO($results);
         } catch (\Throwable $e) {
             Log::error('RetrievalCollectionService::extractPatterns exception', [
                 'message' => $e->getMessage(),

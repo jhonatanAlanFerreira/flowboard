@@ -8,7 +8,10 @@ use Illuminate\Support\Facades\Log;
 
 class RetrievalWorkflowService
 {
-    public function retrieveLists(string $query, int $userId): array
+    /**
+     * @return array<int, WorkspaceDTO>
+     */
+    public function retrieveWorkspaces(string $query, int $userId): array
     {
         try {
             $response = Http::ai()

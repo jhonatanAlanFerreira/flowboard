@@ -2,6 +2,12 @@
 
 namespace App\Services\AI\Retrieval;
 
+use App\DTOs\AI\CollectionContextDTO;
+use App\DTOs\AI\ExtractPatternsResponseDTO;
+use App\DTOs\AI\TaskListDTO;
+use App\DTOs\AI\WorkflowContextDTO;
+use App\DTOs\AI\WorkspaceDTO;
+use App\DTOs\AI\WorkspaceListsDTO;
 use App\Enums\WorkspaceType;
 use App\Models\AIJob;
 use App\Models\User;
@@ -21,19 +27,31 @@ class RetrievalOrchestratorService
     ) {}
 
 
-    public function orchestrate(string $prompt, WorkspaceType $type, User $user, ?AIJob $aiJob = null)
+    public function orchestrate(string $prompt, WorkspaceType $type, User $user, ?AIJob $aiJob = null): CollectionContextDTO|WorkflowContextDTO|null
     {
         if ($type === WorkspaceType::COLLECTION) {
-            $listsRes = $this->retrievalCollectionService->retrieveLists($prompt, $user->id);
-            $listsRes = $this->retrievalCollectionBuilder->hydrateChunks($listsRes);
-            $patterns = $this->retrievalCollectionService->extractPatternsFromCollectionWorkflow($listsRes);
-            return $this->retrievalCollectionBuilder->buildGenerationContext($patterns['results'], $aiJob);
+
+            /** @var TaskListDTO[] $workspaceLists */
+            $workspaceLists = $this->retrievalCollectionService->retrieveLists($prompt, $user->id);
+            $workspaceLists = $this->retrievalCollectionBuilder->hydrateChunks($workspaceLists);
+
+            /** @var ExtractPatternsResponseDTO $patterns */
+            $patterns = $this->retrievalCollectionService->extractPatternsFromCollectionWorkspace($workspaceLists);
+
+            return $this->retrievalCollectionBuilder->buildGenerationContext($patterns, $aiJob);
         }
 
         if ($type === WorkspaceType::WORKFLOW) {
-            $res = $this->retrievalWorkflowService->retrieveLists($prompt, $user->id);
-            $lists = $this->retrievalWorkflowBuilder->getListsFromWorkspaces($res);
-            return $this->retrievalWorkflowBuilder->buildGenerationContext($lists);
+
+            /** @var WorkspaceDTO[] $workspacesScores */
+            $workspacesScores = $this->retrievalWorkflowService->retrieveWorkspaces($prompt, $user->id);
+
+            /** @var WorkspaceListsDTO[] $workspaceLists */
+            $workspaceLists = $this->retrievalWorkflowBuilder->getListsFromWorkspaces($workspacesScores);
+
+            return $this->retrievalWorkflowBuilder->buildGenerationContext($workspaceLists);
         }
+
+        return null;
     }
 }
