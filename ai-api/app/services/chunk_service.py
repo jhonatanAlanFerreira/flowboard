@@ -1,5 +1,6 @@
 from sentence_transformers import SentenceTransformer
 from app.clients.weaviate_client import get_weaviate_client
+from app.enums.chunk_type import ChunkType
 
 client = get_weaviate_client()
 
@@ -20,7 +21,7 @@ class ChunkService:
             tasklist_id: int, 
             workspace_id: int, 
             user_id: int,
-            type: str):
+            chunk_type: ChunkType):
         """
         Create a new chunk or update an existing one in Weaviate.
         Stores chunk_id, tasklist_id, workspace_id, and vector embedding.
@@ -40,7 +41,7 @@ class ChunkService:
             "workspace_id": workspace_id_str,
             "user_id": user_id_str,
             "content": content_norm,
-            "type": type
+            "type": chunk_type
         }
 
         # Check if chunk exists and request _additional.id

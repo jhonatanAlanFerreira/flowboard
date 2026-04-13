@@ -6,6 +6,7 @@ import json
 from app.observability.phoenix import get_tracer
 from app.services.agents.tagging_agent import TaggingAgent
 from app.services.chunk_service import ChunkService
+from app.enums.chunk_type import ChunkType
 import re
 
 tracer = get_tracer()
@@ -48,7 +49,7 @@ def generate_tags_task(chunk_id: int, text: str, content: str, tasklist_id: int,
         )
 
         #Insert new tags into Weaviate Tag class
-        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id, user_id, "task")
+        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id, user_id, ChunkType.TASK.value)
 
         span.set_attribute("output.chunking", json.dumps(chunking_res))
         
