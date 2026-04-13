@@ -7,7 +7,7 @@ from app.models.request.workflow_workspace_request import WorkflowWorkspaceReque
 router = APIRouter()
 
 @router.post(
-    "/generate-workspace/collection",
+    "/collection",
     summary="Generate a collection workspace using AI",
     status_code=202
 )
@@ -33,7 +33,7 @@ def generate_collection_workspace(request: CollectionWorkspaceRequest):
     return {"status": "queued"}
 
 @router.post(
-    "/generate-workspace/workflow",
+    "/workflow",
     summary="Generate a workflow workspace using AI",
     status_code=202
 )

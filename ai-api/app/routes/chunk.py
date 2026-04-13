@@ -3,12 +3,13 @@ from app.services.chunk_service import ChunkService
 from app.models.request.list_chunk_request import ListChunkPayload
 from app.models.request.workspace_request import WorkspacePayload
 from app.services.workspace_chunk_service import WorkspaceService
+from app.enums.chunk_type import ChunkType
 
 router = APIRouter()
 chunk_service = ChunkService()
 workspace_chunk_service = WorkspaceService()
 
-@router.delete("/chunks/{chunk_id}", summary="Delete a chunk by ID")
+@router.delete("/{chunk_id}", summary="Delete a chunk by ID")
 async def delete_chunk(chunk_id: int):
     """
     Deletes a chunk from Weaviate corresponding to the given chunk_id (MySQL task ID)
@@ -20,7 +21,7 @@ async def delete_chunk(chunk_id: int):
         raise HTTPException(status_code=404, detail=f"Chunk {chunk_id} not found")
 
 
-@router.delete("/chunks/tasklist/{tasklist_id}", summary="Delete all chunks for a tasklist")
+@router.delete("/tasklist/{tasklist_id}", summary="Delete all chunks for a tasklist")
 async def delete_chunks_by_tasklist(tasklist_id: int):
     """
     Deletes all chunks in Weaviate that belong to the given tasklist_id
@@ -32,7 +33,7 @@ async def delete_chunks_by_tasklist(tasklist_id: int):
         raise HTTPException(status_code=404, detail=f"No chunks found for tasklist {tasklist_id}")
 
 
-@router.delete("/chunks/workspace/{workspace_id}", summary="Delete all chunks for a workspace")
+@router.delete("/workspace/{workspace_id}", summary="Delete all chunks for a workspace")
 async def delete_chunks_by_workspace(workspace_id: int):
     """
     Deletes all chunks in Weaviate that belong to the given workspace_id
@@ -44,7 +45,7 @@ async def delete_chunks_by_workspace(workspace_id: int):
     else:
         raise HTTPException(status_code=404, detail=f"No chunks found for workspace {workspace_id}")
     
-@router.post("/chunks/list", summary="Create chunks for a list")
+@router.post("/list", summary="Create chunks for a list")
 async def create_list_chunks(request: ListChunkPayload):
     """
     Creates RAG chunks for a list.
@@ -56,14 +57,14 @@ async def create_list_chunks(request: ListChunkPayload):
     user_id = request.user_id
 
     try:
-        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id, user_id, "list")
+        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id, user_id, ChunkType.LIST.value)
 
         return {"status": "ok", "message": f"Chunk {chunking_res['id']} deleted"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@router.post("/chunks/workspaces", summary="Index or Update a Workspace Name")
+@router.post("/workspaces", summary="Index or Update a Workspace Name")
 async def create_or_update_workspace(request: WorkspacePayload):
     """
     Creates or updates the vector for a Workspace Name.

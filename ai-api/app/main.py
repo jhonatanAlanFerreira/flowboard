@@ -25,8 +25,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(workspace_router)
-app.include_router(chunking_router)
+app.include_router(workspace_router, prefix="/generate-workspace")
+app.include_router(chunking_router, prefix="/chunks")
 app.include_router(tagging_router, prefix="/tagging")
 app.include_router(retrieval_router, prefix="/retrieval")
 app.include_router(search_strategist, prefix="/search_strategist")
