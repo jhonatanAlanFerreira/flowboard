@@ -8,6 +8,7 @@ from typing import List
 
 router = APIRouter()
 
+
 @router.post(
     "/",
 )
@@ -20,13 +21,13 @@ def search_strategist(request: SearchStrategistRequest):
 
     return {"status": "queued"}
 
+
 @router.post(
-    "/process-answer",
-    summary="Receive hydrated tasks and generate final answer"
+    "/process-answer", summary="Receive hydrated tasks and generate final answer"
 )
 def process_answer(request: ProcessAnswerRequest):
     """
-    Receives the fully hydrated tasks from Laravel and queues 
+    Receives the fully hydrated tasks from Laravel and queues
     the Celery task for re-ranking and answering the user's question.
     """
     ai_job_id = request.ai_job_id
@@ -35,4 +36,4 @@ def process_answer(request: ProcessAnswerRequest):
 
     rank_and_generate_task.delay(prompt, ai_job_id, chunks_data)
 
-    return {"status": "queued", "ai_job_id": ai_job_id} 
+    return {"status": "queued", "ai_job_id": ai_job_id}

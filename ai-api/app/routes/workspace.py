@@ -1,15 +1,16 @@
 from fastapi import APIRouter
 from app.models.request.collection_workspace_request import CollectionWorkspaceRequest
-from app.tasks.generate_collection_workspace_task import generate_collection_workspace_task
+from app.tasks.generate_collection_workspace_task import (
+    generate_collection_workspace_task,
+)
 from app.tasks.generate_workflow_workspace_task import generate_workflow_workspace_task
 from app.models.request.workflow_workspace_request import WorkflowWorkspaceRequest
 
 router = APIRouter()
 
+
 @router.post(
-    "/collection",
-    summary="Generate a collection workspace using AI",
-    status_code=202
+    "/collection", summary="Generate a collection workspace using AI", status_code=202
 )
 def generate_collection_workspace(request: CollectionWorkspaceRequest):
     """
@@ -23,19 +24,18 @@ def generate_collection_workspace(request: CollectionWorkspaceRequest):
     job_id = request.job_id
 
     workspace_patterns = {
-    "lists": [lst.model_dump() for lst in request.lists],
-    "average_tasks_per_list": request.average_tasks_per_list,
-    "average_lists_per_workspace": request.average_lists_per_workspace
+        "lists": [lst.model_dump() for lst in request.lists],
+        "average_tasks_per_list": request.average_tasks_per_list,
+        "average_lists_per_workspace": request.average_lists_per_workspace,
     }
 
     generate_collection_workspace_task.delay(prompt, job_id, workspace_patterns)
 
     return {"status": "queued"}
 
+
 @router.post(
-    "/workflow",
-    summary="Generate a workflow workspace using AI",
-    status_code=202
+    "/workflow", summary="Generate a workflow workspace using AI", status_code=202
 )
 def generate_workflow_workspace(request: WorkflowWorkspaceRequest):
     """
@@ -49,10 +49,10 @@ def generate_workflow_workspace(request: WorkflowWorkspaceRequest):
     job_id = request.job_id
 
     workspace_patterns = {
-    "workflowLists": [ws.model_dump() for ws in request.workflowLists],
-    "average_lists_per_workspace": request.average_lists_per_workspace
+        "workflowLists": [ws.model_dump() for ws in request.workflowLists],
+        "average_lists_per_workspace": request.average_lists_per_workspace,
     }
-    
+
     generate_workflow_workspace_task.delay(prompt, job_id, workspace_patterns)
 
     return {"status": "queued"}

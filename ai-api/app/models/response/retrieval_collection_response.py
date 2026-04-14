@@ -6,6 +6,7 @@ class ChunkResult(BaseModel):
     chunk_id: str
     score: float
 
+
 class TaskListResult(BaseModel):
     tasklist_id: str
     score: float
@@ -14,6 +15,7 @@ class TaskListResult(BaseModel):
     concentration: float
     volume_norm: float
     chunks: List[ChunkResult]
+
 
 class RetrievalCollectionResponse(BaseModel):
     lists: List[TaskListResult]

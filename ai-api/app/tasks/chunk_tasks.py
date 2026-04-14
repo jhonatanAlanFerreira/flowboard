@@ -15,10 +15,17 @@ chunk_service = ChunkService()
 tag_agent = TaggingAgent()
 backend_client = BackendClient()
 
+
 @celery.task
-def generate_tags_task(chunk_id: int, text: str, content: str, tasklist_id: int, workspace_id: int, user_id: int):
+def generate_tags_task(
+    chunk_id: int,
+    text: str,
+    content: str,
+    tasklist_id: int,
+    workspace_id: int,
+    user_id: int,
+):
     with tracer.start_as_current_span("tagging") as span:
-        
         # Fetch known tags semantically related to the text
         known_tags = tagging_service.suggest_tags_for_text(text, limit=5)
 
@@ -48,11 +55,13 @@ def generate_tags_task(chunk_id: int, text: str, content: str, tasklist_id: int,
             tags=normalized_tags,
         )
 
-        #Insert new tags into Weaviate Tag class
-        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id, user_id, ChunkType.TASK.value)
+        # Insert new tags into Weaviate Tag class
+        chunking_res = chunk_service.create_or_update_chunk(
+            chunk_id, content, tasklist_id, workspace_id, user_id, ChunkType.TASK.value
+        )
 
         span.set_attribute("output.chunking", json.dumps(chunking_res))
-        
+
         # Update backend with new tags for the chunk
         backend_client.put_update_tags(payload, chunk_id)
 
@@ -60,5 +69,5 @@ def generate_tags_task(chunk_id: int, text: str, content: str, tasklist_id: int,
 def normalize_tag(tag: str) -> str:
     tag = tag.strip().lower()
     tag = re.sub(r"[^\w\s-]", "", tag)  # remove special chars
-    tag = re.sub(r"[\s-]+", "_", tag)   # spaces/dashes -> underscore
+    tag = re.sub(r"[\s-]+", "_", tag)  # spaces/dashes -> underscore
     return tag

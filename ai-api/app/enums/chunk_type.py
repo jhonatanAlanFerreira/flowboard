@@ -1,4 +1,5 @@
-from enum import StrEnum  
+from enum import StrEnum
+
 
 class ChunkType(StrEnum):
     TASK = "task"

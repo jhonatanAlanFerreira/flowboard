@@ -9,6 +9,7 @@ router = APIRouter()
 chunk_service = ChunkService()
 workspace_chunk_service = WorkspaceService()
 
+
 @router.delete("/{chunk_id}", summary="Delete a chunk by ID")
 async def delete_chunk(chunk_id: int):
     """
@@ -28,9 +29,14 @@ async def delete_chunks_by_tasklist(tasklist_id: int):
     """
     deleted_count = chunk_service.delete_by_tasklist(tasklist_id)
     if deleted_count > 0:
-        return {"status": "ok", "message": f"Deleted {deleted_count} chunks for tasklist {tasklist_id}"}
+        return {
+            "status": "ok",
+            "message": f"Deleted {deleted_count} chunks for tasklist {tasklist_id}",
+        }
     else:
-        raise HTTPException(status_code=404, detail=f"No chunks found for tasklist {tasklist_id}")
+        raise HTTPException(
+            status_code=404, detail=f"No chunks found for tasklist {tasklist_id}"
+        )
 
 
 @router.delete("/workspace/{workspace_id}", summary="Delete all chunks for a workspace")
@@ -41,10 +47,16 @@ async def delete_chunks_by_workspace(workspace_id: int):
     workspace_chunk_service.delete_workspace(workspace_id)
     deleted_count = chunk_service.delete_by_workspace(workspace_id)
     if deleted_count > 0:
-        return {"status": "ok", "message": f"Deleted {deleted_count} chunks for workspace {workspace_id}"}
+        return {
+            "status": "ok",
+            "message": f"Deleted {deleted_count} chunks for workspace {workspace_id}",
+        }
     else:
-        raise HTTPException(status_code=404, detail=f"No chunks found for workspace {workspace_id}")
-    
+        raise HTTPException(
+            status_code=404, detail=f"No chunks found for workspace {workspace_id}"
+        )
+
+
 @router.post("/list", summary="Create chunks for a list")
 async def create_list_chunks(request: ListChunkPayload):
     """
@@ -57,13 +69,16 @@ async def create_list_chunks(request: ListChunkPayload):
     user_id = request.user_id
 
     try:
-        chunking_res = chunk_service.create_or_update_chunk(chunk_id, content, tasklist_id, workspace_id, user_id, ChunkType.LIST.value)
+        chunking_res = chunk_service.create_or_update_chunk(
+            chunk_id, content, tasklist_id, workspace_id, user_id, ChunkType.LIST.value
+        )
 
         return {"status": "ok", "message": f"Chunk {chunking_res['id']} deleted"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
 @router.post("/workspaces", summary="Index or Update a Workspace Name")
 async def create_or_update_workspace(request: WorkspacePayload):
     """
@@ -73,8 +88,8 @@ async def create_or_update_workspace(request: WorkspacePayload):
         workspace_chunk_service.upsert_workspace(
             chunk_id=request.chunk_id,
             user_id=request.user_id,
-            workspace_id=request.workspace_id, 
-            name=request.name
+            workspace_id=request.workspace_id,
+            name=request.name,
         )
         return {"status": "ok", "workspace_id": request.workspace_id}
     except Exception as e:
