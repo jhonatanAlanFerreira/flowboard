@@ -2,6 +2,8 @@ import math
 from typing import List, Dict
 from app.config import settings
 from app.observability.phoenix import get_tracer
+from app.schemas.workspace import WorkspaceResult
+from app.schemas.chunk import TaskListResult, ScoredTaskList, TaskListFeatures, TaskListChunk
 
 tracer = get_tracer()
 
@@ -10,64 +12,64 @@ class CollectionScoringService:
     def __init__(self, config=None):
         self.config = config or settings.collection_scoring
 
-    def rank_workspaces(self, workspace_chunks: Dict) -> List[Dict]:
+    def rank_workspaces(self, workspace_chunks: Dict[str, List[WorkspaceResult]]) -> List[WorkspaceResult]:
         with tracer.start_as_current_span("service.scoring.workspaces") as span:
             span.set_attribute("input.workspace_count", len(workspace_chunks))
             
-            workspace_data = {}
+            ranked_workspaces = []
 
-            for wid, chunks in workspace_chunks.items():
-                scores = [c["score"] for c in chunks]
+            for wid, results in workspace_chunks.items():
+                scores = [r.score for r in results]
                 max_score = max(scores)
                 count = len(scores)
 
-                final_score = max_score + self.config.workspace_log_weight * math.log(1 + count)
+                score = max_score + self.config.workspace_log_weight * math.log(1 + count)
 
-                # keep best chunk for explainability
-                best_chunk = max(chunks, key=lambda x: x["score"])
+                best_result = max(results, key=lambda x: x.score)
 
-                workspace_data[wid] = {
-                    "workspace_id": wid,
-                    "score": final_score,
-                    "max_score": max_score,
-                    "match_count": count,
-                    "chunk_id": best_chunk["chunk_id"]
-                }
+                workspace_info = WorkspaceResult(
+                    workspace_id=wid,
+                    score=score, 
+                    max_score=max_score,
+                    match_count=count,
+                    chunk_id=best_result.chunk_id,
+                    final_score=0.0
+                )
+                ranked_workspaces.append(workspace_info)
 
-            results = list(workspace_data.values())
-            results.sort(key=lambda x: x["score"], reverse=True)
+            ranked_workspaces.sort(key=lambda x: x.score, reverse=True)
 
-            # Trace top results summary (IDs and Scores only)
-            span.set_attribute("output.ranked_count", len(results))
-            if results:
-                span.set_attribute("output.top_score", results[0]["score"])
+            span.set_attribute("output.ranked_count", len(ranked_workspaces))
+            if ranked_workspaces:
+                span.set_attribute("output.top_score", ranked_workspaces[0].score)
             
-            return results
+            return ranked_workspaces
     
-
-    def rank_lists(self, lists: dict) -> list[dict]:
+    def rank_lists(self, lists: Dict[str, TaskListResult]) -> List[ScoredTaskList]:
         with tracer.start_as_current_span("service.scoring.lists") as span:
             span.set_attribute("input.lists_count", len(lists))
             
-            ranked_lists = []
+            ranked_lists: List[ScoredTaskList] = []
 
             for list_id, data in lists.items():
-                features = self._compute_features(data["scores"])
-                score = self._compute_score(features)
-                chunks = self._sort_chunks(data["chunks"])
+                features_dict = self._compute_features(data.scores)
+                score = self._compute_score(features_dict)
+                
+                scored_item = ScoredTaskList(
+                    **data.model_dump(),
+                    score=round(score, 4),
+                    features=TaskListFeatures(**features_dict)
+                )
+                
+                scored_item.chunks = self._sort_chunks(scored_item.chunks)
 
-                ranked_lists.append({
-                    "tasklist_id": list_id,
-                    "score": round(score, 4),
-                    **features,
-                    "chunks": chunks
-                })
+                ranked_lists.append(scored_item)
 
-            ranked_lists.sort(key=lambda x: x["score"], reverse=True)
+            ranked_lists.sort(key=lambda x: x.score, reverse=True)
             
             span.set_attribute("output.ranked_count", len(ranked_lists))
             if ranked_lists:
-                span.set_attribute("output.best_list_id", ranked_lists[0]["tasklist_id"])
+                span.set_attribute("output.best_list_id", ranked_lists[0].tasklist_id)
                 
             return ranked_lists
     
@@ -105,5 +107,5 @@ class CollectionScoringService:
             features["concentration"] * self.config.concentration_weight
         )
 
-    def _sort_chunks(self, chunks: list[dict]) -> list[dict]:
-        return sorted(chunks, key=lambda x: x["score"], reverse=True)
+    def _sort_chunks(self, chunks: List[TaskListChunk]) -> List[TaskListChunk]:
+        return sorted(chunks, key=lambda x: x.score, reverse=True)

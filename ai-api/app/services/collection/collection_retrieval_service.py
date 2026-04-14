@@ -7,6 +7,8 @@ from app.config import settings
 from app.observability.phoenix import get_tracer
 from app.services.collection.collection_scoring_service import CollectionScoringService
 from app.services.collection.collection_workspace_selection_service import CollectionWorkspaceSelectionService
+from app.schemas.workspace import WorkspaceResult
+from app.schemas.chunk import TaskListResult, TaskListChunk, ScoredTaskList
 
 client = get_weaviate_client()
 tracer = get_tracer()
@@ -26,7 +28,7 @@ class CollectionRetrievalService:
         self.class_name = self.config.class_name
         self.model = SentenceTransformer(self.config.model_name)
 
-    def get_relevant_workspaces(self, query: str, user_id: int, top_k: int = None) -> List[Dict]:
+    def get_relevant_workspaces(self, query: str, user_id: int, top_k: int = None) -> List[WorkspaceResult]:
         user_id_string = str(user_id)
         query_norm = normalize_text(query)
         query_vector = self.model.encode(query_norm).tolist()
@@ -69,37 +71,43 @@ class CollectionRetrievalService:
             hits = response.get("data", {}).get("Get", {}).get(self.class_name) or []
 
             # Group chunks by workspace
-            workspace_chunks = defaultdict(list)
+            workspace_chunks: Dict[str, List[WorkspaceResult]] = defaultdict(list)
+            
             for hit in hits:
                 wid = hit["workspace_id"]
                 score = float(hit["_additional"]["score"])
                 chunk_id = hit["chunk_id"]
-                workspace_chunks[wid].append({
-                    "score": score,
-                    "chunk_id": chunk_id
-                })
+                
+                result = WorkspaceResult(
+                    workspace_id=wid,
+                    score=score,
+                    max_score=score,    
+                    match_count=1,     
+                    chunk_id=chunk_id,
+                    final_score=0.0    
+                )
+                workspace_chunks[wid].append(result)
 
             span.set_attribute(
                 "retrieval.workspace_match_count",
-                json.dumps({wid: len(chunks) for wid, chunks in workspace_chunks.items()})
+                json.dumps({wid: len(results) for wid, results in workspace_chunks.items()})
             )
 
-            # Ranking
-            ranked_results = collection_scoring_service.rank_workspaces(workspace_chunks)
+            ranked_results: List[WorkspaceResult] = collection_scoring_service.rank_workspaces(workspace_chunks)
 
             # Selection / filtering
-            selected_results = collection_selection_service.select(ranked_results)
+            selected_results: List[WorkspaceResult] = collection_selection_service.select(ranked_results)
 
             # Limit top_k
             top_results = selected_results[:top_k]
 
-            span.set_attribute("output.top_results", json.dumps(top_results))
+            span.set_attribute("output.top_results", json.dumps([tr.model_dump(mode="json") for tr in top_results]))
 
             return top_results
         
 
 
-    def get_relevant_lists_for_workspaces(self, workspace_ids: list[str], query: str, top_k: int = None) -> List[Dict]:
+    def get_relevant_lists_for_workspaces(self, workspace_ids: list[str], query: str, top_k: int = None) -> List[ScoredTaskList]:
         query_norm = normalize_text(query)
         query_vector = self.model.encode(query_norm).tolist()
         
@@ -137,17 +145,19 @@ class CollectionRetrievalService:
         if not hits:
             return []
 
-        lists = defaultdict(lambda: {"scores": [], "chunks": []})
+        lists: Dict[str, TaskListResult] = {}
 
         for hit in hits:
             list_id = hit["tasklist_id"]
             score = float(hit["_additional"]["score"])
             chunk_id = hit["chunk_id"]
 
-            lists[list_id]["scores"].append(score)
-            lists[list_id]["chunks"].append({
-                "chunk_id": chunk_id,
-                "score": score
-            })
+            if list_id not in lists:
+                lists[list_id] = TaskListResult(tasklist_id=list_id)
+
+            lists[list_id].scores.append(score)
+            lists[list_id].chunks.append(
+                TaskListChunk(chunk_id=chunk_id, score=score)
+            )
 
         return collection_scoring_service.rank_lists(lists)[:top_k]
