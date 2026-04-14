@@ -3,8 +3,9 @@ import json
 from groq import Groq
 from app.observability.phoenix import get_tracer
 
-_groq_client = None 
+_groq_client = None
 tracer = get_tracer()
+
 
 def get_groq_client():
     global _groq_client
@@ -16,22 +17,22 @@ def get_groq_client():
             _groq_client = Groq(api_key=api_key)
     return _groq_client
 
+
 def get_groq_json_completion(
-    full_prompt: str, 
+    full_prompt: str,
     model_name: str = "llama-3.3-70b-versatile",
-    max_tokens: int = 1024, 
-    temperature: float = 0.1, 
-    ) -> dict:
+    max_tokens: int = 1024,
+    temperature: float = 0.1,
+) -> dict:
     """
     Executes a Groq chat completion with the same interface as local_llm.
     """
     client = get_groq_client()
-    
+
     if client is None:
         raise RuntimeError("Groq client is not initialized in this container.")
-    
-    with tracer.start_as_current_span("groq_json_completion") as span:
 
+    with tracer.start_as_current_span("groq_json_completion") as span:
         span.set_attribute("llm.model_name", model_name)
         span.set_attribute("llm.input.prompt", full_prompt)
         span.set_attribute("llm.config.temperature", temperature)
@@ -42,7 +43,7 @@ def get_groq_json_completion(
             model=model_name,
             response_format={"type": "json_object"},
             max_tokens=max_tokens,
-            temperature=temperature
+            temperature=temperature,
         )
 
         # Extract Usage Metrics
@@ -58,6 +59,7 @@ def get_groq_json_completion(
         span.set_attribute("llm.output.json", str(data))
 
         return data
+
 
 def extract_json_payload(raw_text: str) -> dict:
     try:

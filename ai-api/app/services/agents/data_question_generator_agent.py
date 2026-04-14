@@ -8,6 +8,7 @@ from app.config import settings
 
 tracer = get_tracer()
 
+
 class DataQuestionGeneratorAgent:
     """
     Synthesizes the final answer for the user based on the top retrieved tasks.
@@ -30,7 +31,9 @@ class DataQuestionGeneratorAgent:
     - Return the actual string IDs ONLY inside the `citations` list in the JSON payload.
     """
 
-    def generate_final_answer(self, user_prompt: str, top_chunks: List[ScoredChunk]) -> DataQuestionResponse:
+    def generate_final_answer(
+        self, user_prompt: str, top_chunks: List[ScoredChunk]
+    ) -> DataQuestionResponse:
         """
         Calls the LLM to generate the final response using the top-ranked context.
         """
@@ -69,21 +72,21 @@ class DataQuestionGeneratorAgent:
             """
 
             span.set_attribute("llm.prompt", full_prompt)
-            
+
             agent_config = settings.data_question_generator_agent
-            
+
             if agent_config.provider == "groq":
                 response = get_groq_json_completion(
                     full_prompt,
                     model_name=agent_config.model_name,
                     max_tokens=agent_config.max_tokens,
-                    temperature=agent_config.temperature
+                    temperature=agent_config.temperature,
                 )
             else:
                 response = get_local_json_completion(
                     full_prompt,
                     max_tokens=agent_config.max_tokens,
-                    temperature=agent_config.temperature
+                    temperature=agent_config.temperature,
                 )
 
             # Safely handle JSON parsing
@@ -92,15 +95,15 @@ class DataQuestionGeneratorAgent:
                     response_data = json.loads(response)
                 else:
                     response_data = response
-                
+
                 # Use Pydantic to validate the LLM output
                 final_result = DataQuestionResponse(**response_data)
             except Exception:
                 final_result = DataQuestionResponse(
                     markdown_answer="I encountered an error formatting the response.",
-                    citations=[]
+                    citations=[],
                 )
 
             span.set_attribute("output.citations", json.dumps(final_result.citations))
-            
+
             return final_result

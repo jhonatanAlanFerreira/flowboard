@@ -5,10 +5,9 @@ from app.models.response.tagging_response import TaggingResponse
 
 router = APIRouter()
 
+
 @router.post(
-    "/",
-    response_model=TaggingResponse,
-    summary="Queue tag generation for a chunk"
+    "/", response_model=TaggingResponse, summary="Queue tag generation for a chunk"
 )
 def generate_tags(request: TaggingRequest):
     """
@@ -23,12 +22,7 @@ def generate_tags(request: TaggingRequest):
     user_id = request.user_id
 
     generate_tags_task.delay(
-        chunk_id,
-        text,
-        content,
-        tasklist_id,
-        workspace_id,
-        user_id
+        chunk_id, text, content, tasklist_id, workspace_id, user_id
     )
 
     return {"status": "queued"}

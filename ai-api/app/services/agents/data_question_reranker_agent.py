@@ -8,6 +8,7 @@ from app.schemas.data_question import ScoredChunk
 
 tracer = get_tracer()
 
+
 class DataQuestionRerankerAgent:
     """
     Acts as a judge to evaluate how relevant retrieved tasks are to the user's question.
@@ -26,7 +27,9 @@ class DataQuestionRerankerAgent:
     - Output MUST strictly adhere to the requested JSON schema. Return ONLY valid JSON.
     """
 
-    def rerank_tasks(self, user_prompt: str, candidate_chunks: List[ScoredChunk]) -> List[ScoredChunk]:
+    def rerank_tasks(
+        self, user_prompt: str, candidate_chunks: List[ScoredChunk]
+    ) -> List[ScoredChunk]:
         """
         Calls the LLM to score candidate tasks and sorts them by LLM relevance.
         """
@@ -36,7 +39,9 @@ class DataQuestionRerankerAgent:
 
             tasks_input = ""
             for idx, chunk in enumerate(candidate_chunks):
-                tasks_input += f"Index: {idx} | ID: {chunk.chunk_id} | Task: {chunk.content}\n"
+                tasks_input += (
+                    f"Index: {idx} | ID: {chunk.chunk_id} | Task: {chunk.content}\n"
+                )
 
             full_prompt = f"""
             {self.SYSTEM_PROMPT}
@@ -60,22 +65,22 @@ class DataQuestionRerankerAgent:
             """
 
             span.set_attribute("llm.prompt", full_prompt)
-            
+
             # Using the same agent config fallback pattern you have
             agent_config = settings.data_question_reranker_agent
-            
+
             if agent_config.provider == "groq":
                 response = get_groq_json_completion(
                     full_prompt,
                     model_name=agent_config.model_name,
                     max_tokens=agent_config.max_tokens,
-                    temperature=agent_config.temperature
+                    temperature=agent_config.temperature,
                 )
             else:
                 response = get_local_json_completion(
                     full_prompt,
                     max_tokens=agent_config.max_tokens,
-                    temperature=agent_config.temperature
+                    temperature=agent_config.temperature,
                 )
 
             # Safely handle JSON parsing
@@ -86,19 +91,21 @@ class DataQuestionRerankerAgent:
                     response = {"evaluations": []}
 
             evaluations = response.get("evaluations", [])
-            score_map = {str(ev.get("chunk_id")): ev.get("score", 0) for ev in evaluations}
-            
+            score_map = {
+                str(ev.get("chunk_id")): ev.get("score", 0) for ev in evaluations
+            }
+
             for chunk in candidate_chunks:
                 chunk.llm_relevance_score = score_map.get(str(chunk.chunk_id), 1)
 
             # Sort the objects by attribute
             reranked_chunks = sorted(
-                candidate_chunks, 
-                key=lambda x: x.llm_relevance_score, 
-                reverse=True
+                candidate_chunks, key=lambda x: x.llm_relevance_score, reverse=True
             )
 
-            span.set_attribute("output.top_score", reranked_chunks[0].llm_relevance_score if reranked_chunks else 0)
+            span.set_attribute(
+                "output.top_score",
+                reranked_chunks[0].llm_relevance_score if reranked_chunks else 0,
+            )
 
             return reranked_chunks
-

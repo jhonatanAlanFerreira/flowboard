@@ -7,6 +7,7 @@ from app.config import settings
 
 tracer = get_tracer()
 
+
 class WorkspacePredictorAgent:
     """
     Analyzes the user's prompt to predict target workspaces before any retrieval happens.
@@ -26,20 +27,25 @@ class WorkspacePredictorAgent:
     - Return a clean JSON according to the schema provided.
     """
 
-    def predict_workspace_intent(self, user_prompt: str, available_workspaces: List[Dict]) -> Dict:
+    def predict_workspace_intent(
+        self, user_prompt: str, available_workspaces: List[Dict]
+    ) -> Dict:
         """
         Analyzes the user prompt against available workspaces to extract a target workspace hint.
         """
         with tracer.start_as_current_span("agent.predict_workspace_intent") as span:
-            
             span.set_attribute("input.user_prompt", user_prompt)
-            span.set_attribute("input.available_workspaces", json.dumps(available_workspaces))
-            
+            span.set_attribute(
+                "input.available_workspaces", json.dumps(available_workspaces)
+            )
+
             # Format the list of available workspaces for the LLM context
-            workspaces_input = "\n".join([
-                f"ID: {ws.get('workspace_id')} | Name: {ws.get('name')}" 
-                for ws in available_workspaces
-            ])
+            workspaces_input = "\n".join(
+                [
+                    f"ID: {ws.get('workspace_id')} | Name: {ws.get('name')}"
+                    for ws in available_workspaces
+                ]
+            )
 
             full_prompt = f"""
             {self.SYSTEM_PROMPT}
@@ -60,21 +66,21 @@ class WorkspacePredictorAgent:
             """
 
             span.set_attribute("llm.prompt", full_prompt)
-            
+
             agent_config = settings.workspace_predictor_agent
-            
+
             if agent_config.provider == "groq":
                 response = get_groq_json_completion(
                     full_prompt,
                     model_name=agent_config.model_name,
                     max_tokens=agent_config.max_tokens,
-                    temperature=agent_config.temperature
+                    temperature=agent_config.temperature,
                 )
             else:
                 response = get_local_json_completion(
                     full_prompt,
                     max_tokens=agent_config.max_tokens,
-                    temperature=agent_config.temperature
+                    temperature=agent_config.temperature,
                 )
 
             # Safely handle string responses
@@ -86,9 +92,9 @@ class WorkspacePredictorAgent:
                         "workspace_hint": None,
                         "predicted_workspace_id": None,
                         "confidence_score": 0.0,
-                        "reasoning": "Failed to parse LLM JSON response"
+                        "reasoning": "Failed to parse LLM JSON response",
                     }
 
             span.set_attribute("output.prediction", json.dumps(response))
-            
+
             return response

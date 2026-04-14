@@ -20,7 +20,8 @@ class AIWorkspacePayload(BaseModel):
     job_id: int
     workspace: Workspace
     source_workspace_ids: Optional[List[int]] = None
-    
+
+
 class WorkspaceResult(BaseModel):
     workspace_id: str
     score: float

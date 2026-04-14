@@ -10,20 +10,15 @@ celery.conf.update(
     task_serializer="json",
     accept_content=["json"],
     result_serializer="json",
-
     timezone="UTC",
     enable_utc=True,
-
-    task_acks_late=True,             
-    worker_prefetch_multiplier=1,   
-    task_track_started=True,          
-
+    task_acks_late=True,
+    worker_prefetch_multiplier=1,
+    task_track_started=True,
     task_reject_on_worker_lost=True,
-
-    result_expires=3600,            
-
+    result_expires=3600,
     broker_transport_options={
-        "visibility_timeout": 3600,  
+        "visibility_timeout": 3600,
     },
 )
 
@@ -32,7 +27,7 @@ celery.conf.task_routes = {
     "app.tasks.generate_collection_workspace_task.*": {"queue": "collection_workspace"},
     "app.tasks.generate_workflow_workspace_task.*": {"queue": "workflow_workspace"},
     "app.tasks.search_strategist_task.*": {"queue": "search_strategist"},
-    "app.tasks.rank_and_generate_task.*": {"queue": "generate_answer"}
+    "app.tasks.rank_and_generate_task.*": {"queue": "generate_answer"},
 }
 
 celery.autodiscover_tasks(["app.tasks"])

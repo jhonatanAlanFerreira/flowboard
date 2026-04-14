@@ -7,6 +7,7 @@ import json
 
 tracer = get_tracer()
 
+
 class TaggingAgent:
     """
     LLM-based tagging service.
@@ -15,11 +16,11 @@ class TaggingAgent:
     """
 
     def generate_tags(
-    self, text: str, known_tags: List[str] = None) -> Dict[str, List[str]]:
+        self, text: str, known_tags: List[str] = None
+    ) -> Dict[str, List[str]]:
         known_tags = known_tags or []
 
         with tracer.start_as_current_span("service.generate_tags") as span:
-
             span.set_attribute("input.text", text)
             span.set_attribute("input.known_tags", known_tags)
 
@@ -59,20 +60,18 @@ class TaggingAgent:
                     settings.tagging_agent.model_name,
                     settings.tagging_agent.max_tokens,
                     settings.tagging_agent.temperature,
-                    ).get('tags')
+                ).get("tags")
             else:
                 tags = get_local_json_completion(
-                    full_prompt, 
+                    full_prompt,
                     settings.tagging_agent.max_tokens,
                     settings.tagging_agent.temperature,
-                ).get('tags')
+                ).get("tags")
 
             try:
                 span.set_attribute("output.tags", tags)
 
-                return {
-                    "tags": tags
-                }
+                return {"tags": tags}
 
             except (json.JSONDecodeError, ValueError) as e:
                 span.set_attribute("parse.success", False)

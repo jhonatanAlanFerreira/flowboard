@@ -1,9 +1,11 @@
 from pydantic import BaseModel
 from typing import List
 
+
 class TaskList(BaseModel):
     name: str
     tasks: List[str]
+
 
 class CollectionWorkspaceRequest(BaseModel):
     job_id: int

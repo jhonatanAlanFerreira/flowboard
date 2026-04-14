@@ -1,5 +1,6 @@
 from app.clients.weaviate_client import get_weaviate_client
 
+
 def create_weaviate_schema():
     client = get_weaviate_client()
 
@@ -7,9 +8,7 @@ def create_weaviate_schema():
         "class": "Tag",
         "description": "Tags for semantic search",
         "vectorizer": "none",  # We'll provide vectors manually
-        "properties": [
-            {"name": "name", "dataType": ["text"]}
-        ]
+        "properties": [{"name": "name", "dataType": ["text"]}],
     }
 
     chunk_class = {
@@ -23,21 +22,21 @@ def create_weaviate_schema():
             {"name": "workspace_id", "dataType": ["string"], "indexFilterable": True},
             {"name": "user_id", "dataType": ["string"], "indexFilterable": True},
             {"name": "type", "dataType": ["string"], "indexFilterable": True},
-        ]
+        ],
     }
-    
+
     workspace_class = {
-    "class": "Workspace",
-    "description": "To find workspace IDs from names",
-    "vectorizer": "none", # We'll provide vectors manually
-    "properties": [
-        {"name": "chunk_id", "dataType": ["string"]},
-        {"name": "name", "dataType": ["text"]},
-        {"name": "workspace_id", "dataType": ["string"]},
-        {"name": "user_id", "dataType": ["string"], "indexFilterable": True},
-    ]
-}
-    
+        "class": "Workspace",
+        "description": "To find workspace IDs from names",
+        "vectorizer": "none",  # We'll provide vectors manually
+        "properties": [
+            {"name": "chunk_id", "dataType": ["string"]},
+            {"name": "name", "dataType": ["text"]},
+            {"name": "workspace_id", "dataType": ["string"]},
+            {"name": "user_id", "dataType": ["string"], "indexFilterable": True},
+        ],
+    }
+
     if not client.schema.exists("Workspace"):
         client.schema.create_class(workspace_class)
 

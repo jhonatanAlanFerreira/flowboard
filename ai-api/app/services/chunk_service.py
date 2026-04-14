@@ -4,6 +4,7 @@ from app.enums.chunk_type import ChunkType
 
 client = get_weaviate_client()
 
+
 def normalize_text(value: str) -> str:
     return str(value).strip().lower()
 
@@ -13,20 +14,21 @@ class ChunkService:
         self.client = client
         self.class_name = "Chunk"
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
-    
+
     def create_or_update_chunk(
-            self, 
-            chunk_id: int, 
-            content: str, 
-            tasklist_id: int, 
-            workspace_id: int, 
-            user_id: int,
-            chunk_type: ChunkType):
+        self,
+        chunk_id: int,
+        content: str,
+        tasklist_id: int,
+        workspace_id: int,
+        user_id: int,
+        chunk_type: ChunkType,
+    ):
         """
         Create a new chunk or update an existing one in Weaviate.
         Stores chunk_id, tasklist_id, workspace_id, and vector embedding.
         """
-        
+
         content_norm = normalize_text(content)
         vector = self.model.encode(content_norm).tolist()
 
@@ -41,18 +43,15 @@ class ChunkService:
             "workspace_id": workspace_id_str,
             "user_id": user_id_str,
             "content": content_norm,
-            "type": chunk_type
+            "type": chunk_type,
         }
 
         # Check if chunk exists and request _additional.id
         existing = (
-            self.client.query
-            .get(self.class_name, ["chunk_id"])
-            .with_where({
-                "path": ["chunk_id"],
-                "operator": "Equal",
-                "valueText": chunk_id_str
-            })
+            self.client.query.get(self.class_name, ["chunk_id"])
+            .with_where(
+                {"path": ["chunk_id"], "operator": "Equal", "valueText": chunk_id_str}
+            )
             .with_additional(["id"])
             .with_limit(1)
             .do()
@@ -67,16 +66,14 @@ class ChunkService:
                 data_object=data_object,
                 class_name=self.class_name,
                 uuid=weaviate_uuid,
-                vector=vector
+                vector=vector,
             )
             return {"action": "update", "id": chunk_id_str}
 
         else:
             # Create new chunk
             self.client.data_object.create(
-                data_object=data_object,
-                class_name=self.class_name,
-                vector=vector
+                data_object=data_object, class_name=self.class_name, vector=vector
             )
             return {"action": "create", "id": chunk_id_str}
 
@@ -85,13 +82,10 @@ class ChunkService:
         chunk_id_str = str(chunk_id)
 
         existing = (
-            self.client.query
-            .get(self.class_name, ["chunk_id"])
-            .with_where({
-                "path": ["chunk_id"],
-                "operator": "Equal",
-                "valueText": chunk_id_str
-            })
+            self.client.query.get(self.class_name, ["chunk_id"])
+            .with_where(
+                {"path": ["chunk_id"], "operator": "Equal", "valueText": chunk_id_str}
+            )
             .with_additional(["id"])
             .with_limit(1)
             .do()
@@ -101,7 +95,9 @@ class ChunkService:
 
         if hits:
             weaviate_uuid = hits[0]["_additional"]["id"]
-            self.client.data_object.delete(class_name=self.class_name, uuid=weaviate_uuid)
+            self.client.data_object.delete(
+                class_name=self.class_name, uuid=weaviate_uuid
+            )
             return True
         return False
 
@@ -110,13 +106,14 @@ class ChunkService:
         tasklist_id_str = str(tasklist_id)
 
         existing = (
-            self.client.query
-            .get(self.class_name, ["chunk_id"])
-            .with_where({
-                "path": ["tasklist_id"],
-                "operator": "Equal",
-                "valueText": tasklist_id_str
-            })
+            self.client.query.get(self.class_name, ["chunk_id"])
+            .with_where(
+                {
+                    "path": ["tasklist_id"],
+                    "operator": "Equal",
+                    "valueText": tasklist_id_str,
+                }
+            )
             .with_additional(["id"])
             .do()
         )
@@ -125,7 +122,9 @@ class ChunkService:
 
         for hit in hits:
             weaviate_uuid = hit["_additional"]["id"]
-            self.client.data_object.delete(class_name=self.class_name, uuid=weaviate_uuid)
+            self.client.data_object.delete(
+                class_name=self.class_name, uuid=weaviate_uuid
+            )
 
         return len(hits)
 
@@ -134,13 +133,14 @@ class ChunkService:
         workspace_id_str = str(workspace_id)
 
         existing = (
-            self.client.query
-            .get(self.class_name, ["chunk_id"])
-            .with_where({
-                "path": ["workspace_id"],
-                "operator": "Equal",
-                "valueText": workspace_id_str
-            })
+            self.client.query.get(self.class_name, ["chunk_id"])
+            .with_where(
+                {
+                    "path": ["workspace_id"],
+                    "operator": "Equal",
+                    "valueText": workspace_id_str,
+                }
+            )
             .with_additional(["id"])
             .do()
         )
@@ -149,6 +149,8 @@ class ChunkService:
 
         for hit in hits:
             weaviate_uuid = hit["_additional"]["id"]
-            self.client.data_object.delete(class_name=self.class_name, uuid=weaviate_uuid)
+            self.client.data_object.delete(
+                class_name=self.class_name, uuid=weaviate_uuid
+            )
 
         return len(hits)

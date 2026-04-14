@@ -7,7 +7,8 @@ class SearchStrategistRequest(BaseModel):
     user_id: int
     prompt: str
     ai_job_id: int
-    
+
+
 class HydratedChunk(BaseModel):
     chunk_id: str = Field(...)
     workspace_id: str = Field(...)
@@ -18,6 +19,7 @@ class HydratedChunk(BaseModel):
     done: bool = Field(...)
     created_at: datetime = Field(...)
     workspace_name: str = Field(...)
+
 
 class ProcessAnswerRequest(BaseModel):
     ai_job_id: int = Field(...)
