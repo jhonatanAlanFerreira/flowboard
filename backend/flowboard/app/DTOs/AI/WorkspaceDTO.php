@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\AI\Retrieval\WorkflowWorkspace\DTO;
+namespace App\DTOs\AI;
 
 class WorkspaceDTO
 {

@@ -3,6 +3,7 @@ from typing import Dict, List
 from app.clients.local_llm import get_local_json_completion
 from app.clients.groq import get_groq_json_completion
 from app.observability.phoenix import get_tracer
+from app.schemas.data_question import ScoredChunk, DataQuestionResponse
 from app.config import settings
 
 tracer = get_tracer()
@@ -29,7 +30,7 @@ class DataQuestionGeneratorAgent:
     - Return the actual string IDs ONLY inside the `citations` list in the JSON payload.
     """
 
-    def generate_final_answer(self, user_prompt: str, top_chunks: List[Dict]) -> Dict:
+    def generate_final_answer(self, user_prompt: str, top_chunks: List[ScoredChunk]) -> DataQuestionResponse:
         """
         Calls the LLM to generate the final response using the top-ranked context.
         """
@@ -37,14 +38,14 @@ class DataQuestionGeneratorAgent:
             span.set_attribute("input.query", user_prompt)
             span.set_attribute("input.context_count", len(top_chunks))
 
-            # Format the tasks into a clear structure for the generator LLM
+            # Format using dot notation for ScoredChunk objects
             tasks_context = ""
             for chunk in top_chunks:
-                status = "Completed" if chunk.get("done") else "Pending"
+                status = "Completed" if chunk.done else "Pending"
                 tasks_context += (
-                    f"Chunk ID: {chunk.get('chunk_id')}\n"
-                    f"Workspace: {chunk.get('workspace_name')}\n"
-                    f"Content: {chunk.get('content')}\n"
+                    f"Chunk ID: {chunk.chunk_id}\n"
+                    f"Workspace: {getattr(chunk, 'workspace_name', 'N/A')}\n"
+                    f"Content: {chunk.content}\n"
                     f"Status: {status}\n"
                     "-----------------\n"
                 )
@@ -86,15 +87,20 @@ class DataQuestionGeneratorAgent:
                 )
 
             # Safely handle JSON parsing
-            if isinstance(response, str):
-                try:
-                    response = json.loads(response)
-                except Exception:
-                    response = {
-                        "markdown_answer": "I encountered an error formatting the response.",
-                        "citations": []
-                    }
+            try:
+                if isinstance(response, str):
+                    response_data = json.loads(response)
+                else:
+                    response_data = response
+                
+                # Use Pydantic to validate the LLM output
+                final_result = DataQuestionResponse(**response_data)
+            except Exception:
+                final_result = DataQuestionResponse(
+                    markdown_answer="I encountered an error formatting the response.",
+                    citations=[]
+                )
 
-            span.set_attribute("output.citations", json.dumps(response.get("citations")))
+            span.set_attribute("output.citations", json.dumps(final_result.citations))
             
-            return response
+            return final_result

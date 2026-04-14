@@ -143,6 +143,12 @@ class WorkflowWorkspaceSelectionConfig(BaseModel):
     # Mock data placeholders (for future signals)
     default_recency_score: float = Field(default=0.5, description="Placeholder score for recency signal.")
     default_structure_score: float = Field(default=0.5, description="Placeholder score for structure signal.")
+    
+class WorkflowScoringConfig(BaseModel):
+    """
+    Adjustable numbers and scoring weights for the WorkflowScoringService class.
+    """
+    workspace_log_weight: float = Field(default=0.1, description="Multiplier for the log of match counts in workflow workspace scoring.")
 
 
 # ==========================================
@@ -202,5 +208,6 @@ class Settings(BaseSettings):
     data_question_retrieval: DataQuestionRetrievalConfig = DataQuestionRetrievalConfig()
     data_question_scoring: DataQuestionScoringConfig = DataQuestionScoringConfig()
     workflow_workspace_selection: WorkflowWorkspaceSelectionConfig = WorkflowWorkspaceSelectionConfig()
+    workflow_scoring: WorkflowScoringConfig = WorkflowScoringConfig()
 
 settings = Settings()

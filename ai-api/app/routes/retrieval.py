@@ -9,6 +9,8 @@ from app.models.response.patterns_extract_reponse import ExtractPatternsResponse
 from app.services.workflow.workflow_retrieval_service import WorkflowRetrievalService
 from app.services.collection.collection_retrieval_service import CollectionRetrievalService
 from app.services.collection.collection_pattern_extraction_service import CollectionPatternExtractionService
+from app.schemas.workspace import WorkspaceResult
+from app.schemas.chunk import ScoredTaskList
 
 router = APIRouter()
 
@@ -31,9 +33,16 @@ def retrieve_workspaces(request: RetrievalCollectionRequest):
     query = request.query.strip()
     user_id = request.user_id
 
-    workspaces = collection_retrieval_service.get_relevant_workspaces(query, user_id)
-    lists = collection_retrieval_service.get_relevant_lists_for_workspaces(workspace_ids=[ws['workspace_id'] for ws in workspaces], query=query)
-    return {"lists": lists}
+    workspaces: List[WorkspaceResult] = collection_retrieval_service.get_relevant_workspaces(query, user_id)
+    lists: List[ScoredTaskList] = collection_retrieval_service.get_relevant_lists_for_workspaces(workspace_ids=[ws.workspace_id for ws in workspaces], query=query)
+    
+    return RetrievalCollectionResponse(lists=[
+        {
+            **l.model_dump(exclude={"features"}), 
+            **l.features.model_dump()            
+        } 
+        for l in lists
+    ])
 
 @router.post(
     "/workflow/workspaces",
@@ -49,13 +58,13 @@ def retrieve_workspaces(request: RetrievalWorkflowRequest):
     query = request.query.strip()
     user_id = request.user_id
 
-    workspaces = workflow_retrieval_service.get_relevant_workspaces(query, user_id)
+    workspaces: List[WorkspaceResult] = workflow_retrieval_service.get_relevant_workspaces(query, user_id)
     return {"workspaces": workspaces}
 
 @router.post("/patterns/extract/collection", response_model=ExtractPatternsResponse)
 def extract_patterns(lists: List[TaskListInput]):
     results = collection_pattern_extraction_service.extract_patterns_from_lists(
-        lists_data=[l.model_dump() for l in lists]
+        lists_data=lists
     )
 
     return {

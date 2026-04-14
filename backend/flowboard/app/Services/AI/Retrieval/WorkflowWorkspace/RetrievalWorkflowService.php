@@ -2,13 +2,16 @@
 
 namespace App\Services\AI\Retrieval\WorkflowWorkspace;
 
+use App\DTOs\AI\WorkspaceDTO;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Services\AI\Retrieval\WorkflowWorkspace\DTO\WorkspaceDTO;
 
 class RetrievalWorkflowService
 {
-    public function retrieveLists(string $query, int $userId): array
+    /**
+     * @return array<int, WorkspaceDTO>
+     */
+    public function retrieveWorkspaces(string $query, int $userId): array
     {
         try {
             $response = Http::ai()

@@ -2,6 +2,8 @@
 
 namespace App\Jobs\AI\Task;
 
+use App\DTOs\AI\RagChunkDTO;
+use App\Models\RagChunk;
 use App\Models\Task;
 use App\Services\AI\Agents\TaggingAgent;
 use Illuminate\Bus\Queueable;
@@ -28,8 +30,10 @@ class GenerateTaskChunkJob implements ShouldQueue
         TaggingAgent $taggingAgent
     ): void {
 
+        /** @var RagChunkDTO $chunkData */
         $chunkData = $taskChunkBuilder->build($this->task);
 
+        /** @var RagChunk $chunk */
         $chunk = $chunkService->upsertChunk($chunkData);
 
         $taggingAgent->generateTags($chunk);

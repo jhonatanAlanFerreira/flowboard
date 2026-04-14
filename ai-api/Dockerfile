@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
 
 COPY . .
 
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir ".[test]"
 
 RUN chown -R appuser:appuser /app
 

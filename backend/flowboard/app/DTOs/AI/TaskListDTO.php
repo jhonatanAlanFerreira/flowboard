@@ -1,11 +1,11 @@
-<?php 
+<?php
 
-namespace App\Services\AI\Retrieval\CollectionWorkspace\DTO;
+namespace App\DTOs\AI;
 
 class TaskListDTO
 {
     /**
-     * @param ChunkDTO[] $chunks
+     * @param array<int, ChunkDTO> $chunks
      */
     public function __construct(
         public int $tasklist_id,

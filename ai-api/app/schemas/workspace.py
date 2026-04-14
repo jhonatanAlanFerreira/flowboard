@@ -20,3 +20,11 @@ class AIWorkspacePayload(BaseModel):
     job_id: int
     workspace: Workspace
     source_workspace_ids: Optional[List[int]] = None
+    
+class WorkspaceResult(BaseModel):
+    workspace_id: str
+    score: float
+    max_score: float
+    match_count: int
+    chunk_id: str
+    final_score: float

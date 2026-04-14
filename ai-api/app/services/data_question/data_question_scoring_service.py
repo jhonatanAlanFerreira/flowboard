@@ -3,6 +3,8 @@ import json
 from typing import Dict, List
 from app.config import settings
 from app.observability.phoenix import get_tracer
+from app.models.request.search_strategist_request import HydratedChunk
+from app.schemas.data_question import ScoredChunk, ChunkWeights
 
 tracer = get_tracer()
 
@@ -15,7 +17,7 @@ class DataQuestionScoringService:
     def __init__(self, config=None):
         self.config = config or settings.data_question_scoring
 
-    def score_and_rank_chunks(self, query: str, chunks: List[Dict], limit: int = None) -> List[Dict]:
+    def score_and_rank_chunks(self, query: str, chunks: List[HydratedChunk], limit: int = None) -> List[ScoredChunk]:
         """
         Calculates a priority score for each chunk and returns the top K items.
         """
@@ -25,67 +27,56 @@ class DataQuestionScoringService:
             span.set_attribute("input.query", query)
             span.set_attribute("input.initial_count", len(chunks))
 
-            scored_chunks = []
+            scored_chunks: List[ScoredChunk] = []
             now = datetime.now(timezone.utc)
 
-            for chunk in chunks:
-                base_score = float(chunk.get("search_score", 0.0))
+            for chunk_data in chunks:
+                chunk = ScoredChunk(**chunk_data.model_dump())
+
+                base_score = float(chunk.search_score or 0.0)
                 
-                # Extracted hardcoded 0.2 and -0.5 weights
                 status_weight = (
-                    self.config.not_done_weight if not chunk.get("done", False) 
+                    self.config.not_done_weight if not chunk.done 
                     else self.config.done_weight
                 )
                 
-                # Double Retrieval Boost (Found in both targeted and global search)
-                both_weight = self.config.double_retrieval_boost if chunk.get("found_in_both", False) else 0.0
+                both_weight = self.config.double_retrieval_boost if chunk.found_in_both else 0.0
                 
-                # Recency Boosting (Decay math)
                 recency_weight = 0.0
-                created_at_str = chunk.get("created_at")
-                
-                if created_at_str:
+                if chunk.created_at:
                     try:
-                        # Handle standard ISO strings (like "2026-03-30T20:08:36+00:00")
-                        created_date = datetime.fromisoformat(created_at_str.replace('Z', '+00:00'))
+                        created_date = datetime.fromisoformat(chunk.created_at.replace('Z', '+00:00'))
                         days_old = (now - created_date).days
                         
-                        # Apply a bonus extracted from the configuration thresholds
                         if days_old <= self.config.recent_days_threshold:
                             recency_weight = self.config.recent_days_boost
                         elif days_old <= self.config.mid_days_threshold:
                             recency_weight = self.config.mid_days_boost
                     except Exception:
-                        # Fail silently and skip recency if the date format breaks
                         pass
 
-                # Final Composite Score
-                final_score = base_score + status_weight + both_weight + recency_weight
-
-                # Store the calculated weights for transparency in the logs
-                chunk["final_calculated_score"] = round(final_score, 4)
-                chunk["weights"] = {
-                    "base": base_score,
-                    "status": status_weight,
-                    "overlap": both_weight,
-                    "recency": recency_weight
-                }
+                chunk.final_calculated_score = round(base_score + status_weight + both_weight + recency_weight, 4)
+                chunk.weights = ChunkWeights(
+                    base=base_score,
+                    status=status_weight,
+                    overlap=both_weight,
+                    recency=recency_weight
+                )
                 
                 scored_chunks.append(chunk)
 
-            # Sort by the final calculated score in descending order
+            # Sort objects by attribute
             ranked_chunks = sorted(
                 scored_chunks, 
-                key=lambda x: x["final_calculated_score"], 
+                key=lambda x: x.final_calculated_score, 
                 reverse=True
             )
 
             top_candidates = ranked_chunks[:limit]
 
             span.set_attribute("output.ranked_count", len(top_candidates))
-            
-            # Log the IDs of the top candidates for tracking
-            top_ids = [str(c.get("chunk_id")) for c in top_candidates]
+            top_ids = [str(c.chunk_id) for c in top_candidates]
             span.set_attribute("output.top_ranked_ids", json.dumps(top_ids))
 
             return top_candidates
+

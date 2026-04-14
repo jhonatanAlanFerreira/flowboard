@@ -39,9 +39,6 @@ class EventServiceProvider extends ServiceProvider
         TaskDeleted::class => [
             HandleTaskAIProcessing::class,
         ],
-        WorkspaceDeleted::class => [
-            HandleTaskAIProcessing::class
-        ],
         TasklistDeleted::class => [
             HandleTaskAIProcessing::class
         ],
@@ -57,7 +54,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         WorkspaceUpdated::class => [
             HandleWorkspaceAIProcessing::class
-        ]
+        ],
+        WorkspaceDeleted::class => [
+            HandleWorkspaceAIProcessing::class
+        ],
     ];
 
     /**

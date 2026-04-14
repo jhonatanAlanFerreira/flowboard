@@ -6,7 +6,6 @@ use App\Events\List\TasklistDeleted;
 use App\Events\Task\TaskCreated;
 use App\Events\Task\TaskDeleted;
 use App\Events\Task\TaskUpdated;
-use App\Events\Workspace\WorkspaceDeleted;
 use App\Jobs\AI\Task\DeleteTaskChunkJob;
 use App\Jobs\AI\Task\DeleteTaskChunksFromListJob;
 use App\Jobs\AI\Task\DeleteTaskChunksFromWorkspaceJob;
@@ -26,10 +25,6 @@ class HandleTaskAIProcessing
 
         if ($event instanceof TaskDeleted && $event->task->chunk) {
             DeleteTaskChunkJob::dispatch($event->task->chunk->id);
-        }
-
-        if ($event instanceof WorkspaceDeleted) {
-            DeleteTaskChunksFromWorkspaceJob::dispatch($event->workspace->id);
         }
 
         if ($event instanceof TasklistDeleted) {

@@ -1,9 +1,12 @@
-<?php 
+<?php
 
-namespace App\Services\AI\Retrieval\CollectionWorkspace\DTO;
+namespace App\DTOs\AI;
 
 class ChunkDTO
 {
+    /**
+     * @param array<int, string> $tags
+     */
     public function __construct(
         public int $chunk_id,
         public float $score,

@@ -21,6 +21,8 @@ class AIRetrievalController extends Controller
         $type = WorkspaceType::from($request->validated('type'));
         $prompt = $request->input('prompt');
 
-        return $this->retrievalOrchestratorService->orchestrate($prompt, $type, $user);
+        $res = $this->retrievalOrchestratorService->orchestrate($prompt, $type, $user);
+
+        return response()->json($res);
     }
 }

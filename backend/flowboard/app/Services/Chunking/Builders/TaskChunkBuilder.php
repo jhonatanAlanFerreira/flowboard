@@ -2,6 +2,8 @@
 
 namespace App\Services\Chunking\Builders;
 
+use App\DTOs\AI\RagChunkDTO;
+use App\Enums\RagChunkType;
 use App\Models\Task;
 
 class TaskChunkBuilder
@@ -9,20 +11,20 @@ class TaskChunkBuilder
     /**
      * Build chunk data from a Task model
      */
-    public function build(Task $task): array
+    public function build(Task $task): RagChunkDTO
     {
         $task->loadMissing('tasklist.workspace');
 
-        return [
-            'user_id' => $task->user_id,
-            'type' => 'task',
-            'workspace_id' => $task->tasklist->workspace_id,
-            'tasklist_id' => $task->tasklist_id,
-            'task_id' => $task->id,
-            'task_description' => $task->description,
-            'content' => $this->buildContent($task),
-            'metadata' => $this->buildMetadata($task),
-        ];
+        return new RagChunkDTO(
+            user_id: $task->user_id,
+            type: RagChunkType::TASK,
+            workspace_id: $task->tasklist->workspace_id,
+            tasklist_id: $task->tasklist_id,
+            task_id: $task->id,
+            task_description: $task->description,
+            content: $this->buildContent($task),
+            metadata: $this->buildMetadata($task),
+        );
     }
 
     /**
