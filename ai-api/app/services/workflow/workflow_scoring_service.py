@@ -1,42 +1,48 @@
 from typing import List, Dict
 import math
 from app.observability.phoenix import get_tracer
+from app.schemas.workspace import WorkspaceResult
+from app.config import settings
 
 tracer = get_tracer()
 
 class WorkflowScoringService:
+    def __init__(self, config=None):
+        self.config = config or settings.workflow_scoring
 
-    def rank_workspaces(self, workspace_chunks: Dict) -> List[Dict]:
+    def rank_workspaces(self, workspace_chunks: Dict) -> List[WorkspaceResult]:
+        """
+        Ranks workflow workspaces using a density-boosted max score.
+        """
         with tracer.start_as_current_span("service.scoring.workspaces") as span:
             span.set_attribute("input.workspace_count", len(workspace_chunks))
             
-            workspace_data = {}
+            ranked_workspaces: List[WorkspaceResult] = []
 
-            for wid, chunks in workspace_chunks.items():
-                scores = [c["score"] for c in chunks]
+            for wid, results in workspace_chunks.items():
+                scores = [r["score"] for r in results]
                 max_score = max(scores)
                 count = len(scores)
 
-                final_score = max_score + 0.1 * math.log(1 + count)
+                final_score = max_score + self.config.workspace_log_weight * math.log(1 + count)
 
-                # keep best chunk for explainability
-                best_chunk = max(chunks, key=lambda x: x["score"])
+                best_result = max(results, key=lambda x: x["score"])
 
-                workspace_data[wid] = {
-                    "workspace_id": wid,
-                    "score": final_score,
-                    "max_score": max_score,
-                    "match_count": count,
-                    "chunk_id": best_chunk["chunk_id"]
-                }
+                workspace_info = WorkspaceResult(
+                    workspace_id=wid,
+                    score=round(final_score, 4),
+                    max_score=max_score,
+                    match_count=count,
+                    chunk_id=best_result["chunk_id"],
+                    final_score=round(final_score, 4)
+                )
+                ranked_workspaces.append(workspace_info)
 
-            results = list(workspace_data.values())
-            results.sort(key=lambda x: x["score"], reverse=True)
+            # Sort objects by score attribute
+            ranked_workspaces.sort(key=lambda x: x.score, reverse=True)
 
-            # Trace top results summary (IDs and Scores only)
-            span.set_attribute("output.ranked_count", len(results))
-            if results:
-                span.set_attribute("output.top_score", results[0]["score"])
+            span.set_attribute("output.ranked_count", len(ranked_workspaces))
+            if ranked_workspaces:
+                span.set_attribute("output.top_score", ranked_workspaces[0].score)
             
-            return results
-    
+            return ranked_workspaces

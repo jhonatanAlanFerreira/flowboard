@@ -1,6 +1,7 @@
-from typing import List, Dict
+from typing import List
 from app.config import settings
 from app.observability.phoenix import get_tracer
+from app.schemas.workspace import WorkspaceResult
 
 tracer = get_tracer()
 
@@ -19,14 +20,14 @@ class WorkflowWorkspaceSelectionService:
         self.relative_threshold = relative_threshold if relative_threshold is not None else self.config.relative_threshold
         self.limit = limit if limit is not None else self.config.limit
 
-    def select(self, candidates: List[Dict]) -> List[Dict]:
+    def select(self, candidates: List[WorkspaceResult]) -> List[WorkspaceResult]:
         with tracer.start_as_current_span("service.selection.select") as span:
             if not candidates:
                 span.set_attribute("selection.input_count", 0)
                 return []
 
             input_count = len(candidates)
-            best = max(c["score"] for c in candidates)
+            best = max(c.score for c in candidates)
             
             span.set_attributes({
                 "selection.input_count": input_count,
@@ -47,7 +48,6 @@ class WorkflowWorkspaceSelectionService:
             rescored = self._rescore(filtered, best)
             results = self._sort_and_limit(rescored)
 
-            # Metadata for debugging filter "aggressiveness"
             span.set_attributes({
                 "selection.count_after_min": count_after_min,
                 "selection.count_after_relative": count_after_relative,
@@ -56,42 +56,27 @@ class WorkflowWorkspaceSelectionService:
 
             return results
 
-    def _filter_min_similarity(self, candidates: List[Dict]) -> List[Dict]:
-        return [
-            c for c in candidates
-            if c["score"] >= self.min_similarity
-        ]
+    def _filter_min_similarity(self, candidates: List[WorkspaceResult]) -> List[WorkspaceResult]:
+        return [c for c in candidates if c.score >= self.min_similarity]
 
-    def _filter_relative_to_best(self, candidates: List[Dict], best: float) -> List[Dict]:
-        return [
-            c for c in candidates
-            if c["score"] >= best * self.relative_threshold
-        ]
+    def _filter_relative_to_best(self, candidates: List[WorkspaceResult], best: float) -> List[WorkspaceResult]:
+        return [c for c in candidates if c.score >= best * self.relative_threshold]
 
-    def _rescore(self, candidates: List[Dict], best: float) -> List[Dict]:
-        results = []
-
+    def _rescore(self, candidates: List[WorkspaceResult], best: float) -> List[WorkspaceResult]:
         for c in candidates:
-            new_score = self._compute_score(c, best)
+            c.final_score = round(self._compute_score(c, best), 4)
+        return candidates
 
-            results.append({
-                **c,
-                "final_score": round(new_score, 4)
-            })
-
-        return results
-
-    def _sort_and_limit(self, candidates: List[Dict]) -> List[Dict]:
+    def _sort_and_limit(self, candidates: List[WorkspaceResult]) -> List[WorkspaceResult]:
         return sorted(
             candidates,
-            key=lambda x: x["final_score"],
+            key=lambda x: x.final_score,
             reverse=True
         )[:self.limit]
 
-    def _compute_score(self, c: Dict, best: float) -> float:
-        sim = c["score"]
+    def _compute_score(self, c: WorkspaceResult, best: float) -> float:
+        sim = c.score
 
-        # placeholders for future signals
         recency = self._recency_score(c)
         structure = self._structure_score(c)
 
@@ -101,8 +86,8 @@ class WorkflowWorkspaceSelectionService:
             structure * self.config.structure_weight
         )
 
-    def _recency_score(self, c: Dict) -> float:
+    def _recency_score(self, c: WorkspaceResult) -> float:
         return self.config.default_recency_score
 
-    def _structure_score(self, c: Dict) -> float:
+    def _structure_score(self, c: WorkspaceResult) -> float:
         return self.config.default_structure_score

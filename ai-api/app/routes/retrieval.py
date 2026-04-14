@@ -58,7 +58,7 @@ def retrieve_workspaces(request: RetrievalWorkflowRequest):
     query = request.query.strip()
     user_id = request.user_id
 
-    workspaces = workflow_retrieval_service.get_relevant_workspaces(query, user_id)
+    workspaces: List[WorkspaceResult] = workflow_retrieval_service.get_relevant_workspaces(query, user_id)
     return {"workspaces": workspaces}
 
 @router.post("/patterns/extract/collection", response_model=ExtractPatternsResponse)
