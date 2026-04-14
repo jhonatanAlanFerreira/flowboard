@@ -1,5 +1,6 @@
 import json
 from typing import Dict, List
+import weaviate.classes.query as wvc_query
 from sentence_transformers import SentenceTransformer
 from app.clients.weaviate_client import get_weaviate_client
 from app.config import settings
@@ -9,18 +10,16 @@ from app.schemas.data_question import RetrievedChunk
 client = get_weaviate_client()
 tracer = get_tracer()
 
-
 def normalize_text(value: str) -> str:
     return str(value).strip().lower()
-
 
 class DataQuestionRetrievalService:
     def __init__(self, config=None):
         self.config = config or settings.data_question_retrieval
-
         self.client = client
         self.class_name = self.config.class_name
         self.model = SentenceTransformer(self.config.model_name)
+        self.collection = self.client.collections.get(self.class_name)
 
     def retrieve_chunks_for_question(
         self, query: str, user_id: int, prediction_result: Dict
@@ -103,14 +102,12 @@ class DataQuestionRetrievalService:
                 )
 
             for u_hit in unique_hits:
-                c_id = u_hit.chunk_id
-                if not u_hit.found_in_both and c_id in targeted_chunk_ids:
-                    count = sum(1 for h in all_hits if h.get("chunk_id") == c_id)
+                if not u_hit.found_in_both and u_hit.chunk_id in targeted_chunk_ids:
+                    count = sum(1 for h in all_hits if h.get("chunk_id") == u_hit.chunk_id)
                     if count > 1:
                         u_hit.found_in_both = True
 
             span.set_attribute("output.retrieved_count", len(unique_hits))
-
             return unique_hits
 
     def _execute_search(
@@ -121,50 +118,32 @@ class DataQuestionRetrievalService:
         limit: int,
         workspace_id: str = None,
     ) -> List[Dict]:
-        """
-        Helper method to run a hybrid search against Weaviate v3 with optional WS filter.
-        """
-        operands = [
-            {"path": ["user_id"], "operator": "Equal", "valueString": user_id_string},
-            {"path": ["type"], "operator": "Equal", "valueString": "task"},
-        ]
 
-        if workspace_id:
-            operands.append(
-                {
-                    "path": ["workspace_id"],
-                    "operator": "Equal",
-                    "valueString": workspace_id,
-                }
-            )
-
-        where_clause = {"operator": "And", "operands": operands}
-
-        response = (
-            self.client.query.get(
-                self.class_name, ["chunk_id", "workspace_id", "tasklist_id", "content"]
-            )
-            .with_hybrid(
-                query=query_norm, vector=query_vector, alpha=self.config.hybrid_alpha
-            )
-            .with_where(where_clause)
-            .with_additional(["score"])
-            .with_limit(limit)
-            .do()
+        filters = (
+            wvc_query.Filter.by_property("user_id").equal(user_id_string) &
+            wvc_query.Filter.by_property("type").equal("task")
         )
 
-        hits = response.get("data", {}).get("Get", {}).get(self.class_name) or []
+        if workspace_id:
+            filters = filters & wvc_query.Filter.by_property("workspace_id").equal(workspace_id)
 
-        results = []
-        for hit in hits:
-            results.append(
-                {
-                    "chunk_id": hit.get("chunk_id"),
-                    "workspace_id": hit.get("workspace_id"),
-                    "tasklist_id": hit.get("tasklist_id"),
-                    "content": hit.get("content"),
-                    "search_score": hit.get("_additional", {}).get("score"),
-                }
-            )
+        response = self.collection.query.hybrid(
+            query=query_norm,
+            vector=query_vector,
+            alpha=self.config.hybrid_alpha,
+            filters=filters,
+            limit=limit,
+            return_properties=["chunk_id", "workspace_id", "tasklist_id", "content"],
+            return_metadata=wvc_query.MetadataQuery(score=True)
+        )
 
-        return results
+        return [
+            {
+                "chunk_id": obj.properties.get("chunk_id"),
+                "workspace_id": obj.properties.get("workspace_id"),
+                "tasklist_id": obj.properties.get("tasklist_id"),
+                "content": obj.properties.get("content"),
+                "search_score": obj.metadata.score,
+            }
+            for obj in response.objects
+        ]

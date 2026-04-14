@@ -139,7 +139,7 @@ class CollectionWorkspaceSelectionConfig(BaseModel):
 
     # Filtering thresholds
     min_similarity: float = Field(
-        default=0.8,
+        default=0.7,
         description="Minimum absolute similarity score to retain a candidate.",
     )
     relative_threshold: float = Field(
