@@ -4,6 +4,7 @@ from app.clients.local_llm import get_local_json_completion
 from app.clients.groq import get_groq_json_completion
 from app.observability.phoenix import get_tracer
 from app.config import settings
+from app.schemas.data_question import ScoredChunk
 
 tracer = get_tracer()
 
@@ -25,7 +26,7 @@ class DataQuestionRerankerAgent:
     - Output MUST strictly adhere to the requested JSON schema. Return ONLY valid JSON.
     """
 
-    def rerank_tasks(self, user_prompt: str, candidate_chunks: List[Dict]) -> List[Dict]:
+    def rerank_tasks(self, user_prompt: str, candidate_chunks: List[ScoredChunk]) -> List[ScoredChunk]:
         """
         Calls the LLM to score candidate tasks and sorts them by LLM relevance.
         """
@@ -33,10 +34,9 @@ class DataQuestionRerankerAgent:
             span.set_attribute("input.query", user_prompt)
             span.set_attribute("input.candidate_count", len(candidate_chunks))
 
-            # Format the tasks into a small list for the LLM context
             tasks_input = ""
             for idx, chunk in enumerate(candidate_chunks):
-                tasks_input += f"Index: {idx} | ID: {chunk.get('chunk_id')} | Task: {chunk.get('content')}\n"
+                tasks_input += f"Index: {idx} | ID: {chunk.chunk_id} | Task: {chunk.content}\n"
 
             full_prompt = f"""
             {self.SYSTEM_PROMPT}
@@ -86,21 +86,19 @@ class DataQuestionRerankerAgent:
                     response = {"evaluations": []}
 
             evaluations = response.get("evaluations", [])
-            
-            # Map the LLM scores back to our chunks
             score_map = {str(ev.get("chunk_id")): ev.get("score", 0) for ev in evaluations}
             
             for chunk in candidate_chunks:
-                # Add the LLM score to the dictionary
-                chunk["llm_relevance_score"] = score_map.get(str(chunk.get("chunk_id")), 1)
+                chunk.llm_relevance_score = score_map.get(str(chunk.chunk_id), 1)
 
-            # Sort the tasks by the LLM's score in descending order
+            # Sort the objects by attribute
             reranked_chunks = sorted(
                 candidate_chunks, 
-                key=lambda x: x["llm_relevance_score"], 
+                key=lambda x: x.llm_relevance_score, 
                 reverse=True
             )
 
-            span.set_attribute("output.top_score", reranked_chunks[0].get("llm_relevance_score") if reranked_chunks else 0)
+            span.set_attribute("output.top_score", reranked_chunks[0].llm_relevance_score if reranked_chunks else 0)
 
             return reranked_chunks
+
