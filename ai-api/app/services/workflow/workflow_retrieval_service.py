@@ -49,11 +49,11 @@ class WorkflowRetrievalService:
                 alpha=0.5,
                 limit=top_k,
                 filters=(
-                    Filter.by_property("user_id").equal(user_id_string) &
-                    Filter.by_property("type").equal("list")
+                    Filter.by_property("user_id").equal(user_id_string)
+                    & Filter.by_property("type").equal("list")
                 ),
                 return_properties=["workspace_id", "content", "chunk_id"],
-                return_metadata=MetadataQuery(score=True)
+                return_metadata=MetadataQuery(score=True),
             )
 
             hits = response.objects

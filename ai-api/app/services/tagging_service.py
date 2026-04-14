@@ -5,6 +5,7 @@ from app.clients.weaviate_client import get_weaviate_client
 
 client = get_weaviate_client()
 
+
 class TaggingService:
     def __init__(self):
         self.client = client
@@ -17,19 +18,16 @@ class TaggingService:
         response = self.collection.query.fetch_objects(
             filters=wvc_query.Filter.by_property("name").equal(name),
             limit=1,
-            return_properties=["name"]
+            return_properties=["name"],
         )
-        
+
         if response.objects:
             return response.objects[0].properties
 
         # Create vector for offline embedding
         vector = self.model.encode(name).tolist()
 
-        new_uuid = self.collection.data.insert(
-            properties={"name": name},
-            vector=vector
-        )
+        new_uuid = self.collection.data.insert(properties={"name": name}, vector=vector)
         return {"uuid": new_uuid, "name": name}
 
     def create_tags_if_not_exists(self, names: List[str]):
@@ -43,7 +41,7 @@ class TaggingService:
             distance=0.8,
             limit=limit,
             return_metadata=wvc_query.MetadataQuery(distance=True),
-            return_properties=["name"]
+            return_properties=["name"],
         )
 
         return [obj.properties["name"] for obj in response.objects]

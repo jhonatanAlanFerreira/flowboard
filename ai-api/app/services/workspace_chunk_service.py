@@ -5,8 +5,10 @@ from app.clients.weaviate_client import get_weaviate_client
 
 client = get_weaviate_client()
 
+
 def normalize_text(value: str) -> str:
     return str(value).strip().lower()
+
 
 class WorkspaceService:
     def __init__(self):
@@ -37,24 +39,19 @@ class WorkspaceService:
         response = self.collection.query.fetch_objects(
             filters=Filter.by_property("workspace_id").equal(workspace_id_str),
             limit=1,
-            return_properties=[] 
+            return_properties=[],
         )
 
         if response.objects:
             # Update existing workspace name/vector
             weaviate_uuid = response.objects[0].uuid
             self.collection.data.update(
-                uuid=weaviate_uuid,
-                properties=data_object,
-                vector=vector
+                uuid=weaviate_uuid, properties=data_object, vector=vector
             )
             return {"action": "update", "id": workspace_id_str}
         else:
             # Create new
-            self.collection.data.insert(
-                properties=data_object, 
-                vector=vector
-            )
+            self.collection.data.insert(properties=data_object, vector=vector)
             return {"action": "create", "id": workspace_id_str}
 
     def delete_workspace(self, workspace_id: int):
@@ -82,7 +79,7 @@ class WorkspaceService:
             filters=Filter.by_property("user_id").equal(user_id_str),
             limit=limit,
             return_metadata=MetadataQuery(score=True),
-            return_properties=["workspace_id", "name"]
+            return_properties=["workspace_id", "name"],
         )
 
         return [

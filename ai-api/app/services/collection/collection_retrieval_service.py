@@ -18,8 +18,10 @@ tracer = get_tracer()
 collection_scoring_service = CollectionScoringService()
 collection_selection_service = CollectionWorkspaceSelectionService()
 
+
 def normalize_text(value: str) -> str:
     return str(value).strip().lower()
+
 
 class CollectionRetrievalService:
     def __init__(self, config=None):
@@ -47,11 +49,11 @@ class CollectionRetrievalService:
                 vector=query_vector,
                 alpha=self.config.workspace_hybrid_alpha,
                 filters=(
-                    wvc_query.Filter.by_property("user_id").equal(user_id_string) &
-                    wvc_query.Filter.by_property("type").equal("task")
+                    wvc_query.Filter.by_property("user_id").equal(user_id_string)
+                    & wvc_query.Filter.by_property("type").equal("task")
                 ),
                 return_properties=["workspace_id", "content", "chunk_id"],
-                return_metadata=wvc_query.MetadataQuery(score=True)
+                return_metadata=wvc_query.MetadataQuery(score=True),
             )
 
             # Group chunks by workspace
@@ -75,10 +77,14 @@ class CollectionRetrievalService:
 
             span.set_attribute(
                 "retrieval.workspace_match_count",
-                json.dumps({wid: len(results) for wid, results in workspace_chunks.items()}),
+                json.dumps(
+                    {wid: len(results) for wid, results in workspace_chunks.items()}
+                ),
             )
 
-            ranked_results = collection_scoring_service.rank_workspaces(workspace_chunks)
+            ranked_results = collection_scoring_service.rank_workspaces(
+                workspace_chunks
+            )
             selected_results = collection_selection_service.select(ranked_results)
             top_results = selected_results[:top_k]
 
@@ -94,7 +100,7 @@ class CollectionRetrievalService:
     ) -> List[ScoredTaskList]:
         if not workspace_ids:
             return []
-        
+
         query_norm = normalize_text(query)
         query_vector = self.model.encode(query_norm).tolist()
         top_k = top_k if top_k is not None else self.config.list_retrieval_top_k
@@ -105,11 +111,11 @@ class CollectionRetrievalService:
             vector=query_vector,
             alpha=self.config.list_hybrid_alpha,
             filters=(
-                wvc_query.Filter.by_property("workspace_id").contains_any(workspace_ids) &
-                wvc_query.Filter.by_property("type").equal("task")
+                wvc_query.Filter.by_property("workspace_id").contains_any(workspace_ids)
+                & wvc_query.Filter.by_property("type").equal("task")
             ),
             return_properties=["tasklist_id", "chunk_id"],
-            return_metadata=wvc_query.MetadataQuery(score=True)
+            return_metadata=wvc_query.MetadataQuery(score=True),
         )
 
         if not response.objects:

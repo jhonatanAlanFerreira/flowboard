@@ -10,8 +10,10 @@ from app.schemas.data_question import RetrievedChunk
 client = get_weaviate_client()
 tracer = get_tracer()
 
+
 def normalize_text(value: str) -> str:
     return str(value).strip().lower()
+
 
 class DataQuestionRetrievalService:
     def __init__(self, config=None):
@@ -103,7 +105,9 @@ class DataQuestionRetrievalService:
 
             for u_hit in unique_hits:
                 if not u_hit.found_in_both and u_hit.chunk_id in targeted_chunk_ids:
-                    count = sum(1 for h in all_hits if h.get("chunk_id") == u_hit.chunk_id)
+                    count = sum(
+                        1 for h in all_hits if h.get("chunk_id") == u_hit.chunk_id
+                    )
                     if count > 1:
                         u_hit.found_in_both = True
 
@@ -119,13 +123,14 @@ class DataQuestionRetrievalService:
         workspace_id: str = None,
     ) -> List[Dict]:
 
-        filters = (
-            wvc_query.Filter.by_property("user_id").equal(user_id_string) &
-            wvc_query.Filter.by_property("type").equal("task")
-        )
+        filters = wvc_query.Filter.by_property("user_id").equal(
+            user_id_string
+        ) & wvc_query.Filter.by_property("type").equal("task")
 
         if workspace_id:
-            filters = filters & wvc_query.Filter.by_property("workspace_id").equal(workspace_id)
+            filters = filters & wvc_query.Filter.by_property("workspace_id").equal(
+                workspace_id
+            )
 
         response = self.collection.query.hybrid(
             query=query_norm,
@@ -134,7 +139,7 @@ class DataQuestionRetrievalService:
             filters=filters,
             limit=limit,
             return_properties=["chunk_id", "workspace_id", "tasklist_id", "content"],
-            return_metadata=wvc_query.MetadataQuery(score=True)
+            return_metadata=wvc_query.MetadataQuery(score=True),
         )
 
         return [

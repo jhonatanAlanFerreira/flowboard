@@ -5,8 +5,10 @@ from app.enums.chunk_type import ChunkType
 
 client = get_weaviate_client()
 
+
 def normalize_text(value: str) -> str:
     return str(value).strip().lower()
+
 
 class ChunkService:
     def __init__(self):
@@ -46,7 +48,7 @@ class ChunkService:
         response = self.collection.query.fetch_objects(
             filters=Filter.by_property("chunk_id").equal(chunk_id_str),
             limit=1,
-            return_properties=[] # Just need the UUID
+            return_properties=[],
         )
 
         if response.objects:
@@ -59,10 +61,7 @@ class ChunkService:
             return {"action": "update", "id": chunk_id_str}
         else:
             # Create new
-            self.collection.data.insert(
-                properties=data_object,
-                vector=vector
-            )
+            self.collection.data.insert(properties=data_object, vector=vector)
             return {"action": "create", "id": chunk_id_str}
 
     def delete_chunk(self, chunk_id: int):
