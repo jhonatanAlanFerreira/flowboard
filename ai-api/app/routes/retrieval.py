@@ -64,7 +64,7 @@ def retrieve_workspaces(request: RetrievalWorkflowRequest):
 @router.post("/patterns/extract/collection", response_model=ExtractPatternsResponse)
 def extract_patterns(lists: List[TaskListInput]):
     results = collection_pattern_extraction_service.extract_patterns_from_lists(
-        lists_data=[l.model_dump() for l in lists]
+        lists_data=lists
     )
 
     return {
