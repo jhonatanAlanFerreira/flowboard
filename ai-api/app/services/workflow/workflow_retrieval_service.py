@@ -8,6 +8,8 @@ from app.services.workflow.workflow_workspace_selection_service import (
     WorkflowWorkspaceSelectionService,
 )
 from app.schemas.workspace import WorkspaceResult
+from weaviate.classes.query import Filter, MetadataQuery
+import weaviate.classes as wvc
 import json
 
 client = get_weaviate_client()
@@ -39,40 +41,29 @@ class WorkflowRetrievalService:
             span.set_attribute("input.top_k", top_k)
 
             # Retrieval
-            response = (
-                self.client.query.get(
-                    self.class_name, ["workspace_id", "content", "chunk_id"]
-                )
-                .with_hybrid(query=query_norm, vector=query_vector, alpha=0.5)
-                .with_where(
-                    {
-                        "operator": "And",
-                        "operands": [
-                            {
-                                "path": ["user_id"],
-                                "operator": "Equal",
-                                "valueString": user_id_string,
-                            },
-                            {
-                                "path": ["type"],
-                                "operator": "Equal",
-                                "valueString": "list",
-                            },
-                        ],
-                    }
-                )
-                .with_additional(["score"])
-                .do()
+            collection = self.client.collections.get(self.class_name)
+
+            response = collection.query.hybrid(
+                query=query_norm,
+                vector=query_vector,
+                alpha=0.5,
+                limit=top_k,
+                filters=(
+                    Filter.by_property("user_id").equal(user_id_string) &
+                    Filter.by_property("type").equal("list")
+                ),
+                return_properties=["workspace_id", "content", "chunk_id"],
+                return_metadata=MetadataQuery(score=True)
             )
 
-            hits = response.get("data", {}).get("Get", {}).get(self.class_name) or []
+            hits = response.objects
 
             # Group chunks by workspace
             workspace_chunks = defaultdict(list)
             for hit in hits:
-                wid = hit["workspace_id"]
-                score = float(hit["_additional"]["score"])
-                chunk_id = hit["chunk_id"]
+                wid = hit.properties["workspace_id"]
+                chunk_id = hit.properties["chunk_id"]
+                score = float(hit.metadata.score)
 
                 workspace_chunks[wid].append({"score": score, "chunk_id": chunk_id})
 

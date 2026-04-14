@@ -1,6 +1,7 @@
 import json
 from collections import defaultdict
 from typing import List, Dict
+import weaviate.classes.query as wvc_query
 from sentence_transformers import SentenceTransformer
 from app.clients.weaviate_client import get_weaviate_client
 from app.config import settings
@@ -17,18 +18,16 @@ tracer = get_tracer()
 collection_scoring_service = CollectionScoringService()
 collection_selection_service = CollectionWorkspaceSelectionService()
 
-
 def normalize_text(value: str) -> str:
     return str(value).strip().lower()
-
 
 class CollectionRetrievalService:
     def __init__(self, config=None):
         self.config = config or settings.collection_retrieval
-
         self.client = client
         self.class_name = self.config.class_name
         self.model = SentenceTransformer(self.config.model_name)
+        self.collection = self.client.collections.get(self.class_name)
 
     def get_relevant_workspaces(
         self, query: str, user_id: int, top_k: int = None
@@ -36,7 +35,6 @@ class CollectionRetrievalService:
         user_id_string = str(user_id)
         query_norm = normalize_text(query)
         query_vector = self.model.encode(query_norm).tolist()
-
         top_k = top_k if top_k is not None else self.config.workspace_retrieval_top_k
 
         with tracer.start_as_current_span("service.retrieval") as span:
@@ -44,46 +42,26 @@ class CollectionRetrievalService:
             span.set_attribute("input.user_id", user_id_string)
             span.set_attribute("input.top_k", top_k)
 
-            # Retrieval
-            response = (
-                self.client.query.get(
-                    self.class_name, ["workspace_id", "content", "chunk_id"]
-                )
-                .with_hybrid(
-                    query=query_norm,
-                    vector=query_vector,
-                    alpha=self.config.workspace_hybrid_alpha,
-                )
-                .with_where(
-                    {
-                        "operator": "And",
-                        "operands": [
-                            {
-                                "path": ["user_id"],
-                                "operator": "Equal",
-                                "valueString": user_id_string,
-                            },
-                            {
-                                "path": ["type"],
-                                "operator": "Equal",
-                                "valueString": "task",
-                            },
-                        ],
-                    }
-                )
-                .with_additional(["score"])
-                .do()
+            response = self.collection.query.hybrid(
+                query=query_norm,
+                vector=query_vector,
+                alpha=self.config.workspace_hybrid_alpha,
+                filters=(
+                    wvc_query.Filter.by_property("user_id").equal(user_id_string) &
+                    wvc_query.Filter.by_property("type").equal("task")
+                ),
+                return_properties=["workspace_id", "content", "chunk_id"],
+                return_metadata=wvc_query.MetadataQuery(score=True)
             )
-
-            hits = response.get("data", {}).get("Get", {}).get(self.class_name) or []
 
             # Group chunks by workspace
             workspace_chunks: Dict[str, List[WorkspaceResult]] = defaultdict(list)
 
-            for hit in hits:
-                wid = hit["workspace_id"]
-                score = float(hit["_additional"]["score"])
-                chunk_id = hit["chunk_id"]
+            for obj in response.objects:
+                props = obj.properties
+                wid = props["workspace_id"]
+                score = float(obj.metadata.score)
+                chunk_id = props["chunk_id"]
 
                 result = WorkspaceResult(
                     workspace_id=wid,
@@ -97,21 +75,11 @@ class CollectionRetrievalService:
 
             span.set_attribute(
                 "retrieval.workspace_match_count",
-                json.dumps(
-                    {wid: len(results) for wid, results in workspace_chunks.items()}
-                ),
+                json.dumps({wid: len(results) for wid, results in workspace_chunks.items()}),
             )
 
-            ranked_results: List[WorkspaceResult] = (
-                collection_scoring_service.rank_workspaces(workspace_chunks)
-            )
-
-            # Selection / filtering
-            selected_results: List[WorkspaceResult] = (
-                collection_selection_service.select(ranked_results)
-            )
-
-            # Limit top_k
+            ranked_results = collection_scoring_service.rank_workspaces(workspace_chunks)
+            selected_results = collection_selection_service.select(ranked_results)
             top_results = selected_results[:top_k]
 
             span.set_attribute(
@@ -124,46 +92,36 @@ class CollectionRetrievalService:
     def get_relevant_lists_for_workspaces(
         self, workspace_ids: list[str], query: str, top_k: int = None
     ) -> List[ScoredTaskList]:
+        if not workspace_ids:
+            return []
+        
         query_norm = normalize_text(query)
         query_vector = self.model.encode(query_norm).tolist()
-
         top_k = top_k if top_k is not None else self.config.list_retrieval_top_k
 
-        response = (
-            self.client.query.get(self.class_name, ["tasklist_id", "chunk_id"])
-            .with_where(
-                {
-                    "operator": "And",
-                    "operands": [
-                        {
-                            "path": ["workspace_id"],
-                            "operator": "ContainsAny",
-                            "valueTextArray": workspace_ids,
-                        },
-                        {"path": ["type"], "operator": "Equal", "valueString": "task"},
-                    ],
-                }
-            )
-            .with_hybrid(
-                query=query_norm,
-                vector=query_vector,
-                alpha=self.config.list_hybrid_alpha,
-            )
-            .with_additional(["score"])
-            .do()
+        # v4 Search with ContainsAny filter
+        response = self.collection.query.hybrid(
+            query=query_norm,
+            vector=query_vector,
+            alpha=self.config.list_hybrid_alpha,
+            filters=(
+                wvc_query.Filter.by_property("workspace_id").contains_any(workspace_ids) &
+                wvc_query.Filter.by_property("type").equal("task")
+            ),
+            return_properties=["tasklist_id", "chunk_id"],
+            return_metadata=wvc_query.MetadataQuery(score=True)
         )
 
-        hits = response.get("data", {}).get("Get", {}).get(self.class_name, [])
-
-        if not hits:
+        if not response.objects:
             return []
 
         lists: Dict[str, TaskListResult] = {}
 
-        for hit in hits:
-            list_id = hit["tasklist_id"]
-            score = float(hit["_additional"]["score"])
-            chunk_id = hit["chunk_id"]
+        for obj in response.objects:
+            props = obj.properties
+            list_id = props["tasklist_id"]
+            score = float(obj.metadata.score)
+            chunk_id = props["chunk_id"]
 
             if list_id not in lists:
                 lists[list_id] = TaskListResult(tasklist_id=list_id)
