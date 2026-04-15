@@ -1,5 +1,4 @@
 from weaviate.classes.query import Filter
-from sentence_transformers import SentenceTransformer
 from app.clients.weaviate_client import get_weaviate_client
 from app.enums.chunk_type import ChunkType
 
@@ -14,7 +13,6 @@ class ChunkService:
     def __init__(self):
         self.client = client
         self.class_name = "Chunk"
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.collection = self.client.collections.get(self.class_name)
 
     def create_or_update_chunk(
@@ -32,7 +30,6 @@ class ChunkService:
         """
 
         content_norm = normalize_text(content)
-        vector = self.model.encode(content_norm).tolist()
 
         chunk_id_str = str(chunk_id)
         data_object = {
@@ -56,12 +53,11 @@ class ChunkService:
             self.collection.data.update(
                 uuid=response.objects[0].uuid,
                 properties=data_object,
-                vector=vector,
             )
             return {"action": "update", "id": chunk_id_str}
         else:
             # Create new
-            self.collection.data.insert(properties=data_object, vector=vector)
+            self.collection.data.insert(properties=data_object)
             return {"action": "create", "id": chunk_id_str}
 
     def delete_chunk(self, chunk_id: int):

@@ -1,7 +1,6 @@
 import json
 from typing import Dict, List
 import weaviate.classes.query as wvc_query
-from sentence_transformers import SentenceTransformer
 from app.clients.weaviate_client import get_weaviate_client
 from app.config import settings
 from app.observability.phoenix import get_tracer
@@ -20,7 +19,6 @@ class DataQuestionRetrievalService:
         self.config = config or settings.data_question_retrieval
         self.client = client
         self.class_name = self.config.class_name
-        self.model = SentenceTransformer(self.config.model_name)
         self.collection = self.client.collections.get(self.class_name)
 
     def retrieve_chunks_for_question(
@@ -32,8 +30,6 @@ class DataQuestionRetrievalService:
         """
         user_id_string = str(user_id)
         query_norm = normalize_text(query)
-        query_vector = self.model.encode(query_norm).tolist()
-
         workspace_id = prediction_result.get("predicted_workspace_id")
         confidence = prediction_result.get("confidence_score", 0.0)
 
@@ -49,7 +45,6 @@ class DataQuestionRetrievalService:
             if workspace_id and confidence >= self.config.confidence_threshold:
                 targeted_hits = self._execute_search(
                     query_norm,
-                    query_vector,
                     user_id_string,
                     limit=self.config.targeted_search_limit,
                     workspace_id=str(workspace_id),
@@ -61,7 +56,6 @@ class DataQuestionRetrievalService:
 
                 global_hits = self._execute_search(
                     query_norm,
-                    query_vector,
                     user_id_string,
                     limit=self.config.global_fallback_limit,
                     workspace_id=None,
@@ -70,7 +64,6 @@ class DataQuestionRetrievalService:
             else:
                 global_hits = self._execute_search(
                     query_norm,
-                    query_vector,
                     user_id_string,
                     limit=self.config.pure_global_limit,
                     workspace_id=None,
@@ -117,7 +110,6 @@ class DataQuestionRetrievalService:
     def _execute_search(
         self,
         query_norm: str,
-        query_vector: List[float],
         user_id_string: str,
         limit: int,
         workspace_id: str = None,
@@ -134,7 +126,6 @@ class DataQuestionRetrievalService:
 
         response = self.collection.query.hybrid(
             query=query_norm,
-            vector=query_vector,
             alpha=self.config.hybrid_alpha,
             filters=filters,
             limit=limit,
