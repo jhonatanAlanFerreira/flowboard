@@ -115,6 +115,7 @@ services:
       TRANSFORMERS_INFERENCE_API: "http://t2v-transformers:8080"
       RAFT_BOOTSTRAP_TIMEOUT: 120
     volumes:
+      - weaviate_data:/var/lib/weaviate
     depends_on:
       - t2v-transformers
 
