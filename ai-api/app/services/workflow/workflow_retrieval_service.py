@@ -1,5 +1,4 @@
 from typing import List, Dict
-from sentence_transformers import SentenceTransformer
 from app.clients.weaviate_client import get_weaviate_client
 from app.observability.phoenix import get_tracer
 from collections import defaultdict
@@ -26,14 +25,12 @@ class WorkflowRetrievalService:
     def __init__(self):
         self.client = client
         self.class_name = "Chunk"
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
 
     def get_relevant_workspaces(
         self, query: str, user_id: int, top_k: int = 5
     ) -> List[WorkspaceResult]:
         user_id_string = str(user_id)
         query_norm = normalize_text(query)
-        query_vector = self.model.encode(query_norm).tolist()
 
         with tracer.start_as_current_span("service.retrieval") as span:
             span.set_attribute("input.query", query)
@@ -45,7 +42,6 @@ class WorkflowRetrievalService:
 
             response = collection.query.hybrid(
                 query=query_norm,
-                vector=query_vector,
                 alpha=0.5,
                 limit=top_k,
                 filters=(
