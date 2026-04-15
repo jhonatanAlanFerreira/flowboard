@@ -199,15 +199,16 @@ Run:
 
 This will start the following services:
 
-- **mysql8.0** – relational database  
-- **flowboard-laravel** – main backend (API & business logic)  
-- **flowboard-angular** – frontend application  
-- **flowboard-ai-api** – AI service (LLM integration & orchestration)  
-- **flowboard-ai-worker** – background worker for AI tasks (tagging, generation, RAG processing)  
-- **flowboard-queue** – queue processor for async jobs  
-- **redis7** – caching and queue broker  
-- **weaviate** – vector database for semantic search / RAG  
-- **phoenix** – observability and tracing for LLM workflows  
+- dev-mysql – Relational database for core application data.
+- dev-laravel – Main backend (API & business logic).
+- dev-angular – Frontend application.
+- dev-ai-api – AI service (LLM orchestration and FastAPI endpoints).
+- dev-ai-worker – Background worker for AI tasks (tagging, RAG processing).
+- dev-t2v-transformers – Specialized service for local vector embedding inference.
+- dev-queue – Laravel queue processor for business logic jobs.
+- dev-redis – Caching and broker for both Laravel and Celery queues.
+- dev-weaviate – Vector database for semantic search and RAG storage.
+- dev-phoenix – Observability and tracing for monitoring LLM and RAG performance.
 
  Wait for Laravel to be ready
 
