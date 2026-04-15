@@ -1,6 +1,5 @@
 from typing import List
 from weaviate.classes.query import Filter, MetadataQuery
-from sentence_transformers import SentenceTransformer
 from app.clients.weaviate_client import get_weaviate_client
 
 client = get_weaviate_client()
@@ -14,18 +13,16 @@ class WorkspaceService:
     def __init__(self):
         self.client = client
         self.class_name = "Workspace"
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.collection = self.client.collections.get(self.class_name)
 
     def upsert_workspace(
         self, chunk_id: int, user_id: int, workspace_id: int, name: str
     ):
         """
-        Creates or updates a Workspace name vector.
+        Creates or updates a Workspace name.
         This is used for Stage 1: finding the workspace_id from an LLM hint.
         """
         name_norm = normalize_text(name)
-        vector = self.model.encode(name_norm).tolist()
 
         workspace_id_str = str(workspace_id)
         data_object = {
@@ -43,15 +40,15 @@ class WorkspaceService:
         )
 
         if response.objects:
-            # Update existing workspace name/vector
+            # Update existing workspace name
             weaviate_uuid = response.objects[0].uuid
             self.collection.data.update(
-                uuid=weaviate_uuid, properties=data_object, vector=vector
+                uuid=weaviate_uuid, properties=data_object
             )
             return {"action": "update", "id": workspace_id_str}
         else:
             # Create new
-            self.collection.data.insert(properties=data_object, vector=vector)
+            self.collection.data.insert(properties=data_object)
             return {"action": "create", "id": workspace_id_str}
 
     def delete_workspace(self, workspace_id: int):
@@ -70,11 +67,9 @@ class WorkspaceService:
         """
         user_id_str = str(user_id)
         prompt_norm = normalize_text(user_prompt)
-        vector = self.model.encode(prompt_norm).tolist()
 
         response = self.collection.query.hybrid(
             query=prompt_norm,
-            vector=vector,
             alpha=0.5,
             filters=Filter.by_property("user_id").equal(user_id_str),
             limit=limit,

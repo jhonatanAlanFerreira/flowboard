@@ -2,7 +2,6 @@ import json
 from collections import defaultdict
 from typing import List, Dict
 import weaviate.classes.query as wvc_query
-from sentence_transformers import SentenceTransformer
 from app.clients.weaviate_client import get_weaviate_client
 from app.config import settings
 from app.observability.phoenix import get_tracer
@@ -28,7 +27,6 @@ class CollectionRetrievalService:
         self.config = config or settings.collection_retrieval
         self.client = client
         self.class_name = self.config.class_name
-        self.model = SentenceTransformer(self.config.model_name)
         self.collection = self.client.collections.get(self.class_name)
 
     def get_relevant_workspaces(
@@ -36,7 +34,6 @@ class CollectionRetrievalService:
     ) -> List[WorkspaceResult]:
         user_id_string = str(user_id)
         query_norm = normalize_text(query)
-        query_vector = self.model.encode(query_norm).tolist()
         top_k = top_k if top_k is not None else self.config.workspace_retrieval_top_k
 
         with tracer.start_as_current_span("service.retrieval") as span:
@@ -46,7 +43,6 @@ class CollectionRetrievalService:
 
             response = self.collection.query.hybrid(
                 query=query_norm,
-                vector=query_vector,
                 alpha=self.config.workspace_hybrid_alpha,
                 filters=(
                     wvc_query.Filter.by_property("user_id").equal(user_id_string)
@@ -102,13 +98,11 @@ class CollectionRetrievalService:
             return []
 
         query_norm = normalize_text(query)
-        query_vector = self.model.encode(query_norm).tolist()
         top_k = top_k if top_k is not None else self.config.list_retrieval_top_k
 
         # v4 Search with ContainsAny filter
         response = self.collection.query.hybrid(
             query=query_norm,
-            vector=query_vector,
             alpha=self.config.list_hybrid_alpha,
             filters=(
                 wvc_query.Filter.by_property("workspace_id").contains_any(workspace_ids)
