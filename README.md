@@ -293,3 +293,23 @@ docker exec -it dev-laravel php artisan tasks:chunk-missing --user_id=123 --prev
 - Phoenix: http://localhost:6006
 
 ---
+
+## 6. Documentation Map
+
+Follow the documentation in this order to understand the full AI lifecycle:
+
+[1. Ingestion] --> [2. Orchestration] --> [3. Retrieval Strategies]
+
+1. [Data Ingestion](./docs/ingestion.md)
+   How tasks are formatted, chunked, and semantically tagged in Weaviate.
+
+2. [AI Orchestration](./docs/orchestration.md)
+   How Laravel, Celery, and FastAPI communicate to handle background AI tasks.
+
+3. Retrieval Strategies:
+   - [Contextual Q&A](./docs/retrieval/retrieval-qa.md): How we answer questions using workspace prediction.
+   - [Workflow Generation](./docs/retrieval/retrieval-workflow.md): How we predict list pipelines.
+   - [Collection Generation](./docs/retrieval/retrieval-collection.md): How we cluster topical data.
+
+4. [AI Configuration](./docs/ai-config.md)
+   How to fine-tune the config.py settings, scoring thresholds, and LLM providers.
