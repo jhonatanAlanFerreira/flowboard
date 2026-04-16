@@ -1,10 +1,12 @@
 # Flowboard
 
-**Flowboard** is a full-stack, AI-powered project management platform built with **Angular**, **Laravel**, and **Python**, designed to support **multiple users and workspaces at scale**.
-It features an intuitive **drag-and-drop interface** for managing tasks and workflows, enhanced by **semantic tagging** and **LLM-based content generation** to streamline organization and productivity.
-The platform includes **AI-driven workspace generation**, capable of creating new workspaces based on **user patterns and behavior**, enabling a more personalized and adaptive experience.
-It also leverages **RAG (Retrieval-Augmented Generation)** for context-aware task suggestions and smarter content generation.
-The entire system is fully **containerized with Docker**, ensuring a consistent, scalable, and easy-to-deploy development environment.
+Flowboard is a full-stack, AI-powered project management platform built with Angular, Laravel, and Python, designed to support multiple users and workspaces at scale.
+
+It features an intuitive drag-and-drop interface for managing tasks and workflows, enhanced by semantic tagging and LLM-based content generation. The platform includes AI-driven workspace generation, capable of creating new workspaces based on user patterns and behavior for a personalized experience.
+
+By leveraging RAG (Retrieval-Augmented Generation), Flowboard can answer natural language questions about user data and tasks, providing context-aware suggestions and smart content generation. The entire system is fully containerized with Docker, ensuring a consistent, scalable, and easy-to-deploy development environment.
+
+---
 
 ---
 
@@ -20,54 +22,31 @@ The entire system is fully **containerized with Docker**, ensuring a consistent,
 - Move lists and tasks across workspaces
 - Docker-based local development  
 
-### AI
+### AI Features
 
-- AI-generated workspaces (lists, tasks, structure)  
-- Fully local LLM (no external APIs)
-- Async processing with queue workers
-
----
-
-## Status
-
-This project is currently under active development.  
-Core systems like chunking, embeddings, and retrieval are implemented, while RAG-based generation is in progress.
+- Smart Workspace Generation
+  Automatically scaffolds entire workspaces, including lists, tasks, and structural organization, based on user-defined goals or historical patterns.
+- Contextual RAG Assistant
+  Allows users to ask natural language questions about their tasks and workspaces, providing context-aware answers using indexed data.
+- Hybrid LLM Orchestration
+  Supports fully local execution via llama.cpp or high-speed generation using the Groq API, configurable via the central AI settings (ai-api/app/config.py).
+- Event-Driven Async Processing
+  Offloads heavy AI computations (tagging, generation, and chunking) to background queue workers for a responsive, non-blocking UI experience.
 
 ---
-
-## Screenshots & Demos
-
-### AI Workspace Generation
-
-![AI Workspace Generation](screenshots/ai_workspace_generate.gif)
-
-> The AI analyzes a natural-language description and generates a complete workspace structure (lists + tasks).  
-> The frontend handles async polling and resumes generation after refresh or re-login.
-
----
-
-### Login & Board Interaction
-
-![Login - Board](screenshots/login_drag_drop.gif)
-
----
-
-## Tech Stack
 
 ### Core
+- Backend: Laravel (PHP)
+- Frontend: Angular
+- Database: MySQL & Redis 
+- Queue Management: Laravel Queue Workers & Celery (Python)
+- Infrastructure: Docker & Docker Compose
 
-- Backend: **Laravel (PHP)**  
-- Frontend: **Angular**  
-- Database: **MySQL**  
-- Authentication: **JWT**  
-- Infrastructure: **Docker & Docker Compose**
-
-### AI
-
-- API: **FastAPI (Python)**  
-- LLM Runtime: **llama.cpp**  
-- Model format: **GGUF**  
-- Execution: **Fully local / offline**
+### AI and RAG
+- AI API: FastAPI (Python)
+- Vector Database: Weaviate (Used for semantic search and task chunk storage)
+- LLM Runtime: llama.cpp (Local) & Groq API (Cloud Hybrid)
+- Observability: Arize Phoenix (Trace/Eval)
 
 ---
 
@@ -89,6 +68,7 @@ Core systems like chunking, embeddings, and retrieval are implemented, while RAG
 ├── ai-api/
 │   └── app/
 │       ├── main.py                      # AI API (FastAPI + llama.cpp)
+|       ├── config.py                    # AI Scoring, Thresholds, and Provider config
 │       └── ...                          # AI source files
 ├── models/
 │   └── mistral-7b-instruct-v0.2.Q4_K_M.gguf
@@ -181,40 +161,36 @@ Choose the option that matches your infrastructure setup.
 
 ---
 
-## 3. Download LLM Model
+## 4. LLM Configuration (Local & Cloud Hybrid)
 
-Recommended:
+Flowboard uses a hybrid AI approach. You should configure both a local model and a Groq API key for the best experience.
 
-**Mistral 7B Instruct (Q4_K_M)**
+### A. Local Model Setup (Recommended for Tagging)
+The local LLM handles background tasks like semantic tagging and chunking. 
 
-https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF
+1. Download the Recommended Model:
+   Mistral 7B Instruct v0.2 (Q4_K_M) from HuggingFace (TheBloke).
+   File: mistral-7b-instruct-v0.2.Q4_K_M.gguf
 
-File:
+2. Place the Model:
+   Move the file to the project directory:
+   models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
 
-```
-mistral-7b-instruct-v0.2.Q4_K_M.gguf
-```
+3. Update Root .env:
+   Ensure the MODEL_PATH matches the filename:
+   MODEL_PATH=/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
 
----
+### B. Groq API Setup (Required for Fast Generation)
+Using a local LLM for final workspace and answer generation can be very slow on consumer hardware. Recommend using Groq for these tasks.
 
-## 4. Place Model
+1. Get an API Key: Create a free key at https://groq.com
+2. Update Root .env:
+   GROQ_API_KEY=your_api_key_here
 
-```
-models/
-└── mistral-7b-instruct-v0.2.Q4_K_M.gguf
-```
+Note: You can toggle which provider handles specific tasks inside "ai-api/app/config.py".
 
----
 
-## 5. Configure Model Path
-
-Update the root .env file (same level as docker-compose.yml):
-
-```
-MODEL_PATH=/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
-```
-
-## 6. Start the Full Development Environment
+## 5. Start the Full Development Environment
 
 Run:
 ```
@@ -223,15 +199,16 @@ Run:
 
 This will start the following services:
 
-- **mysql8.0** – relational database  
-- **flowboard-laravel** – main backend (API & business logic)  
-- **flowboard-angular** – frontend application  
-- **flowboard-ai-api** – AI service (LLM integration & orchestration)  
-- **flowboard-ai-worker** – background worker for AI tasks (tagging, generation, RAG processing)  
-- **flowboard-queue** – queue processor for async jobs  
-- **redis7** – caching and queue broker  
-- **weaviate** – vector database for semantic search / RAG  
-- **phoenix** – observability and tracing for LLM workflows  
+- dev-mysql – Relational database for core application data.
+- dev-laravel – Main backend (API & business logic).
+- dev-angular – Frontend application.
+- dev-ai-api – AI service (LLM orchestration and FastAPI endpoints).
+- dev-ai-worker – Background worker for AI tasks (tagging, RAG processing).
+- dev-t2v-transformers – Specialized service for local vector embedding inference.
+- dev-queue – Laravel queue processor for business logic jobs.
+- dev-redis – Caching and broker for both Laravel and Celery queues.
+- dev-weaviate – Vector database for semantic search and RAG storage.
+- dev-phoenix – Observability and tracing for monitoring LLM and RAG performance.
 
  Wait for Laravel to be ready
 
@@ -279,6 +256,10 @@ docker exec -it dev-laravel php artisan test
 docker exec -it dev-angular ng test
 ```
 
+```
+docker exec -it dev-ai-api python -m pytest
+```
+
 ## Commands
 
 ### Create missing chunks
@@ -312,3 +293,23 @@ docker exec -it dev-laravel php artisan tasks:chunk-missing --user_id=123 --prev
 - Phoenix: http://localhost:6006
 
 ---
+
+## 6. Documentation Map
+
+Follow the documentation in this order to understand the full AI lifecycle:
+
+[1. Ingestion] --> [2. Orchestration] --> [3. Retrieval Strategies]
+
+1. [Data Ingestion](./docs/ingestion.md)
+   How tasks are formatted, chunked, and semantically tagged in Weaviate.
+
+2. [AI Orchestration](./docs/orchestration.md)
+   How Laravel, Celery, and FastAPI communicate to handle background AI tasks.
+
+3. Retrieval Strategies:
+   - [Contextual Q&A](./docs/retrieval/retrieval-qa.md): How we answer questions using workspace prediction.
+   - [Workflow Generation](./docs/retrieval/retrieval-workflow.md): How we predict list pipelines.
+   - [Collection Generation](./docs/retrieval/retrieval-collection.md): How we cluster topical data.
+
+4. [AI Configuration](./docs/ai-config.md)
+   How to fine-tune the config.py settings, scoring thresholds, and LLM providers.
