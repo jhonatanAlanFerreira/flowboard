@@ -63,7 +63,10 @@ services:
     container_name: dev-ai-api
     restart: unless-stopped
     depends_on:
-      - redis
+      redis:
+        condition: service_started
+      weaviate:
+        condition: service_healthy
     volumes:
       - ./ai-api:/app
       - ./models:/models
@@ -118,6 +121,16 @@ services:
       - weaviate_data:/var/lib/weaviate
     depends_on:
       - t2v-transformers
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:$WEAVIATE_PORT/v1/.well-known/live || exit 1",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
 
   t2v-transformers:
     image: semitechnologies/transformers-inference:sentence-transformers-multi-qa-MiniLM-L6-cos-v1
