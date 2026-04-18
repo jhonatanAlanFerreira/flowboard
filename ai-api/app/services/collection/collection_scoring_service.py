@@ -9,6 +9,7 @@ from app.schemas.chunk import (
     TaskListFeatures,
     TaskListChunk,
 )
+import json
 
 tracer = get_tracer()
 
@@ -56,7 +57,6 @@ class CollectionScoringService:
 
     def rank_lists(self, lists: Dict[str, TaskListResult]) -> List[ScoredTaskList]:
         with tracer.start_as_current_span("service.scoring.lists") as span:
-            span.set_attribute("input.lists_count", len(lists))
 
             ranked_lists: List[ScoredTaskList] = []
 
@@ -76,9 +76,8 @@ class CollectionScoringService:
 
             ranked_lists.sort(key=lambda x: x.score, reverse=True)
 
-            span.set_attribute("output.ranked_count", len(ranked_lists))
             if ranked_lists:
-                span.set_attribute("output.best_list_id", ranked_lists[0].tasklist_id)
+                span.set_attribute("output.ranked_lists", json.dumps([item.model_dump() for item in ranked_lists]))
 
             return ranked_lists
 
