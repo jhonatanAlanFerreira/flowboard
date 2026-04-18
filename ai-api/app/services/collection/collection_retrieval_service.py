@@ -100,7 +100,6 @@ class CollectionRetrievalService:
         query_norm = normalize_text(query)
         top_k = top_k if top_k is not None else self.config.list_retrieval_top_k
 
-        # v4 Search with ContainsAny filter
         response = self.collection.query.hybrid(
             query=query_norm,
             alpha=self.config.list_hybrid_alpha,
