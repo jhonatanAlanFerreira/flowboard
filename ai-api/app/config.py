@@ -89,7 +89,7 @@ class CollectionRetrievalConfig(BaseModel):
 
     # get_relevant_lists_for_workspaces parameters
     list_retrieval_top_k: int = Field(
-        default=5, description="Default retrieval limit for final list results."
+        default=7, description="Default retrieval limit for final list results."
     )
     list_hybrid_alpha: float = Field(
         default=0.8,
