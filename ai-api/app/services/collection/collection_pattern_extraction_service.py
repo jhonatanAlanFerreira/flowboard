@@ -124,14 +124,22 @@ class CollectionPatternExtractionService:
 
     def _select_diverse_tags(self, ranked_groups: List[dict], top_k: int) -> List[dict]:
         selected = []
+        used_tasks = set()
+
         for candidate in ranked_groups:
-            is_similar = any(
+            is_tag_similar = any(
                 self.tags_are_similar(candidate["tag"], s["tag"]) for s in selected
             )
-            if not is_similar:
+            
+            is_task_duplicate = candidate["task"] in used_tasks
+
+            if not is_tag_similar and not is_task_duplicate:
                 selected.append(candidate)
+                used_tasks.add(candidate["task"])
+            
             if len(selected) == top_k:
                 break
+        
         return selected
 
     def _format_patterns(self, selected: List[dict]) -> List[Pattern]:
