@@ -7,66 +7,57 @@ import json
 class GenerateCollectionWorkspaceAgent:
     SYSTEM_PROMPT = """
     You are a structured data generator. 
-    Your goal is to expand a workspace based on a user prompt while maintaining the style and structure of their existing lists.
+    Your goal is to scaffold a workspace based on a user prompt.
 
     STRICT RULES:
     - Return ONLY valid JSON (no markdown, no extra text).
-    - If "REFERENCE PATTERNS" are provided, match the user's naming style and task depth.
+    - Match the user's naming style and task granularity from the patterns.
     - If no patterns are provided, create a professional industry-standard structure.
-    - Do not duplicate existing tasks or list names provided in the patterns.
 
     JSON SCHEMA:
-    {{
-      "workspace": {{
-        "name": string,
+    {
+      "workspace": {
+        "name": "string",
         "lists": [
-          {{
-            "name": string,
+          {
+            "name": "string",
             "tasks": [
-              {{ "description": string }}
+              { "description": "string" }
             ]
-          }}
+          }
         ]
-      }}
-    }}
+      }
+    }
     """
 
     def generate_workspace_llm(self, user_prompt: str, workspace_patterns: dict) -> str:
-        # Defaults for cold-start (new users)
         avg_lists = workspace_patterns.get("average_lists_per_workspace") or 6
         avg_tasks = workspace_patterns.get("average_tasks_per_list") or 6
-
-        # Convert existing lists into a JSON string to preserve task integrity
         existing_lists = workspace_patterns.get("lists", [])
-        formatted_patterns = []
-        for lst in existing_lists:
-            # Map each string task into the required object format for the example
-            formatted_tasks = [
-                {"description": task} if isinstance(task, str) else task
-                for task in lst.get("tasks", [])
-            ]
-            formatted_patterns.append(
-                {"name": lst.get("name"), "tasks": formatted_tasks}
-            )
-            patterns_str = json.dumps(existing_lists, indent=2)
+
+        if existing_lists:
+            formatted_patterns = []
+            for lst in existing_lists:
+                tasks = [{"description": t} if isinstance(t, str) else t for t in lst.get("tasks", [])]
+                unique_tasks = list({t['description']: t for t in tasks}.values())
+                formatted_patterns.append({"name": lst.get("name"), "tasks": unique_tasks})
+            
+            patterns_str = json.dumps(formatted_patterns, indent=2)
         else:
-            patterns_str = (
-                "No existing patterns. Generate a logical structure from scratch."
-            )
-
+            patterns_str = "No existing patterns. Generate a logical structure from scratch."
+            
         full_prompt = f"""
-      {self.SYSTEM_PROMPT}
-      
-      GOAL: Create at least {avg_lists} lists and at least {avg_tasks} tasks each.
+        {self.SYSTEM_PROMPT}
+        
+        GOAL: Create ~{avg_lists} lists and ~{avg_tasks} tasks each.
+        
+        USER REQUEST: {user_prompt}
 
-      REFERENCE PATTERNS (Existing user structure):
-      {patterns_str}
+        REFERENCE PATTERNS (Style guide):
+        {patterns_str}
 
-      USER TASK:
-      {user_prompt}
-
-      JSON:
-      """
+        JSON:
+        """
 
         agent_config = settings.collection_workspace_agent
 
