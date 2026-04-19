@@ -38,9 +38,10 @@ def retrieve_workspaces(request: RetrievalCollectionRequest):
 
     query = request.query.strip()
     user_id = request.user_id
+    workspace_ids = request.workspace_ids
 
     workspaces: List[WorkspaceResult] = (
-        collection_retrieval_service.get_relevant_workspaces(query, user_id)
+        collection_retrieval_service.get_relevant_workspaces(query, user_id, workspace_ids)
     )
     lists: List[ScoredTaskList] = (
         collection_retrieval_service.get_relevant_lists_for_workspaces(
@@ -69,9 +70,10 @@ def retrieve_workspaces(request: RetrievalWorkflowRequest):
 
     query = request.query.strip()
     user_id = request.user_id
+    workspace_ids = request.workspace_ids
 
     workspaces: List[WorkspaceResult] = (
-        workflow_retrieval_service.get_relevant_workspaces(query, user_id)
+        workflow_retrieval_service.get_relevant_workspaces(query, user_id, workspace_ids)
     )
     return {"workspaces": workspaces}
 

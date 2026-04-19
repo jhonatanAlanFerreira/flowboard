@@ -6,6 +6,7 @@ use App\Enums\AIJobsType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AIJob extends Model
 {
@@ -20,6 +21,7 @@ class AIJob extends Model
         'workspace_id',
         'type',
         'metadata',
+        'workspace_category_id'
     ];
 
     protected $casts = [
@@ -65,5 +67,10 @@ class AIJob extends Model
     public function scopeIsDataQuestion($query)
     {
         return $query->where('type', AIJobsType::USER_QUESTION);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'workspace_category_id');
     }
 }

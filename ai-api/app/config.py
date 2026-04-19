@@ -42,10 +42,10 @@ class CollectionPatternConfig(BaseModel):
         default=0.5, description="Threshold for token-overlap similarity between tags."
     )
     top_k_tags: int = Field(
-        default=3, description="Default top K diverse tags to extract per list."
+        default=5, description="Default top K diverse tags to extract per list."
     )
     min_score: float = Field(
-        default=0.0, description="Default minimum score to filter chunks."
+        default=0.3, description="Default minimum score to filter chunks."
     )
 
     # Feature extraction and scoring weights

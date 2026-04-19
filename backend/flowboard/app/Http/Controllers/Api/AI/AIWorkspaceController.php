@@ -29,7 +29,8 @@ class AIWorkspaceController extends Controller
             'user_id' => $request->user()->id,
             'status' => 'pending',
             'prompt' => $request->prompt,
-            'type' => $request->type
+            'type' => $request->type,
+            'workspace_category_id' => $request->workspace_category_id,
         ]);
 
         GenerateWorkspaceJob::dispatch($job);

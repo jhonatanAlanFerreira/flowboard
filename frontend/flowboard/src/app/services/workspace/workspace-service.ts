@@ -48,6 +48,7 @@ export class WorkspaceService {
   createByAI(data: {
     prompt: string;
     type: 'collection_workspace' | 'workflow_workspace';
+    workspace_category_id: number | null;
   }) {
     return this.http.post(
       `${this.config.apiBaseUrl}/api/me/ai/workspaces`,

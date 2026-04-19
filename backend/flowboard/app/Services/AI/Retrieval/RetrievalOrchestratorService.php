@@ -11,6 +11,7 @@ use App\DTOs\AI\WorkspaceListsDTO;
 use App\Enums\WorkspaceType;
 use App\Models\AIJob;
 use App\Models\User;
+use App\Models\Workspace;
 use App\Services\AI\Retrieval\CollectionWorkspace\Builders\RetrievalCollectionBuilder;
 use App\Services\AI\Retrieval\CollectionWorkspace\RetrievalCollectionService;
 use App\Services\AI\Retrieval\WorkflowWorkspace\Builders\RetrievalWorkflowBuilder;
@@ -29,10 +30,12 @@ class RetrievalOrchestratorService
 
     public function orchestrate(string $prompt, WorkspaceType $type, User $user, ?AIJob $aiJob = null): CollectionContextDTO|WorkflowContextDTO|null
     {
-        if ($type === WorkspaceType::COLLECTION) {
+        // If an AIJob is provided, we will filter the workspaces based on the workspace category of the job.
+        $workspaceIds = $aiJob ? Workspace::where('workspace_category_id', $aiJob->workspace_category_id)->pluck('id')->toArray() : null;
 
+        if ($type === WorkspaceType::COLLECTION) {
             /** @var TaskListDTO[] $workspaceLists */
-            $workspaceLists = $this->retrievalCollectionService->retrieveLists($prompt, $user->id);
+            $workspaceLists = $this->retrievalCollectionService->retrieveLists($prompt, $user->id, $workspaceIds);
             $workspaceLists = $this->retrievalCollectionBuilder->hydrateChunks($workspaceLists);
 
             /** @var ExtractPatternsResponseDTO $patterns */
@@ -44,7 +47,7 @@ class RetrievalOrchestratorService
         if ($type === WorkspaceType::WORKFLOW) {
 
             /** @var WorkspaceDTO[] $workspacesScores */
-            $workspacesScores = $this->retrievalWorkflowService->retrieveWorkspaces($prompt, $user->id);
+            $workspacesScores = $this->retrievalWorkflowService->retrieveWorkspaces($prompt, $user->id, $workspaceIds);
 
             /** @var WorkspaceListsDTO[] $workspaceLists */
             $workspaceLists = $this->retrievalWorkflowBuilder->getListsFromWorkspaces($workspacesScores);

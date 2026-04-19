@@ -12,13 +12,14 @@ import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { WorkspaceService } from '../../../../services/workspace/workspace-service';
 import { MessageService } from 'primeng/api';
-import { User, Workspace } from '../../../../models';
+import { Category, User, Workspace } from '../../../../models';
 import { LoginService } from '../../../../services/login/login-service';
 import { Subject, takeUntil } from 'rxjs';
+import { DropdownComponent } from '../../../../components/dropdown-component/dropdown-component';
 
 @Component({
   selector: 'app-create-workspace-with-ai-component',
-  imports: [Dialog, Button, ReactiveFormsModule],
+  imports: [Dialog, Button, ReactiveFormsModule, DropdownComponent],
   templateUrl: './create-workspace-with-ai-component.html',
   styleUrl: './create-workspace-with-ai-component.css',
 })
@@ -38,9 +39,15 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
   sourceWorkspaceNames: string[] = [];
   descriptionControl = new FormControl();
   workspaceType = new FormControl(false);
+  categoryControl = new FormControl<Category | null>({
+    id: null,
+    name: 'Uncategorized',
+  });
 
   workspaceDoneModal = signal(false);
+  categories = signal<Category[]>([]);
   visible = input(false);
+  loading = signal(false);
 
   constructor(
     private workspaceService: WorkspaceService,
@@ -71,6 +78,8 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
           this.workspaceService.startPolling(this.onPullingFailed, user.id);
         }
       });
+
+    this.listWorkflowCategories();
   }
 
   ngOnDestroy() {
@@ -87,6 +96,7 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
         type: this.workspaceType.value
           ? 'workflow_workspace'
           : 'collection_workspace',
+        workspace_category_id: this.categoryControl.value?.id ?? null,
       })
       .subscribe({
         next: () => {
@@ -154,6 +164,19 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
       closable: true,
     });
   };
+
+  listWorkflowCategories() {
+    this.loading.set(true);
+
+    this.workspaceService.listWorkflowCategories().subscribe((categories) => {
+      this.categories.set(categories);
+      this.loading.set(false);
+    });
+  }
+
+  get categoryOptions() {
+    return [{ id: null, name: 'Uncategorized' }, ...this.categories()];
+  }
 
   get header() {
     return `Your workspace "${this.generatedWorkspace?.name}" is ready`;

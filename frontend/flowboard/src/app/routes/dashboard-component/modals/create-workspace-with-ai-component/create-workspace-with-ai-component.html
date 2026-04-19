@@ -21,8 +21,17 @@
         autocomplete="off"
       ></textarea>
 
+      <app-dropdown-component
+        [formControl]="categoryControl"
+        [options]="categoryOptions"
+        placeholder="Select Workspace Category"
+        optionLabel="name"
+        filterPlaceholder="Search..."
+        class="flex-auto rounded-lg"
+      ></app-dropdown-component>
+
       <div
-        class="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 transition-all hover:border-zinc-700"
+        class="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-4 transition-all hover:border-zinc-700"
       >
         <div class="relative flex items-center">
           <input
@@ -65,7 +74,7 @@
         [class.hover:scale-105!]="descriptionControl.value"
         label="Generate Workspace"
         [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
-        [disabled]="!descriptionControl.value"
+        [disabled]="!descriptionControl.value || loading()"
         (click)="save()"
       />
     </div>
