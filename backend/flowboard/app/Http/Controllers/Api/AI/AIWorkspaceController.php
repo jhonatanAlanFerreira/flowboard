@@ -29,7 +29,8 @@ class AIWorkspaceController extends Controller
             'user_id' => $request->user()->id,
             'status' => 'pending',
             'prompt' => $request->prompt,
-            'type' => $request->type
+            'type' => $request->type,
+            'workspace_category_id' => $request->workspace_category_id,
         ]);
 
         GenerateWorkspaceJob::dispatch($job);
@@ -58,7 +59,7 @@ class AIWorkspaceController extends Controller
             return response()->json(['status' => 'failed']);
         }
 
-        $workspace = Workspace::find($job->workspace_id);
+        $workspace = Workspace::with('category')->find($job->workspace_id);
 
         $sourceWorkspaceNames = Workspace::whereIn('id', $job->metadata['source_workspace_ids'] ?? [])->pluck('name')->toArray();
 
@@ -104,7 +105,7 @@ class AIWorkspaceController extends Controller
         $job = AIJob::find($params->job_id);
         $userId = $job->user->id;
 
-        $workspace = $this->workspaceService->persistWorkspace($workspaceData, $userId);
+        $workspace = $this->workspaceService->persistWorkspace($workspaceData, $userId, $job->workspace_category_id);
 
         $sourceWorkspaceIds = $request->source_workspace_ids;
 

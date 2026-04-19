@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ConfigService } from '../../config.service';
-import { Workspace } from '../../models';
+import { Category, Workspace } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class WorkspaceService {
@@ -25,16 +25,30 @@ export class WorkspaceService {
     );
   }
 
-  create(data: { name: string }) {
+  listWorkflowCategories() {
+    return this.http.get<Category[]>(
+      `${this.config.apiBaseUrl}/api/me/categories`,
+    );
+  }
+
+  create(data: { name: string; workspace_category_id: number | null }) {
     return this.http.post<Workspace>(
       `${this.config.apiBaseUrl}/api/me/workspace`,
       data,
     );
   }
 
+  createWorkflowCategorie(category: Category) {
+    return this.http.post<Category>(
+      `${this.config.apiBaseUrl}/api/me/category`,
+      category,
+    );
+  }
+
   createByAI(data: {
     prompt: string;
     type: 'collection_workspace' | 'workflow_workspace';
+    workspace_category_id: number | null;
   }) {
     return this.http.post(
       `${this.config.apiBaseUrl}/api/me/ai/workspaces`,
@@ -42,7 +56,11 @@ export class WorkspaceService {
     );
   }
 
-  update(data: { name: string; id: number }) {
+  update(data: {
+    name: string;
+    id: number;
+    workspace_category_id: number | null;
+  }) {
     return this.http.put<Workspace>(
       `${this.config.apiBaseUrl}/api/me/workspace/${data.id}`,
       data,

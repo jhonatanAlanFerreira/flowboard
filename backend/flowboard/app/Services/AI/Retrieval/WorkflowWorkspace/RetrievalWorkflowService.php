@@ -11,15 +11,21 @@ class RetrievalWorkflowService
     /**
      * @return array<int, WorkspaceDTO>
      */
-    public function retrieveWorkspaces(string $query, int $userId): array
+    public function retrieveWorkspaces(string $query, int $userId, ?array $workspaceIds = null): array
     {
         try {
+            $payload = [
+                'query' => $query,
+                'user_id' => $userId,
+            ];
+
+            if ($workspaceIds) {
+                $payload['workspace_ids'] = $workspaceIds;
+            }
+
             $response = Http::ai()
                 ->timeout(10)
-                ->post("/retrieval/workflow/workspaces", [
-                    'query' => $query,
-                    'user_id' => $userId,
-                ]);
+                ->post("/retrieval/workflow/workspaces", $payload);
 
             if (!$response->successful()) {
                 Log::warning('RetrievalWorkflowService::retrieveLists failed', [

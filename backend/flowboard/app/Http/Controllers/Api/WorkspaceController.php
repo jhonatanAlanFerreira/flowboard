@@ -40,18 +40,22 @@ class WorkspaceController extends Controller
 
     public function userWorkspaces(Request $request)
     {
-        return $request->user()->workspaces;
+        return $request->user()
+            ->workspaces()
+            ->with('category')
+            ->get();
     }
 
     public function store(StoreWorkspaceRequest $request)
     {
         $workspace = Workspace::create([
-            'name' => $request->validated()['name'],
             'user_id' => $request->user()->id,
+            ...$request->validated()
         ]);
 
         event(new WorkspaceCreated($workspace));
 
+        $workspace->load('category');
         return $workspace;
     }
 
@@ -62,6 +66,7 @@ class WorkspaceController extends Controller
 
         event(new WorkspaceUpdated($workspace));
 
+        $workspace->load('category');
         return $workspace;
     }
 

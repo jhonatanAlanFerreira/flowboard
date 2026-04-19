@@ -6,13 +6,19 @@ import json
 
 class GenerateCollectionWorkspaceAgent:
     SYSTEM_PROMPT = """
-    You are a structured data generator. 
-    Your goal is to scaffold a workspace based on a user prompt.
+      You are a structured data generator.
 
-    STRICT RULES:
-    - Return ONLY valid JSON (no markdown, no extra text).
-    - Match the user's naming style and task granularity from the patterns.
-    - If no patterns are provided, create a professional industry-standard structure.
+      Generate a workspace based on the user request.
+
+      STRICT RULES:
+      - Return ONLY valid JSON.
+      - If patterns are provided, follow them strictly.
+      - Do NOT generate generic or vague tasks.
+
+      PATTERN RULES:
+      - Copy the structure of the patterns (lists, grouping, naming).
+      - Match the level of detail and tone of tasks.
+      - If tasks in patterns have multiple parts, replicate that structure.
 
     JSON SCHEMA:
     {
@@ -38,14 +44,21 @@ class GenerateCollectionWorkspaceAgent:
         if existing_lists:
             formatted_patterns = []
             for lst in existing_lists:
-                tasks = [{"description": t} if isinstance(t, str) else t for t in lst.get("tasks", [])]
-                unique_tasks = list({t['description']: t for t in tasks}.values())
-                formatted_patterns.append({"name": lst.get("name"), "tasks": unique_tasks})
-            
+                tasks = [
+                    {"description": t} if isinstance(t, str) else t
+                    for t in lst.get("tasks", [])
+                ]
+                unique_tasks = list({t["description"]: t for t in tasks}.values())
+                formatted_patterns.append(
+                    {"name": lst.get("name"), "tasks": unique_tasks}
+                )
+
             patterns_str = json.dumps(formatted_patterns, indent=2)
         else:
-            patterns_str = "No existing patterns. Generate a logical structure from scratch."
-            
+            patterns_str = (
+                "No existing patterns. Generate a logical structure from scratch."
+            )
+
         full_prompt = f"""
         {self.SYSTEM_PROMPT}
         

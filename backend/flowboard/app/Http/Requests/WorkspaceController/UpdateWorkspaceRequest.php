@@ -15,6 +15,7 @@ class UpdateWorkspaceRequest extends FormRequest
     {
         return [
             'name' => ['sometimes', 'string', 'max:255'],
+            'workspace_category_id' => ['nullable', 'integer']
         ];
     }
 }

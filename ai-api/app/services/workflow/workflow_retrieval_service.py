@@ -27,7 +27,7 @@ class WorkflowRetrievalService:
         self.class_name = "Chunk"
 
     def get_relevant_workspaces(
-        self, query: str, user_id: int, top_k: int = 5
+        self, query: str, user_id: int, workspace_ids: list[int] | None, top_k: int = 5
     ) -> List[WorkspaceResult]:
         user_id_string = str(user_id)
         query_norm = normalize_text(query)
@@ -40,14 +40,20 @@ class WorkflowRetrievalService:
             # Retrieval
             collection = self.client.collections.get(self.class_name)
 
+            query_filters = Filter.by_property("user_id").equal(
+                user_id_string
+            ) & Filter.by_property("type").equal("list")
+
+            if workspace_ids:
+                query_filters = query_filters & Filter.by_property(
+                    "workspace_id"
+                ).contains_any([str(wid) for wid in workspace_ids])
+
             response = collection.query.hybrid(
                 query=query_norm,
                 alpha=0.5,
                 limit=top_k,
-                filters=(
-                    Filter.by_property("user_id").equal(user_id_string)
-                    & Filter.by_property("type").equal("list")
-                ),
+                filters=query_filters,
                 return_properties=["workspace_id", "content", "chunk_id"],
                 return_metadata=MetadataQuery(score=True),
             )

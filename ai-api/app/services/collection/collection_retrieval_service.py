@@ -30,7 +30,11 @@ class CollectionRetrievalService:
         self.collection = self.client.collections.get(self.class_name)
 
     def get_relevant_workspaces(
-        self, query: str, user_id: int, top_k: int = None
+        self,
+        query: str,
+        user_id: int,
+        workspace_ids: list[int] | None,
+        top_k: int = None,
     ) -> List[WorkspaceResult]:
         user_id_string = str(user_id)
         query_norm = normalize_text(query)
@@ -41,18 +45,25 @@ class CollectionRetrievalService:
             span.set_attribute("input.user_id", user_id_string)
             span.set_attribute("input.top_k", top_k)
 
+            filters = (
+                wvc_query.Filter.by_property("user_id").equal(user_id_string) &
+                wvc_query.Filter.by_property("type").equal("task")
+            )
+
+            if workspace_ids:
+                workspace_filter = wvc_query.Filter.by_property("workspace_id").contains_any(
+                    [str(wid) for wid in workspace_ids]
+                )
+                filters = filters & workspace_filter
+
             response = self.collection.query.hybrid(
                 query=query_norm,
                 alpha=self.config.workspace_hybrid_alpha,
-                filters=(
-                    wvc_query.Filter.by_property("user_id").equal(user_id_string)
-                    & wvc_query.Filter.by_property("type").equal("task")
-                ),
+                filters=filters, 
                 return_properties=["workspace_id", "content", "chunk_id"],
                 return_metadata=wvc_query.MetadataQuery(score=True),
             )
 
-            # Group chunks by workspace
             workspace_chunks: Dict[str, List[WorkspaceResult]] = defaultdict(list)
 
             for obj in response.objects:

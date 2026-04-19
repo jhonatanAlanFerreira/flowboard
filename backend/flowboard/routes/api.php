@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AI\AIChunkController;
 use App\Http\Controllers\Api\AI\AIDataQuestionController;
 use App\Http\Controllers\Api\AI\AIRetrievalController;
 use App\Http\Controllers\Api\AI\AIWorkspaceController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\TasklistController;
@@ -30,11 +31,13 @@ Route::middleware('auth:api')->prefix('me')->group(function () {
     Route::get('workspace/{workspaceId}/tasklists', [WorkspaceController::class, "index"]);
     Route::get('workspaces', [WorkspaceController::class, "userWorkspaces"]);
     Route::get('workspace/{workspaceId}/export-json', [WorkspaceController::class, "exportWorkspace"]);
+    Route::get('categories', [CategoryController::class, "userCategories"]);
 
     Route::post('workspace', [WorkspaceController::class, "store"]);
     Route::post('workspace/import-json', [WorkspaceController::class, "storeFromJson"]);
     Route::post('tasklist', [TasklistController::class, "store"]);
     Route::post('task', [TaskController::class, "store"]);
+    Route::post('category', [CategoryController::class, "store"]);
 
     Route::put('workspace/{workspaceId}', [WorkspaceController::class, "update"]);
     Route::put('tasklist/{tasklistId}', [TasklistController::class, "update"]);

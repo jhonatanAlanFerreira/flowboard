@@ -1,6 +1,7 @@
 export interface Workspace {
   id: number;
   name: string;
+  category?: Category;
 }
 
 export interface Task {
@@ -26,4 +27,9 @@ export interface User {
   id: number;
   name: string;
   email: string;
+}
+
+export interface Category {
+  id: number | null;
+  name: string;
 }

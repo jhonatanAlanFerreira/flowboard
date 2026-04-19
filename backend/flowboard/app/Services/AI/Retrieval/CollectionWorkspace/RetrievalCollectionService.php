@@ -15,15 +15,21 @@ class RetrievalCollectionService
     /**
      * @return TaskListDTO[]
      */
-    public function retrieveLists(string $query, int $userId): array
+    public function retrieveLists(string $query, int $userId, ?array $workspaceIds = null): array
     {
         try {
+            $payload = [
+                'query' => $query,
+                'user_id' => $userId,
+            ];
+
+            if ($workspaceIds) {
+                $payload['workspace_ids'] = $workspaceIds;
+            }
+
             $response = Http::ai()
                 ->timeout(10)
-                ->post("/retrieval/collection/workspaces-lists", [
-                    'query' => $query,
-                    'user_id' => $userId,
-                ]);
+                ->post("/retrieval/collection/workspaces-lists", $payload);
 
             if (!$response->successful()) {
                 Log::warning('RetrievalCollectionService::retrieveLists failed', [
