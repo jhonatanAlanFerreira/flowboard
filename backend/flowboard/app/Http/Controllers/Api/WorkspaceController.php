@@ -18,7 +18,6 @@ use App\Http\Requests\WorkspaceController\{
     ReorderTasklistsRequest,
     StoreWorkspaceFromJsonRequest
 };
-use App\Models\AIJob;
 use App\Services\Workspace\WorkspaceService;
 
 class WorkspaceController extends Controller
@@ -105,7 +104,7 @@ class WorkspaceController extends Controller
     {
         $workspaceData = new WorkspaceData($request->validated());
 
-        $this->workspaceService->persistWorkspace($workspaceData, $request->user()->id);
+        $this->workspaceService->persistWorkspace($workspaceData, $request->user()->id, null);
 
         return response()->noContent();
     }
