@@ -33,6 +33,7 @@ export class DropdownComponent implements ControlValueAccessor {
   optionLabel = input.required<string>();
   placeholder = input.required<string>();
   addOption = input<boolean>(false);
+  addLabelFromSearch = input<boolean>(false);
   filterPlaceholder = input('Search...');
 
   value: any;
@@ -61,5 +62,13 @@ export class DropdownComponent implements ControlValueAccessor {
     this.value = value;
     this.onChange(value);
     this.onTouched();
+  }
+
+  addLabel(filterValue: string | null | undefined): string {
+    if (this.addLabelFromSearch() && filterValue) {
+      return `Add "${filterValue}"`;
+    }
+
+    return 'Add New';
   }
 }
