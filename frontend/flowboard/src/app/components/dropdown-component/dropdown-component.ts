@@ -28,11 +28,12 @@ import { SelectModule } from 'primeng/select';
   ],
 })
 export class DropdownComponent implements ControlValueAccessor {
-  @Output() onAdd = new EventEmitter();
+  @Output() onAdd = new EventEmitter<string | null>();
   options = input.required<any[]>();
   optionLabel = input.required<string>();
   placeholder = input.required<string>();
   addOption = input<boolean>(false);
+  filterPlaceholder = input('Search...');
 
   value: any;
   disabled = false;

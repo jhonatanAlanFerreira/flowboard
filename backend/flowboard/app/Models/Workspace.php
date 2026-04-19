@@ -15,6 +15,7 @@ class Workspace extends Model
     protected $fillable = [
         "name",
         "user_id",
+        "workspace_category_id"
     ];
 
     public function user(): BelongsTo
@@ -31,5 +32,10 @@ class Workspace extends Model
     {
         return $this->hasOne(RagChunk::class)
             ->where('type', 'workspace');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'workspace_category_id');
     }
 }

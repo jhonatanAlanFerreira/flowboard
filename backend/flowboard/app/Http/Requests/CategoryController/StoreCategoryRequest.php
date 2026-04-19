@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\WorkspaceController;
+namespace App\Http\Requests\CategoryController;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreWorkspaceRequest extends FormRequest
+class StoreCategoryRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,7 +15,6 @@ class StoreWorkspaceRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'workspace_category_id' => ['nullable', 'integer']
         ];
     }
 }

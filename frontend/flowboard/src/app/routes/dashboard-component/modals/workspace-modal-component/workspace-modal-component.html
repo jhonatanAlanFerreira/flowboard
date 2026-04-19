@@ -6,7 +6,7 @@
     [visible]="visible()"
     [style]="{ width: '25rem' }"
   >
-    <div class="mb-4 flex">
+    <div class="mb-4 flex flex-col gap-3">
       <input
         [formControl]="nameControl"
         placeholder="Workspace name"
@@ -15,8 +15,18 @@
         autocomplete="off"
         (keydown.enter)="save()"
       />
+      <app-dropdown-component
+        [formControl]="categoryControl"
+        [options]="categoryOptions"
+        placeholder="Select Workspace Category"
+        optionLabel="name"
+        [addOption]="true"
+        filterPlaceholder="Search or create new category..."
+        (onAdd)="onAddWorkspaceCategory($event)"
+        class="flex-auto rounded-lg"
+      ></app-dropdown-component>
     </div>
-    <div class="flex justify-end gap-4">
+    <div class="flex justify-end gap-4 pt-8">
       <p-button
         [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
         class="hover:scale-105!"
@@ -24,7 +34,7 @@
         (click)="onCancel.emit()"
       />
       <p-button
-        [disabled]="!nameControl.value"
+        [disabled]="!nameControl.value || loading()"
         [class.hover:scale-105!]="nameControl.value"
         [style]="{ backgroundColor: '#ffffff', color: '#18181c', border: 'none' }"
         label="Save"
