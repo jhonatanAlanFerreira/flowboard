@@ -6,6 +6,8 @@ import {
   input,
   signal,
   OnDestroy,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
@@ -23,7 +25,9 @@ import { DropdownComponent } from '../../../../components/dropdown-component/dro
   templateUrl: './create-workspace-with-ai-component.html',
   styleUrl: './create-workspace-with-ai-component.css',
 })
-export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
+export class CreateWorkspaceWithAiComponent
+  implements OnInit, OnChanges, OnDestroy
+{
   @Output() onCancel = new EventEmitter();
   @Output() onCreate = new EventEmitter();
   @Output() onSave = new EventEmitter();
@@ -80,6 +84,12 @@ export class CreateWorkspaceWithAiComponent implements OnInit, OnDestroy {
       });
 
     this.listWorkflowCategories();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['visible']) {
+      this.listWorkflowCategories();
+    }
   }
 
   ngOnDestroy() {
