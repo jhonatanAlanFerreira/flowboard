@@ -89,7 +89,14 @@ export class CreateWorkspaceWithAiComponent
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['visible']) {
       this.listWorkflowCategories();
+      this.reset();
     }
+  }
+
+  reset() {
+    this.descriptionControl.reset();
+    this.workspaceType.reset(false);
+    this.categoryControl.reset({ id: null, name: 'Uncategorized' });
   }
 
   ngOnDestroy() {
