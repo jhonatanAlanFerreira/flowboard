@@ -105,7 +105,7 @@ class AIWorkspaceController extends Controller
         $job = AIJob::find($params->job_id);
         $userId = $job->user->id;
 
-        $workspace = $this->workspaceService->persistWorkspace($workspaceData, $userId);
+        $workspace = $this->workspaceService->persistWorkspace($workspaceData, $userId, $job->workspace_category_id);
 
         $sourceWorkspaceIds = $request->source_workspace_ids;
 

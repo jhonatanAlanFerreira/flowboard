@@ -7,11 +7,12 @@ use App\Models\Workspace;
 
 class WorkspaceService
 {
-    public function persistWorkspace(WorkspaceData $data, int $userId): Workspace
+    public function persistWorkspace(WorkspaceData $data, int $userId, int|null $workspaceCategoryId): Workspace
     {
         $workspace = Workspace::create([
             'name' => $data->name,
             'user_id' => $userId,
+            'workspace_category_id' => $workspaceCategoryId,
         ]);
 
         foreach ($data->lists as $index => $listData) {
