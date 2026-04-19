@@ -101,6 +101,7 @@ services:
       WEAVIATE_URL: "${WEAVIATE_URL}"
       LOAD_LLM: 1
       GROQ_API_KEY: "${GROQ_API_KEY}"
+      REDIS_PORT: "${REDIS_PORT}"
     command: celery -A app.celery_app worker -Q tagging,collection_workspace,workflow_workspace,search_strategist,generate_answer,celery --loglevel=info --concurrency=1
 
   weaviate:

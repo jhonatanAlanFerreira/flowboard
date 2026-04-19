@@ -1,10 +1,28 @@
 import os
 import json
+import hashlib
+import redis
 from groq import Groq
 from app.observability.phoenix import get_tracer
 
 _groq_client = None
+_redis_client = None
 tracer = get_tracer()
+
+
+def get_redis_client():
+    """
+    Initializes a Redis client using environment variables.
+    """
+    global _redis_client
+    if _redis_client is None:
+        _redis_client = redis.Redis(
+            host="dev-redis",
+            port=int(os.getenv("REDIS_PORT", 6379)),
+            db=0,
+            decode_responses=True
+        )
+    return _redis_client
 
 
 def get_groq_client():
@@ -25,14 +43,30 @@ def get_groq_json_completion(
     temperature: float = 0.1,
 ) -> dict:
     """
-    Executes a Groq chat completion with the same interface as local_llm.
+    Executes a Groq chat completion with Redis caching and Phoenix tracing.
     """
     client = get_groq_client()
+    redis_client = get_redis_client()
 
     if client is None:
         raise RuntimeError("Groq client is not initialized in this container.")
 
+    # Create a unique cache key based on model, temp, and prompt
+    cache_input = f"{model_name}_{temperature}_{full_prompt}"
+    cache_key = f"llm_cache:{hashlib.md5(cache_input.encode()).hexdigest()}"
+
     with tracer.start_as_current_span("groq_json_completion") as span:
+        # Check Cache
+        try:
+            cached_res = redis_client.get(cache_key)
+            if cached_res:
+                span.set_attribute("llm.cache_hit", True)
+                return json.loads(cached_res)
+        except Exception as e:
+            print(f"Redis error: {e}")
+
+        # If not cached, proceed to LLM
+        span.set_attribute("llm.cache_hit", False)
         span.set_attribute("llm.model_name", model_name)
         span.set_attribute("llm.input.prompt", full_prompt)
         span.set_attribute("llm.config.temperature", temperature)
@@ -55,6 +89,13 @@ def get_groq_json_completion(
         # Extract and Parse Content
         raw_content = chat_completion.choices[0].message.content
         data = extract_json_payload(raw_content)
+
+        # Save to Cache (Expires in 24 hours)
+        if data:
+            try:
+                redis_client.setex(cache_key, 86400, json.dumps(data))
+            except Exception as e:
+                print(f"Failed to write to Redis: {e}")
 
         span.set_attribute("llm.output.json", str(data))
 
