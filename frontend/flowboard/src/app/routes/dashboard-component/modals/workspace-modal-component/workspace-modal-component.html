@@ -6,28 +6,44 @@
     [visible]="visible()"
     [style]="{ width: '25rem' }"
   >
-    <div class="mb-4 flex flex-col gap-3">
-      <input
-        [formControl]="nameControl"
-        placeholder="Workspace name"
-        pInputText
-        class="flex-auto rounded-lg p-2"
-        autocomplete="off"
-        (keydown.enter)="save()"
-      />
-      <app-dropdown-component
-        [formControl]="categoryControl"
-        [options]="categoryOptions"
-        placeholder="Select Workspace Category"
-        optionLabel="name"
-        [addOption]="true"
-        [addLabelFromSearch]="true"
-        filterPlaceholder="Search or create new category..."
-        (onAdd)="onAddWorkspaceCategory($event)"
-        class="flex-auto rounded-lg"
-      ></app-dropdown-component>
+    <div class="mb-4 flex flex-col gap-4">
+      <div class="w-full">
+        <label
+          for="workspaceName"
+          class="mb-1 block text-sm font-medium text-white"
+          >Workspace Name</label
+        >
+        <input
+          id="workspaceName"
+          [formControl]="nameControl"
+          placeholder="Workspace name"
+          pInputText
+          class="w-full flex-auto rounded-lg p-2"
+          autocomplete="off"
+          (keydown.enter)="save()"
+        />
+      </div>
+      <div class="w-full">
+        <label
+          for="workspaceCategory"
+          class="mb-1 block text-sm font-medium text-white"
+          >Workspace Category</label
+        >
+        <app-dropdown-component
+          id="workspaceCategory"
+          [formControl]="categoryControl"
+          [options]="categoryOptions"
+          placeholder="Select Workspace Category"
+          optionLabel="name"
+          [addOption]="true"
+          [addLabelFromSearch]="true"
+          filterPlaceholder="Search or create new category..."
+          (onAdd)="onAddWorkspaceCategory($event)"
+          class="flex-auto rounded-lg"
+        ></app-dropdown-component>
+      </div>
     </div>
-    <div class="flex justify-end gap-4 pt-8">
+    <div class="flex justify-end gap-4 pt-10">
       <p-button
         [style]="{ backgroundColor: '#18181c', color: '#ffffff', border: 'none' }"
         class="hover:scale-105!"

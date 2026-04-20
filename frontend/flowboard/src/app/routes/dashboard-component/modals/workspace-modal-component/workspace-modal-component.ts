@@ -110,7 +110,7 @@ export class WorkspaceModalComponent implements OnChanges, OnInit {
 
   get header() {
     return this.workspace()?.id
-      ? 'Update Workspace name'
+      ? 'Update Workspace'
       : 'Create new Workspace';
   }
 
