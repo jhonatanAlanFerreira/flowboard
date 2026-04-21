@@ -92,7 +92,7 @@ class AIDataQuestionController extends Controller
         $chunks = RagChunk::whereIn('id', $chunkIDs)->get();
         $taskIDs = $chunks->pluck('task_id')->filter()->unique()->toArray();
 
-        $tasks = Task::with('tasklist.workspace')
+        $tasks = Task::with('tasklist.workspace.category')
             ->whereIn('id', $taskIDs)
             ->get();
 
