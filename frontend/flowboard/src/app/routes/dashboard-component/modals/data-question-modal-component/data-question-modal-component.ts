@@ -119,6 +119,7 @@ export class DataQuestionModalComponent implements OnInit, OnDestroy {
   }
 
   onHide() {
+    this.isAnswerReadyModal.set(false);
     this.questionControl.reset();
     this.onCancel.emit();
   }
