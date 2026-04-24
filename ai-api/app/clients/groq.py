@@ -58,19 +58,21 @@ def get_groq_json_completion(
     with tracer.start_as_current_span("groq_json_completion") as span:
         # Check Cache
         try:
+            span.set_attribute("llm.model_name", model_name)
+            span.set_attribute("llm.input.prompt", full_prompt)
+            span.set_attribute("llm.config.temperature", temperature)
+            span.set_attribute("llm.config.max_tokens", max_tokens)
+            
             cached_res = redis_client.get(cache_key)
             if cached_res:
                 span.set_attribute("llm.cache_hit", True)
+                span.set_attribute("llm.output.json", cached_res)
                 return json.loads(cached_res)
         except Exception as e:
             print(f"Redis error: {e}")
 
         # If not cached, proceed to LLM
         span.set_attribute("llm.cache_hit", False)
-        span.set_attribute("llm.model_name", model_name)
-        span.set_attribute("llm.input.prompt", full_prompt)
-        span.set_attribute("llm.config.temperature", temperature)
-        span.set_attribute("llm.config.max_tokens", max_tokens)
 
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": full_prompt}],
