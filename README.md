@@ -7,6 +7,9 @@ It features an intuitive drag-and-drop interface for managing tasks and workflow
 By leveraging RAG (Retrieval-Augmented Generation), Flowboard can answer natural language questions about user data and tasks, providing context-aware suggestions and smart content generation. The entire system is fully containerized with Docker, ensuring a consistent, scalable, and easy-to-deploy development environment.
 
 ---
+## Video Demo
+
+[![▶ Watch Flowboard Demo](https://img.youtube.com/vi/ceiE2m6qCUk/maxresdefault.jpg)](https://www.youtube.com/watch?v=ceiE2m6qCUk)
 
 ---
 
